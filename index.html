@@ -315,6 +315,11 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
 .pod-cv { display:flex; justify-content:center; margin:6px 0; }
 .pod-cv canvas { filter:drop-shadow(0 0 8px #7cff6b); }
 .pod-row canvas { filter:drop-shadow(0 0 6px #7cff6b); }
+
+/* ---------- v1.1.1: version footer + update bar ---------- */
+.ver-foot { text-align:center; font-size:10px; color:#ffffff; opacity:.28; margin:-4px 0 6px; letter-spacing:.3px; flex:0 0 auto; }
+#updBar { position:absolute; left:50%; top:62px; transform:translateX(-50%); z-index:90; display:none; background:#1b3a22; border:2px solid var(--acc); color:var(--ink); padding:9px 16px; border-radius:999px; font:inherit; font-weight:800; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.5); white-space:nowrap; }
+#updBar.on { display:block; }
 </style>
 </head>
 <body>
@@ -345,6 +350,7 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
         </div>
       </div>
       <div id="habWrap"><div class="crate-label">CRITTER CRATE</div><canvas id="habitat"></canvas></div>
+      <div class="ver-foot" id="verFoot"></div>
     </section>
     <section class="screen" id="lab"></section>
     <section class="screen" id="collection"></section>
@@ -375,6 +381,7 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
   <div id="flash"></div>
   <div id="modal"><div class="box" id="modalBox"></div></div>
   <div id="toast"></div>
+  <button id="updBar"></button>
 </div>
 <script id="cs-vendor">
 /* QR Code Generator for JavaScript (c) 2009 Kazuhiko Arase, MIT license, http://www.d-project.com/ . 'QR Code' is a registered trademark of DENSO WAVE INCORPORATED. */
@@ -2321,6 +2328,7 @@ function renderHome(){
   $('collCount').textContent = S.collection.length + ' / ' + S.slots;
   var dc = CS.discoveryCounts(S); $('logCount').textContent = dc.total + ' of 30 parts';
   updateBadges(); updateKits(); setupHabitat();
+  $('verFoot').textContent = verLabel();
 }
 function renderNextUp(){
   var box = $('nextUp'), i = CS.nextChallenger(S);
@@ -3477,7 +3485,7 @@ function renderSettings(){
     '<div class="note" id="musStat" style="font-size:12px;margin-top:6px">' + musicStatus() + '</div>';
   if (S.testGranted || S.settings.test) h += '<div class="row" style="justify-content:space-between;margin-top:10px"><div><b>Testing mode</b><div class="note" style="font-size:12px">Timers ' + CS.CFG.testTimers.incubate + 's / ' + CS.CFG.testTimers.splice + 's / ' + CS.CFG.testTimers.heal + 's heal</div></div><button class="btn alt" id="sTest">' + (S.settings.test ? 'On' : 'Off') + '</button></div>';
   h += '</div><h3>Backup</h3><div class="card"><p class="note">Copy your save code somewhere safe, or paste one to restore.</p><div class="row" style="margin-top:10px"><button class="btn alt" id="sExp" style="flex:1">Export code</button><button class="btn alt" id="sImp" style="flex:1">Restore code</button></div></div>';
-  h += '<h3>Danger zone</h3><button class="btn warn block" id="sReset">Start over</button><p class="note" style="margin-top:14px;font-size:11px;text-align:center">Critter Stitcher &middot; Phase 3 preview &middot; save v' + S.v + '</p>';
+  h += '<h3>Danger zone</h3><button class="btn warn block" id="sReset">Start over</button><p class="note" style="margin-top:14px;font-size:11px;text-align:center">Critter Stitcher &middot; <span id="sVer">' + verLabel() + '</span> &middot; save v' + S.v + '</p>';
   el.innerHTML = h;
   $('sSound').onclick = function(){ S.settings.sound = !S.settings.sound; save(); renderSettings(); };
   $('sTrainer').onchange = function(){ S.trainer = this.value.trim().slice(0, 16); save(); toast('Trainer name saved.'); };
@@ -3583,7 +3591,52 @@ function boot(){
   }
   if (linkCode) { var lc = linkCode; linkCode = null; setTimeout(function(){ handleCode(lc); }, 250); }
 }
+
+/* ---------- version + updates (installed PWA) ---------- */
+// The page checks version.json (never cached) on launch and whenever the app comes back to the front. If a newer build
+// is live it reloads once, unless a battle or dialog is open; then it shows a tap-to-reload bar. A sessionStorage flag
+// makes sure it never auto-reloads twice for the same build, so a stale copy can't cause a reload loop.
+var APP_VERSION = '1.1.1', APP_BUILD = '9d82c15c2a';
+function verLabel(){ return 'v' + APP_VERSION + ' \u00b7 build ' + APP_BUILD; }
+var upd = { reg:null, hadController:false, pending:null, timer:null, go:null };
+function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('modal').classList.contains('on'); }
+function reloadForUpdate(v){ try { sessionStorage.setItem('cs.updReload', v.build); } catch (e) {} save(); location.reload(); }
+function showUpdateBar(v){
+  var b = $('updBar');
+  b.textContent = 'Updated to v' + v.version + ' \u2014 tap to reload'; b.classList.add('on');
+  b.onclick = function(){ b.classList.remove('on'); reloadForUpdate(v); };
+}
+function newVersionFound(v){
+  if (!v || !v.build || v.build === APP_BUILD) return;
+  if (upd.pending && upd.pending.build === v.build) return;
+  upd.pending = v;
+  var tried = null; try { tried = sessionStorage.getItem('cs.updReload'); } catch (e) {}
+  if (tried === v.build || !updateSafeNow()) { showUpdateBar(v); return; }
+  // give the new service worker a moment to take over (controllerchange), then reload once
+  upd.go = function(){ if (!upd.timer) return; clearTimeout(upd.timer); upd.timer = null; if (updateSafeNow()) reloadForUpdate(v); else showUpdateBar(v); };
+  upd.timer = setTimeout(upd.go, 2500);
+  if (upd.reg) upd.reg.update().catch(function(){});
+}
+function checkVersion(){
+  if (navigator.onLine === false) return;
+  fetch('version.json?t=' + Date.now(), { cache:'no-store' }).then(function(r){ return r.ok ? r.json() : null; }).then(newVersionFound).catch(function(){});
+}
+function setupUpdates(){
+  $('verFoot').textContent = verLabel();
+  try { if (sessionStorage.getItem('cs.updReload') === APP_BUILD) { sessionStorage.removeItem('cs.updReload'); setTimeout(function(){ toast('Updated to v' + APP_VERSION + '!', 2600); }, 700); } } catch (e) {}
+  if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol) || !document.querySelector('link[rel="manifest"]')) return;
+  upd.hadController = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', function(){
+    if (!upd.hadController) { upd.hadController = true; return; }   // first install: this page is already the current one
+    if (upd.timer) upd.go(); else checkVersion();
+  });
+  navigator.serviceWorker.register('sw.js', { updateViaCache:'none' }).then(function(reg){ upd.reg = reg; if (navigator.onLine !== false) reg.update().catch(function(){}); }).catch(function(){});
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) { if (upd.reg && navigator.onLine !== false) upd.reg.update().catch(function(){}); checkVersion(); } });
+  window.addEventListener('online', checkVersion);
+  checkVersion();
+}
 boot();
+setupUpdates();
 requestAnimationFrame(loop);
 // hooks for automated screenshots/tests
 window.CSApp = { get state(){ return S; }, set state(v){ S = v; }, save:save, go:go, boot:boot, startReveal:startReveal,
@@ -3594,6 +3647,5 @@ window.CSApp = { get state(){ return S; }, set state(v){ S = v; }, save:save, go
   setSplice:function(sel){ spliceSel = sel; labTab = 'splicer'; }, setLabTab:function(t){ labTab = t; }, openDetail:function(id){ detailId = id; go('detail'); } };
 })();
 </script>
-<script>if ("serviceWorker" in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register("sw.js");</script>
 </body>
 </html>
