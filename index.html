@@ -363,6 +363,39 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
 @keyframes blaBtn{50%{transform:scale(.8)}}
 @keyframes blaPop{0%{opacity:0;transform:translate(-50%,40px) scale(.4)}100%{opacity:1;transform:translate(-50%,0) scale(1)}}
 @keyframes blaFade{0%{opacity:0}35%{opacity:1}75%{opacity:1}100%{opacity:0}}
+
+/* ---------- v1.1.6 Multiplayer + Critter Crate slots ---------- */
+.big.mp svg{filter:drop-shadow(0 0 4px rgba(73,211,255,.5))}
+.mp-invite{border:2px solid var(--acc);margin-bottom:12px}
+.mp-h{font-weight:900;font-size:18px;margin-bottom:2px}
+.mp-sub{font-weight:800;font-size:13px;margin:4px 0}
+.mp-pick{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:6px}
+.mp-opt{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;width:78px;padding:6px 4px;border-radius:12px;background:var(--panel2);border:2px solid var(--line);color:var(--ink);font:inherit;font-size:11px;font-weight:800}
+.mp-opt canvas{width:44px;height:44px;image-rendering:pixelated}
+.mp-opt .mp-egg{font-size:30px;line-height:44px}
+.mp-opt .mp-nm{max-width:70px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mp-opt small{color:var(--dim);font-size:10px}
+.mp-opt.sel{border-color:var(--acc);background:#1d3324}
+.mp-opt:disabled{opacity:.45}
+.mp-battle{background:#ff6a2b;box-shadow:0 4px 0 #8a2d00;color:#fff;margin-top:4px}
+.mp-live{text-align:center;margin-top:14px;font-size:12px;opacity:.8}
+.crow.rival .rv-rec{color:var(--ink)}
+.card.duel{border:2px dashed #49d3ff;margin-top:10px}
+.crate-label #crateCount{margin-left:6px;color:#ffe9a8}
+.crate-label #crateCount.full{color:#ff9b6b}
+.crate-slots{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:2;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 8px;border-radius:8px;background:rgba(26,15,6,.78);max-width:calc(100% - 40px);text-align:center}
+.crate-slots:empty{display:none}
+.cs-row{display:flex;gap:6px}
+.cs-row i{width:16px;height:16px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:12px}
+.cs-on{background:#7cff6b;box-shadow:inset 0 -3px 0 #3c9a2f}
+.cs-on.over{background:#ff9b6b;box-shadow:inset 0 -3px 0 #a04a1f}
+.cs-free{background:transparent;border:2px dashed #b88a3a}
+.cs-lock{background:#2a1a0d;border:2px solid #553620}
+.cs-note{font-size:11px;font-weight:800;color:#e9d8b8}
+.cs-note.over{color:#ff9b6b}
+
+.more-btn .badge{display:none;min-width:22px;height:22px;border-radius:11px;background:#ff3d7f;color:#fff;font-size:12px;place-items:center;padding:0 6px}
+.more-btn .badge.show{display:inline-grid}
 </style>
 </head>
 <body>
@@ -386,12 +419,12 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
         <div class="grid-btns">
           <button class="big lab" data-go="lab"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#7cff6b" d="M3 0h3v1H5v2l3 4v2H1V7l3-4V1H3z"/><path fill="#1f3a2a" d="M2 7h5v1H2z"/></svg>Lab<span class="badge" id="labBadge">!</span></button>
           <button class="big battle" data-go="ladder"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#ff6a2b" d="M0 0h2l5 5 1-1 1 1-1 1 1 1-2 2-1-1-1 1-1-1 1-1L0 2z"/></svg>Battle<small id="ladderTxt"></small></button>
-          <button class="big" data-go="collection"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#b07cff" d="M0 1h4v3H0zM5 1h4v3H5zM0 5h4v3H0zM5 5h4v3H5z"/></svg>Collection<small id="collCount"></small><span class="badge" id="healBadge"></span></button>
+          <button class="big mp" data-go="multi" id="mpBtn"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#49d3ff" d="M1 1h3v3H1zM0 5h5v3H0z"/><path fill="#ffc93c" d="M5 1h3v3H5zM4 5h5v3H4z"/></svg>Multiplayer<small>Invite &middot; Battle &middot; Scan</small></button>
           <button class="big kit" id="kitBtn"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#8f6cf0" d="M0 2h9v7H0z"/><path fill="#4b2d94" d="M0 4h9v1H0z"/><path fill="#fff" d="M1 4h1v1H1zM3 4h1v1H3zM5 4h1v1H5zM7 4h1v1H7z"/><path fill="#7cff6b" d="M3 6h1v1H3zM5 6h1v1H5zM4 7h1v1H4z"/><path fill="#b9a2ff" d="M1 1h7v1H1z"/></svg>Stitch Kits<small id="kitTxt"></small><span class="badge" id="kitBadge"></span></button>
         </div>
-        <button class="more-btn" id="moreBtn" aria-label="More">&#9776; More<small>Critterpedia &middot; QR Codes &middot; Settings</small></button>
+        <button class="more-btn" id="moreBtn" aria-label="More">&#9776; More<small>Collection &middot; Critterpedia &middot; Settings</small><span class="badge" id="healBadge"></span></button>
       </div>
-      <div id="habWrap"><div class="crate-label">CRITTER CRATE</div><canvas id="habitat"></canvas></div>
+      <div id="habWrap"><div class="crate-label">CRITTER CRATE <span id="crateCount"></span></div><canvas id="habitat"></canvas><div class="crate-slots" id="crateSlots"></div></div>
       <div class="ver-foot" id="verFoot"></div>
     </section>
     <section class="screen" id="lab"></section>
@@ -401,7 +434,7 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
     <section class="screen" id="settings"></section>
     <section class="screen" id="ladder"></section>
     <section class="screen" id="pick"></section>
-    <section class="screen" id="qr"></section>
+    <section class="screen" id="multi"></section>
     <section class="screen" id="scan"></section>
     <section class="screen" id="share"></section>
     <section class="screen" id="battle">
@@ -970,7 +1003,7 @@ legs: [
 var CS = (function(){
 'use strict';
 var SAVE_KEY = 'critterStitcher.save';
-var SAVE_VERSION = 4;
+var SAVE_VERSION = 5;   // v5 (v1.1.6): Rivals list
 var SIZE = 48, PAD = 4, BUF = SIZE + PAD*2;   // sprite buffer is 56x56 so outlines/aura fit
 
 var FAMILIES = ['Emberthorn','Skulldust','Vilebloom','Retchedslime','Glimmerfin','Frostbite','Pylophong','Starfang','Zoraclaw','Shadowmaw'];
@@ -1053,7 +1086,19 @@ var CFG = {
   blendPart: { Common:8, Rare:20, Legendary:50 }, blendPure: 1.5, blendInstabilityCut: 0.15,
   copyPenaltyPerInstability: 0.05, copyPenaltyMax: 0.5, giftBlockAt: 4,
   podOdds: { Common:{ Legendary:0, Rare:0.05 }, Rare:{ Legendary:0, Rare:0.35 }, Legendary:{ Legendary:0.15, Rare:0.35 } },
-  startSlots: 6, maxSlots: 10, startIncubators: 1,
+  startSlots: 4, maxSlots: 6, startIncubators: 1,   // v1.1.6: crate capacity comes from CFG.crates (was 6 growing to 10 via ladder goals)
+  // Critter Crates (v1.1.6). A crate is the owned-critter capacity (the collection limit). Each crate has levels; a level
+  // adds slots when its unlock is met. Only the starter crate exists today. Future crates (bought or earned) can add more
+  // crates and more levels/rows: keep <= crateRowMax critters per row and set activeCrate in the save to switch.
+  crates: [
+    { id:'starter', name:'Critter Crate', rows:1, levels:[
+      { slots:4 },                                   // base
+      { slots:6, unlock:'boss1' }                    // +2 after the first boss
+    ] }
+  ],
+  crateUnlocks: { boss1: { challenger:'gristle' } },  // unlock id -> condition (beat this challenger)
+  crateRowMax: 6,
+  crateSpriteScale: { 1:1, 2:1, 3:1, 4:1, 5:0.9, 6:0.84 },   // hook: shrink crate sprites a little when a row holds 5-6
   timers:     { incubate: 180, splice: 300, heal: 120 },   // seconds (GDD start values)
   testTimers: { incubate: 10,  splice: 15,  heal: 5 },     // ?test=1
   kitFragments: [20, 30], kitRareChance: 0.08,              // Stitch Kit = 1 sample + 20-30 Fragments
@@ -1062,11 +1107,12 @@ var CFG = {
   maxRounds: 30, damageScale: 0.8, guardCut: 0.6, critChance: 0.06, luckyCrit: 0.12, critMult: 1.5,
   energyPerTurn: 20, energyOnHit: 10, energyOnGuard: 15, specialCost: 100, quickStartEnergy: 40,
   dodgeBase: 3, dodgePerSpeed: 0.3, dodgeCap: 15, thickHide: 0.08, secondWindAt: 0.25, secondWindHeal: 0.15,
-  slotWins: 25, slotParts: 20,
+  slotWins: 25, slotParts: 20,                       // (pre-v1.1.6 slot goals; kept for reference, no longer used)
   // Phase 3: QR codes, daily streak
   shareHost: 'https://walkerelectricme-bot.github.io/critter-stitcher/',   // live GitHub Pages URL (keep the trailing slash: links are shareHost + '#c=CODE')
   codeWinFragments: 15, codeLossFragments: 3,                 // battle codes pay Fragments only
-  codeDailyCapPerCode: 3, codeDailyCapTotal: 10,              // rewarded code battles per day
+  codeDailyCapPerCode: 3, codeDailyCapTotal: 10,              // rewarded code battles per day (Rival rematches count too)
+  rivalCap: 20,                                               // v1.1.6: saved Rivals; the oldest scan is recycled first
   referralKitCap: 10,                                         // thank-you kits per referrer, lifetime
   // 7-day login streak. Day 1 matches the old free daily kit; missing a day restarts at Day 1.
   streak: [ { kits:1 }, { kits:1, fragments:15 }, { kits:1, fragments:25 }, { kits:1, fragments:35 },
@@ -1326,12 +1372,12 @@ function displayName(c){ return c.nickname ? c.nickname : c.name; }
 function newSave(now){
   return {
     v: SAVE_VERSION, createdAt: now || Date.now(),
-    starter: null, fragments: 0, samples: {}, collection: [], slots: CFG.startSlots,
+    starter: null, fragments: 0, samples: {}, collection: [], slots: CFG.startSlots, crates: { starter: { level: 0 } }, activeCrate: 'starter',
     incubators: [null], discovered: {}, stats: { splices:0, incubations:0, mutations:0, sacrifices:0, battles:0 },
     settings: { sound: true, test: false, music: true, musicVol: 0.5, sfxVol: 0.8 }, tipsSeen: {},
     kits: 0, kitsOpened: 0, lastDaily: '', ladder: { beaten: {}, wins: 0, losses: 0 },
     deviceId: newDeviceId(), streak: { day: 0, last: '', best: 0 },
-    codes: { redeemed: {}, battles: {}, sent: [], thanked: {}, thankKits: 0 },
+    codes: { redeemed: {}, battles: {}, sent: [], thanked: {}, thankKits: 0 }, rivals: [],
     referral: null, activeBattle: null, trainer: '', podQueue: []
   };
 }
@@ -1371,8 +1417,14 @@ function migrate(s){
     if (s.stats) { s.stats.blended = s.stats.blended || 0; s.stats.stabilized = s.stats.stabilized || 0; }
     s.v = 4;
   }
+  if (s.v === 4) { // v1.1.6: Rivals (scanned battle codes you can rematch) + Critter Crate levels
+    s.rivals = Array.isArray(s.rivals) ? s.rivals : [];
+    s.activeCrate = 'starter'; s.crates = { starter: { level: (s.ladder && s.ladder.beaten && s.ladder.beaten.gristle) ? 1 : 0 } };
+    s.v = 5;
+  }
   var base = newSave(s.createdAt);
   for (var k in base) if (!(k in s)) s[k] = base[k];
+  if (s.ladder) updateSlots(s);   // v1.1.6: crate capacity (4, or 6 after the first boss); existing critters are never removed
   // v1.1.5: recompute derived stats on every load so balance changes (e.g. the +/-12% mutation cap) apply to old critters.
   // Stored data (bumps, mutations, rolls) is never changed.
   (s.collection || []).forEach(function(c){ if (c && c.parts) refresh(c); });
@@ -1477,7 +1529,7 @@ function skipTimer(s, idx, now){
 function hatch(s, idx, now, rng){
   var inc = s.incubators[idx]; if (!inc) return { ok:false, reason:'Empty.' };
   if (timeLeft(inc, now) > 0) return { ok:false, reason:'Not ready yet.' };
-  if (collectionFull(s)) return { ok:false, reason:'Your collection is full (' + s.slots + ' slots). Blend or gift a critter to make room.' };
+  if (collectionFull(s)) return { ok:false, full:true, reason:'Your Critter Crate is full (' + s.collection.length + '/' + s.slots + '). It waits safely in the incubator until there\u2019s room: blend or rehome a critter.' };
   var c = inc.kind === 'pod' ? hatchPod(inc.pod, rng || Math.random, now) : inc.critter;
   s.incubators[idx] = null; s.collection.push(c);
   SLOTS.forEach(function(sl){ discover(s, c.parts[sl], sl); });
@@ -1687,23 +1739,36 @@ function challengerCritter(i){
 }
 function ladderUnlocked(s, i){ return i === 0 || !!s.ladder.beaten[CHALLENGERS[i - 1].id]; }
 function nextChallenger(s){ for (var i = 0; i < CHALLENGERS.length; i++) if (!s.ladder.beaten[CHALLENGERS[i].id]) return i; return -1; }
-function computeSlots(s){
-  var n = CFG.startSlots;
-  if (s.ladder.beaten.gristle) n++;
-  if (s.ladder.beaten.stitch) n++;
-  if (s.ladder.wins >= CFG.slotWins) n++;
-  if (discoveryCounts(s).total >= CFG.slotParts) n++;
-  return Math.min(CFG.maxSlots, n);
+function crateDef(id){ return CFG.crates.find(function(c){ return c.id === id; }) || CFG.crates[0]; }
+function activeCrate(s){ return crateDef(s.activeCrate || 'starter'); }
+function unlockMet(s, u){ var c = CFG.crateUnlocks[u]; return !!(c && c.challenger && s.ladder && s.ladder.beaten[c.challenger]); }
+function unlockText(u){ var c = CFG.crateUnlocks[u], ch = c && CHALLENGERS.find(function(x){ return x.id === c.challenger; }); return ch ? 'Beat ' + ch.name + ' to unlock' : 'Locked'; }
+// highest level whose unlock is met; a stored level never goes down
+function crateLevel(s){
+  var cr = activeCrate(s), st = (s.crates && s.crates[cr.id]) || { level:0 }, lv = st.level || 0;
+  for (var i = lv + 1; i < cr.levels.length; i++) if (!cr.levels[i].unlock || unlockMet(s, cr.levels[i].unlock)) lv = i; else break;
+  return lv;
 }
-function slotGoals(s){
-  return [
-    { slot:7,  text:'Beat ' + CHALLENGERS[3].name + ' (tier 1 boss)', done:!!s.ladder.beaten.gristle },
-    { slot:8,  text:'Beat ' + CHALLENGERS[7].name + ' (tier 2 boss)', done:!!s.ladder.beaten.stitch },
-    { slot:9,  text:'Win ' + CFG.slotWins + ' battles (' + Math.min(s.ladder.wins, CFG.slotWins) + '/' + CFG.slotWins + ')', done:s.ladder.wins >= CFG.slotWins },
-    { slot:10, text:'Discover ' + CFG.slotParts + ' of 30 parts (' + discoveryCounts(s).total + '/30)', done:discoveryCounts(s).total >= CFG.slotParts }
-  ];
+function computeSlots(s){ return activeCrate(s).levels[crateLevel(s)].slots; }
+function crateInfo(s){
+  var cr = activeCrate(s), lv = crateLevel(s), slots = cr.levels[lv].slots, max = cr.levels[cr.levels.length - 1].slots, next = cr.levels[lv + 1];
+  return { id:cr.id, name:cr.name, level:lv, slots:slots, max:max, used:s.collection.length, over:Math.max(0, s.collection.length - slots),
+           next:next ? { slots:next.slots, add:next.slots - slots, unlock:next.unlock, text:unlockText(next.unlock) } : null,
+           scale:CFG.crateSpriteScale[Math.min(CFG.crateRowMax, Math.max(1, s.collection.length))] || 1 };
 }
-function updateSlots(s){ var before = s.slots, n = Math.max(s.slots, computeSlots(s)); s.slots = n; var out = []; for (var k = before + 1; k <= n; k++) out.push(k); return out; }
+function slotGoals(s){ // what the ladder shows under "Bigger crate"
+  var cr = activeCrate(s);
+  return cr.levels.slice(1).map(function(l, i){ return { slot:l.slots, add:l.slots - cr.levels[i].slots, text:unlockText(l.unlock).replace(' to unlock', ''), done:unlockMet(s, l.unlock) }; });
+}
+// Sync s.slots with the crate; returns the newly unlocked slot numbers (for the celebration). Never removes critters:
+// a save holding more than the cap keeps them all and just can't add more until it's under the cap.
+function updateSlots(s){
+  s.crates = s.crates || {}; var cr = activeCrate(s), lv = crateLevel(s);
+  var before = cr.levels[(s.crates[cr.id] && s.crates[cr.id].level) || 0].slots;
+  s.crates[cr.id] = { level:lv }; s.activeCrate = cr.id;
+  var n = cr.levels[lv].slots; s.slots = n;
+  var out = []; for (var k = before + 1; k <= n; k++) out.push(k); return out;
+}
 // Weighted DNA drop from the opponent's parts: parts you haven't found yet are 3x as likely.
 function pickDropSlot(s, ec, rng){
   var w = SLOTS.map(function(sl){ return s.discovered[partId(ec.parts[sl], sl)] ? 1 : 3; }), tot = w[0] + w[1] + w[2], x = rng() * tot;
@@ -1859,7 +1924,7 @@ return {
   UNIQUE_MOVES:UNIQUE_MOVES, TRAIT_NAMES:TRAIT_NAMES, makeSide:makeSide, pick:pick, rint:rint, openKit:openKit,
   moveById:moveById, createBattle:createBattle, canUse:canUse, usableMoves:usableMoves, dodgeChance:dodgeChance, calcDamage:calcDamage,
   expectedDamage:expectedDamage, aiChoose:aiChoose, playRound:playRound, simulate:simulate, challengerCritter:challengerCritter,
-  ladderUnlocked:ladderUnlocked, nextChallenger:nextChallenger, computeSlots:computeSlots, slotGoals:slotGoals, updateSlots:updateSlots,
+  ladderUnlocked:ladderUnlocked, nextChallenger:nextChallenger, computeSlots:computeSlots, crateInfo:crateInfo, crateLevel:crateLevel, slotGoals:slotGoals, updateSlots:updateSlots,
   pickDropSlot:pickDropSlot, finishLadderBattle:finishLadderBattle,
   composeGrid:composeGrid, stitchedGrid:stitchedGrid, renderRGBA:renderRGBA, renderPartRGBA:renderPartRGBA, paletteFor:paletteFor
 };
@@ -2084,10 +2149,25 @@ function makeSacrificeCode(s, critterId, rng, now){
   s.codes.sent = s.codes.sent.slice(0, 20);
   return { ok:true, code:code, url:codeUrl(code), id:d.id };
 }
+// Invites (v1.1.6). With a critter picked ("Send a critter with your invite") the code carries a clean DNA copy of it:
+// the sender KEEPS the critter, no Mutator buffs/Instability/glitches travel, and the usual pod re-roll applies at hatch.
+// Critters at Instability >= giftBlockAt are blocked, like Rehome. With nothing picked it carries the usual welcome pod:
+// a plain Common DNA pod of the sender's starter family. Same v2 code format, so older builds read it too.
+function inviteDna(s, c){
+  var fam = c ? null : (s.starter || (s.collection[0] && s.collection[0].parts.head) || 'Emberthorn');
+  var parts = c ? { head:c.parts.head, torso:c.parts.torso, legs:c.parts.legs } : { head:fam, torso:fam, legs:fam };
+  var rarity = c ? c.rarity : 'Common';
+  return { parts:parts, rarity:rarity, rolls:{}, bumps:{}, traits:[], mutations:[], uniqueMove:null, colors:{ shift:0, shiny:false },
+           nickname:c ? (c.nickname || '') : '', wins:0, lineage:{ generation:1 }, instability:0, glitches:[], branded:!!(c && c.branded && rarity === 'Legendary') };
+}
 function makeInviteCode(s, critterId, rng, now){
-  var c = CS.findCritter(s, critterId); if (!c) return { ok:false, reason:'Not found.' };
-  var code = critterCode('invite', s, c, rng, now);
-  return { ok:true, code:code, url:codeUrl(code) };
+  var c = null;
+  if (critterId) {
+    c = CS.findCritter(s, critterId); if (!c) return { ok:false, reason:'Not found.' };
+    if ((c.instability || 0) >= CFG.giftBlockAt) return { ok:false, blocked:true, reason:'Too unstable to send (Instability ' + c.instability + '). Stabilize it below ' + CFG.giftBlockAt + ' first, or send the starter pod.' };
+  } else if (!s.starter && !s.collection.length) return { ok:false, reason:'Pick your starter first.' };
+  var dna = inviteDna(s, c), code = critterCode('invite', s, dna, rng, now);
+  return { ok:true, code:code, url:codeUrl(code), referral:!!c, critterId:c ? c.id : null, dna:dna };
 }
 function makeThanksCode(s, rng, now){
   if (!s.referral) return { ok:false, reason:'Only players who joined with an invite have a thank-you code.' };
@@ -2176,7 +2256,35 @@ function finishCodeBattle(s, text, critterId, b, now){
   s.fragments += fr;
   s.stats.battles = (s.stats.battles || 0) + 1; s.stats.codeBattles = (s.stats.codeBattles || 0) + 1;
   if (c) { if (won) c.wins++; else c.losses++; CS.setAfterBattleHp(s, c, b.p.hp, now); }
-  return { ok:true, won:won, fragments:fr, capped:!paid && !d.own, own:d.own, rewardLeft:Math.max(0, d.rewardLeft - (d.own ? 0 : 1)) };
+  var rv = d.type === 'battle' && !d.own ? findRival(s, rivalKey(d)) : null;
+  if (rv) { if (won) rv.wins++; else rv.losses++; rv.lastBattle = rv.updatedAt = now || Date.now(); }
+  return { ok:true, rival:rv ? rv.key : null, won:won, fragments:fr, capped:!paid && !d.own, own:d.own, rewardLeft:Math.max(0, d.rewardLeft - (d.own ? 0 : 1)) };
+}
+
+/* ---------- Rivals (v1.1.6): every scanned battle code is kept so you can rematch it any time ---------- */
+// The same critter is recognised across new codes by: owner device + parts + rarity + its fixed stat rolls + shiny.
+function rivalKey(d){
+  var c = d.critter;
+  return [d.owner.toString(16), c.parts.head, c.parts.torso, c.parts.legs, c.rarity, STAT_KEYS.map(function(k){ return Math.round((c.rolls[k] || 0) * 1000); }).join('.'), c.colors && c.colors.shiny ? 1 : 0].join(':');
+}
+function findRival(s, key){ return (s.rivals || []).find(function(r){ return r.key === key; }) || null; }
+function addRival(s, text, now){
+  var d = typeof text === 'string' ? decodeCode(text) : text;
+  if (!d.ok || d.type !== 'battle' || !d.critter) return { ok:false, reason:'Only battle codes become rivals.' };
+  if (d.owner === s.deviceId) return { ok:false, own:true, reason:'That\u2019s your own critter.' };
+  now = now || Date.now(); s.rivals = s.rivals || [];
+  var key = rivalKey(d), c = d.critter, r = findRival(s, key), isNew = !r, recycled = null;
+  if (!r) {
+    if (s.rivals.length >= CFG.rivalCap) {   // recycle the oldest (least recently scanned) rival
+      var old = s.rivals.reduce(function(a, x){ return (x.updatedAt || 0) < (a.updatedAt || 0) ? x : a; });
+      s.rivals = s.rivals.filter(function(x){ return x !== old; }); recycled = old.key;
+    }
+    r = { key:key, wins:0, losses:0, firstSeen:now }; s.rivals.push(r);
+  }
+  r.code = d.code; r.trainer = d.trainer; r.name = CS.displayName(c); r.species = c.name; r.parts = c.parts; r.rarity = c.rarity;
+  r.colors = { shift:(c.colors && c.colors.shift) || 0, shiny:!!(c.colors && c.colors.shiny) }; r.stats = { hp:c.stats.hp, atk:c.stats.atk, def:c.stats.def, spd:c.stats.spd };
+  r.instability = c.instability || 0; r.scannedAt = now; r.updatedAt = now;
+  return { ok:true, rival:r, isNew:isNew, recycled:recycled };
 }
 
 /* ---------- saved in-progress battles ---------- */
@@ -2199,7 +2307,7 @@ function restoreBattle(s, snap){
 Object.assign(CS, {
   CODE_VERSION:CODE_VERSION, podOddsText:podOddsText, makePod:makePod, CODE_TYPES:TYPES, sha256:sha256, hmac:hmac, crc16:crc16, b64url:b64url, unb64url:unb64url, utf8:utf8,
   codeUrl:codeUrl, extractCode:extractCode, decodeCode:decodeCode, previewCode:previewCode,
-  makeBattleCode:makeBattleCode, makeSacrificeCode:makeSacrificeCode, makeInviteCode:makeInviteCode, makeThanksCode:makeThanksCode,
+  makeBattleCode:makeBattleCode, makeSacrificeCode:makeSacrificeCode, makeInviteCode:makeInviteCode, makeThanksCode:makeThanksCode, rivalKey:rivalKey, findRival:findRival, addRival:addRival,
   redeemSacrifice:redeemSacrifice, acceptInvite:acceptInvite, redeemThanks:redeemThanks, finishCodeBattle:finishCodeBattle, isNewPlayer:isNewPlayer,
   snapshotBattle:snapshotBattle, restoreBattle:restoreBattle
 });
@@ -2292,6 +2400,7 @@ function drawSpriteTo(ctx, critter, x, y, scale, t, opts){
 var current = 'home', history = [];
 function go(id, opts){
   opts = opts || {};
+  if (id === 'qr') id = 'multi';   // v1.1.6: the QR Codes page was retired; everything lives on Multiplayer now
   if (!opts.noHistory && current !== id) history.push(current);
   if (opts.replace) history = [];
   if (current === 'scan' && id !== 'scan') stopScan();
@@ -2316,7 +2425,7 @@ function render(id){
   else if (id === 'sheet') renderSheet();
   else if (id === 'ladder') renderLadder();
   else if (id === 'pick') renderPick();
-  else if (id === 'qr') renderQr();
+  else if (id === 'multi') renderMulti();
   else if (id === 'scan') renderScan();
   else if (id === 'share') renderShare();
 }
@@ -2368,7 +2477,7 @@ function renderHome(){
   else if (S.stats.splices === 0) { tip.style.display = 'flex'; tip.innerHTML = '&#129516; Splice your new DNA into a hybrid in the Lab!'; }
   else tip.style.display = 'none';
   renderNextUp(); renderStreakCard();
-  $('collCount').textContent = S.collection.length + ' / ' + S.slots;
+  renderCrateSlots();
   updateBadges(); updateKits(); setupHabitat();
   $('verFoot').textContent = verLabel();
 }
@@ -2406,6 +2515,7 @@ function setupHabitat(){
   hab.w = Math.round(cssW / 2); hab.h = Math.round(cssH / 2); cv.width = hab.w; cv.height = hab.h;
   var keep = {}; hab.critters.forEach(function(h){ keep[h.c.id] = h; });
   var n = S.collection.length;
+  hab.scale = CS.crateInfo(S).scale;   // CFG.crateSpriteScale: a little smaller when the row holds 5-6
   hab.critters = S.collection.map(function(c, i){
     if (keep[c.id]) { keep[c.id].c = c; keep[c.id].lane = i % 3; return keep[c.id]; }
     return { c:c, lane:i % 3, x:(i + 0.5) / Math.max(1, n) * (hab.w - BUF) + (Math.random() - 0.5) * 10, dir:Math.random() < 0.5 ? -1 : 1, speed:6 + Math.random() * 8, hop:0, emote:null, emoteT:0, pause:0, seed:Math.random() * 1000 };
@@ -2429,12 +2539,13 @@ function drawHabitat(t, dt){
   ctx.fillStyle = '#e0b85a'; ctx.fillRect(0, ground, w, 2);
   for (var gx = 0; gx < w; gx += 3) { ctx.fillStyle = gx % 2 ? '#d6a84a' : '#8f6526'; ctx.fillRect(gx, ground + 3 + (gx * 7) % 7, 2, 1); }
   if (!hab.critters.length) { ctx.fillStyle = '#e9d9a8'; ctx.font = '7px system-ui'; ctx.textAlign = 'center'; ctx.fillText('Your critters will roam here', w / 2, h / 2); return; }
+  var SC = hab.scale || 1, BS = Math.round(BUF * SC), PD = CS.PAD * SC;
   hab.critters.slice().sort(function(a, b){ return b.lane - a.lane; }).forEach(function(hc){
     var ko = CS.isFainted(hc.c);
     if (ko) hc.pause = 0.5;
     if (hc.pause > 0) hc.pause -= dt; else {
       hc.x += hc.dir * hc.speed * dt;
-      if (hc.x < -6) { hc.x = -6; hc.dir = 1; } if (hc.x > w - BUF + 6) { hc.x = w - BUF + 6; hc.dir = -1; }
+      if (hc.x < -6) { hc.x = -6; hc.dir = 1; } if (hc.x > w - BS + 6) { hc.x = w - BS + 6; hc.dir = -1; }
       if (Math.random() < dt * 0.15) hc.pause = 0.8 + Math.random() * 1.6;
       if (Math.random() < dt * 0.08) hc.dir *= -1;
     }
@@ -2442,13 +2553,13 @@ function drawHabitat(t, dt){
     var hy = Math.sin(hc.hop * Math.PI) * 16;
     var walkBob = hc.pause > 0 ? 0 : (Math.floor((t + hc.seed) / 180) % 2);
     var frame = Math.floor((t + hc.seed) / 500) % 2;
-    var y = ground - BUF + CS.PAD + 2 - hy - walkBob - hc.lane * 7;
-    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fillRect(Math.round(hc.x + 14), ground - 1 - hc.lane * 7, 28, 2);
-    hc.box = { x:Math.round(hc.x), y:Math.round(y) };   // last drawn spot, for tap hit-testing
+    var y = ground - BS + PD + 2 - hy - walkBob - hc.lane * 7;
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fillRect(Math.round(hc.x + 14 * SC), ground - 1 - hc.lane * 7, Math.round(28 * SC), 2);
+    hc.box = { x:Math.round(hc.x), y:Math.round(y), s:BS, pad:PD };   // last drawn spot + size, for tap hit-testing
     var sq = hc.squish > 0 ? Math.sin(hc.squish * Math.PI) * 0.22 : 0;
     if (hc.squish > 0) hc.squish = Math.max(0, hc.squish - dt * 4);
-    if (sq) { ctx.save(); var fx = Math.round(hc.x) + BUF / 2, fy = Math.round(y) + BUF - CS.PAD; ctx.translate(fx, fy); ctx.scale(1 + sq, 1 - sq); ctx.translate(-fx, -fy); }
-    drawSpriteTo(ctx, hc.c, Math.round(hc.x), Math.round(y), 1, t, { frame:ko ? 0 : frame, flip:hc.dir < 0, alpha:ko ? 0.55 : 1 });
+    if (sq) { ctx.save(); var fx = Math.round(hc.x) + BS / 2, fy = Math.round(y) + BS - PD; ctx.translate(fx, fy); ctx.scale(1 + sq, 1 - sq); ctx.translate(-fx, -fy); }
+    drawSpriteTo(ctx, hc.c, Math.round(hc.x), Math.round(y), SC, t, { frame:ko ? 0 : frame, flip:hc.dir < 0, alpha:ko ? 0.55 : 1 });
     if (sq) ctx.restore();
     if (ko) { ctx.fillStyle = '#e9d9a8'; ctx.font = 'bold 8px system-ui'; ctx.textAlign = 'center'; ctx.fillText('z', Math.round(hc.x + 40 + Math.sin(t / 400) * 2), Math.round(y + 4 - (t / 60) % 8)); }
     if (hc.emote && hc.emoteT > 0) {
@@ -2468,9 +2579,10 @@ function crateHit(x, y){
   var best = null, bd = 1e9;
   hab.critters.forEach(function(hc){
     var b = hc.box; if (!b) return;
-    var x0 = b.x + CS.PAD - CRATE_PAD, x1 = b.x + BUF - CS.PAD + CRATE_PAD, y0 = b.y + CS.PAD - CRATE_PAD, y1 = b.y + BUF - CS.PAD + CRATE_PAD;
+    var bs = b.s || BUF, pd = b.pad == null ? CS.PAD : b.pad;
+    var x0 = b.x + pd - CRATE_PAD, x1 = b.x + bs - pd + CRATE_PAD, y0 = b.y + pd - CRATE_PAD, y1 = b.y + bs - pd + CRATE_PAD;
     if (x < x0 || x > x1 || y < y0 || y > y1) return;
-    var d = Math.hypot(x - (b.x + BUF / 2), y - (b.y + BUF / 2)) - hc.lane * 0.5;   // nearest centre; front lane wins ties
+    var d = Math.hypot(x - (b.x + bs / 2), y - (b.y + bs / 2)) - hc.lane * 0.5;   // nearest centre; front lane wins ties
     if (d < bd) { bd = d; best = hc; }
   });
   return best;
@@ -2487,7 +2599,8 @@ $('habitat').addEventListener('pointerdown', function(e){
 function crateSpot(id){ // test hook: screen position of a critter in the crate
   var hc = hab.critters.filter(function(h){ return h.c.id === id; })[0]; if (!hc || !hc.box) return null;
   var r = hab.cv.getBoundingClientRect();
-  return { x:r.left + (hc.box.x + BUF / 2) / hab.w * r.width, y:r.top + (hc.box.y + BUF / 2) / hab.h * r.height, scale:r.width / hab.w };
+  var bs = hc.box.s || BUF;
+  return { x:r.left + (hc.box.x + bs / 2) / hab.w * r.width, y:r.top + (hc.box.y + bs / 2) / hab.h * r.height, scale:r.width / hab.w, size:bs };
 }
 
 /* ---------- lab ---------- */
@@ -2588,7 +2701,7 @@ function updateIncInfo(i){
 }
 function doHatch(i){
   var inc = S.incubators[i]; if (!inc) return;
-  if (CS.collectionFull(S)) { sfx.bad(); toast('Collection full (' + S.slots + '). Blend or gift a critter first.', 3000); return; }
+  if (CS.collectionFull(S)) { sfx.bad(); var nx = CS.crateInfo(S).next; toast('Your Critter Crate is full (' + S.collection.length + '/' + S.slots + '). It waits safely in the incubator: blend or rehome a critter' + (nx ? ', or ' + nx.text.replace(' to unlock', '') + ' for +' + nx.add + ' slots' : '') + '.', 4000); return; }
   var r = CS.hatch(S, i, Date.now(), Math.random);
   if (!r.ok) { toast(r.reason); return; }
   save(); notified[inc.start] = true;
@@ -2940,7 +3053,8 @@ function renderCollection(){
   var el = $('collection');
   el.innerHTML = '<h2>Collection <span class="note" style="font-size:14px">' + S.collection.length + ' / ' + S.slots + '</span></h2><div class="coll" id="collGrid"></div>';
   var g = el.querySelector('#collGrid');
-  for (var i = 0; i < CS.CFG.maxSlots; i++) {
+  var cinfo = CS.crateInfo(S);
+  for (var i = 0; i < Math.max(cinfo.max, S.collection.length); i++) {
     var c = S.collection[i];
     var d = document.createElement('button');
     if (c) {
@@ -2949,7 +3063,7 @@ function renderCollection(){
       d.insertAdjacentHTML('beforeend', '<div class="nm">' + esc(CS.displayName(c)) + '</div><div>' + rarTag(c.rarity) + ' ' + elTag(FAM[c.parts.torso].element) + '</div>' + (mutBadge(c) ? '<div class="mutline">' + mutBadge(c) + '</div>' : '') + hpBlock(c));
       (function(id){ d.onclick = function(){ detailId = id; sfx.tap(); go('detail'); }; })(c.id);
     } else if (i < S.slots) { d.className = 'slot empty'; d.innerHTML = 'Empty slot<br><span style="font-size:11px">Hatch one in the Lab</span>'; d.onclick = function(){ go('lab'); }; }
-    else { d.className = 'slot locked'; d.innerHTML = '&#128274; Slot ' + (i + 1) + '<br>Earn on the challenger ladder'; }
+    else { d.className = 'slot locked'; d.innerHTML = '&#128274; Slot ' + (i + 1) + '<br>' + esc(cinfo.next ? cinfo.next.text : 'Locked'); }
     g.appendChild(d);
   }
 }
@@ -3011,7 +3125,7 @@ function openGift(c){
       var r = CS.makeSacrificeCode(S, c.id, Math.random, Date.now());
       if (!r.ok) { toast(esc(r.reason)); return; }
       save(); closeModal(); flash('#ff4d6d', 0.4); sfx.bad();
-      history = ['home', 'qr']; openShare({ type:'sacrifice', code:r.code, url:r.url });
+      history = ['home', 'multi']; openShare({ type:'sacrifice', code:r.code, url:r.url });
     });
   };
 }
@@ -3030,7 +3144,8 @@ function renderLadder(){
   if (CS.updateSlots(S).length) save();
   var el = $('ladder'), goals = CS.slotGoals(S);
   var h = '<h2>Challenger Ladder</h2><div class="ladder-head"><div class="card"><b>' + S.ladder.wins + '</b><span class="note">wins</span></div><div class="card"><b>' + Object.keys(S.ladder.beaten).length + ' / 8</b><span class="note">beaten</span></div><div class="card"><b>' + S.slots + '</b><span class="note">crate slots</span></div></div>';
-  h += '<div class="card" style="margin-bottom:10px"><div style="font-weight:900;font-size:13px;margin-bottom:2px">Earn bigger crate space</div><div class="note" style="margin-bottom:4px">Each goal adds +1 crate slot (6 up to 10).</div>' + goals.map(function(g){ return '<div class="goal' + (g.done ? ' done' : '') + '">' + (g.done ? '\u2714' : '\u25CB') + ' +1 slot: ' + esc(g.text) + '</div>'; }).join('') + '</div>';
+  var cinf = CS.crateInfo(S);
+  h += '<div class="card" style="margin-bottom:10px"><div style="font-weight:900;font-size:13px;margin-bottom:2px">Bigger Critter Crate</div><div class="note" style="margin-bottom:4px">Your crate holds ' + cinf.slots + ' critters (max ' + cinf.max + ').</div>' + goals.map(function(g){ return '<div class="goal' + (g.done ? ' done' : '') + '">' + (g.done ? '\u2714' : '\uD83D\uDD12') + ' +' + g.add + ' slots: ' + esc(g.text) + '</div>'; }).join('') + '</div>';
   h += '<div id="chalList"></div>';
   el.innerHTML = h;
   var list = el.querySelector('#chalList'), lastTier = 0;
@@ -3215,7 +3330,7 @@ function endBattle(){
   h += '<div class="rw-row"><span style="font-size:20px">\uD83E\uDDEC</span><span>+' + r.fragments + ' Fragments' + (won ? '' : ' (consolation)') + '</span></div>';
   if (r.sample) h += '<div class="rw-row" id="rwSample"><span style="flex:1">' + (r.sample.rarity !== 'Common' ? '<span style="color:var(--' + r.sample.rarity.toLowerCase() + ')">' + r.sample.rarity + '</span> ' : '') + r.sample.family + ' ' + r.sample.slot + ' DNA ' + (r.sample.isNew ? '<span class="newtag">NEW PART</span>' : '') + '</span></div>';
   if (r.kits) h += '<div class="rw-row"><span style="font-size:20px">\uD83C\uDF81</span><span>+' + r.kits + ' Stitch Kit' + (r.kits > 1 ? 's' : '') + '</span></div>';
-  r.slots.forEach(function(n){ h += '<div class="rw-row" style="border:1px solid #ffc93c"><span style="font-size:20px">\uD83D\uDCE6</span><span>Crate slot ' + n + ' unlocked!</span></div>'; });
+  if (r.slots.length) { h += '<div class="rw-row" id="rwCrate" style="border:1px solid #ffc93c"><span style="font-size:20px">\uD83D\uDCE6</span><span>Critter Crate upgraded: +' + r.slots.length + ' slots (' + S.slots + ' total)!</span></div>'; setTimeout(function(){ toast('\uD83C\uDF89 Critter Crate upgraded! +' + r.slots.length + ' slots (' + S.slots + ' total)', 3500); sfx.rare(); }, 400); }
   if (c) h += '<div class="rw-row" style="display:block"><div>' + esc(CS.displayName(c)) + '</div>' + hpBlock(c) + '</div>';
   h += '<div class="row" style="margin-top:12px"><button class="btn alt" id="resHome" style="flex:1">Home</button><button class="btn" id="resLadder" style="flex:1">Ladder</button></div>';
   var box = $('resultsBox'); box.className = 'box' + (won ? '' : ' lose'); box.innerHTML = h;
@@ -3307,7 +3422,7 @@ function askTrainer(then){
 /* ---------- share ---------- */
 var shareCtx = null;
 function openShare(ctx){ shareCtx = ctx; go('share'); }
-function shareBattle(c){ askTrainer(function(){ var r = CS.makeBattleCode(S, c.id, Math.random, Date.now()); if (!r.ok) { toast(r.reason); return; } openShare({ type:'battle', code:r.code, url:r.url, critter:c }); }); }
+function shareBattle(c, duel){ askTrainer(function(){ var r = CS.makeBattleCode(S, c.id, Math.random, Date.now()); if (!r.ok) { toast(r.reason); return; } openShare({ type:'battle', code:r.code, url:r.url, critter:c, duel:!!duel }); }); }
 function shareInvite(c){ askTrainer(function(){ var r = CS.makeInviteCode(S, c.id, Math.random, Date.now()); if (!r.ok) { toast(r.reason); return; } openShare({ type:'invite', code:r.code, url:r.url, critter:c }); }); }
 function shareThanks(){ var r = CS.makeThanksCode(S, Math.random, Date.now()); if (!r.ok) { toast(r.reason); return; } save(); openShare({ type:'thanks', code:r.code, url:r.url }); }
 function renderShare(){
@@ -3315,13 +3430,18 @@ function renderShare(){
   var d = CS.decodeCode(x.code), notes = {
     battle:'Friends scan this to battle an AI copy of <b>' + (x.critter ? esc(CS.displayName(x.critter)) : 'your critter') + '</b>. They earn Fragments only (no DNA), up to ' + CS.CFG.codeDailyCapPerCode + ' rewarded fights per code per day. Your critter stays with you.' + (d.critter && d.critter.instability ? ' <b style="color:#ff8aa0">Instability ' + d.critter.instability + ': the copy fights with ' + Math.round(d.critter.copyPenalty * 100) + '% lower stats.</b>' : ''),
     invite:'For a brand-new player: a DNA pod of this critter grows in their incubator as a welcome gift (on top of their starter). ' + (d.critter ? esc(CS.podOddsText(d.critter)) : '') + ' When they show you their thank-you code, you get a Stitch Kit.',
-    sacrifice:'This critter has left your crate. Whoever scans this gets a DNA pod that grows in their incubator. ' + (d.critter ? esc(CS.podOddsText(d.critter)) : '') + ' Each phone can redeem it once. You can show it again from QR Codes &rsaquo; Sent gifts.',
+    sacrifice:'This critter has left your crate. Whoever scans this gets a DNA pod that grows in their incubator. ' + (d.critter ? esc(CS.podOddsText(d.critter)) : '') + ' Each phone can redeem it once. You can show it again from Multiplayer &rsaquo; Sent Rehome gifts.',
     thanks:'Show this to <b>' + esc((S.referral && S.referral.fromName) || 'the friend who invited you') + '</b>. They scan it to get a thank-you Stitch Kit.'
   };
   var h = '<h2>' + (x.type === 'battle' ? '\u2694\uFE0F ' : '') + TYPE_TITLE[x.type] + '</h2>' +
     (x.type === 'battle' ? '<p class="note" id="shSub" style="margin:-4px 2px 10px">Battle Code \u2014 a friend can battle this critter. It stays in your crate.</p>' : '') + '<div class="share-card">';
   if (d.critter) h += '<div class="share-who"><div id="shCv"></div><div><div style="font-weight:900;font-size:16px">' + esc(CS.displayName(d.critter)) + ' ' + rarTag(d.critter.rarity) + '</div><div class="note" style="font-size:12px">' + esc(d.critter.name) + ' &middot; by ' + esc(d.trainer) + '</div></div></div>';
   h += '<div class="qrbox"><canvas id="shQr"></canvas></div><div class="codetxt" id="shUrl">' + esc(x.url) + '</div></div>';
+  if (x.duel) {   // v1.1.6 Battle Player: both sides scan each other, then each battles on their own phone
+    var foe = mpDuel && CS.findRival(S, mpDuel.rival);
+    h += '<div class="card duel" id="shDuel"><b>' + (foe ? 'Let ' + esc(foe.trainer || 'your friend') + ' scan this, then battle!' : '1. Let your friend scan this. 2. Scan theirs.') + '</b><div class="row" style="margin-top:8px">' +
+      '<button class="btn alt" id="shScanBack" style="flex:1">\uD83D\uDCF7 Scan their code</button>' + (foe ? '<button class="btn" id="shFight" style="flex:1">\u2694\uFE0F Battle ' + esc(foe.name) + '</button>' : '') + '</div></div>';
+  }
   h += '<p class="note" style="margin:10px 2px">' + notes[x.type] + '</p>';
   h += '<div class="row"><button class="btn alt" id="shCopy" style="flex:1">Copy link</button>' + (navigator.share ? '<button class="btn alt" id="shShare" style="flex:1">Share&hellip;</button>' : '') + '<button class="btn alt" id="shSave" style="flex:1">Save PNG</button></div>';
   h += '<p class="note" style="font-size:11px;margin-top:10px;text-align:center">Code ' + d.id + ' &middot; works offline: scan in the game, or with a phone camera once the game is hosted.</p>';
@@ -3334,6 +3454,8 @@ function renderShare(){
     else fallbackCopy(x.url);
   };
   if ($('shShare')) $('shShare').onclick = function(){ navigator.share({ title:'Critter Stitcher', text:TYPE_TITLE[x.type] + ' from ' + (S.trainer || 'a friend'), url:x.url }).catch(function(){}); };
+  if ($('shScanBack')) $('shScanBack').onclick = function(){ sfx.tap(); go('scan'); };
+  if ($('shFight')) $('shFight').onclick = function(){ var foe = mpDuel && CS.findRival(S, mpDuel.rival); if (foe) { sfx.tap(); openPickCode(foe.code); } };
   $('shSave').onclick = function(){ var a = document.createElement('a'); a.download = 'critter-' + x.type + '-' + d.id + '.png'; a.href = $('shQr').toDataURL('image/png'); a.click(); };
 }
 function fallbackCopy(text){ modal('<div style="font-weight:900">Copy this link</div><textarea readonly id="cpTa">' + esc(text) + '</textarea><button class="btn block" id="cpOk">Done</button>'); $('cpTa').select(); $('cpOk').onclick = closeModal; }
@@ -3350,27 +3472,108 @@ function critterRows(id, onPick){
     box.appendChild(b);
   });
 }
-function renderQr(){
-  var el = $('qr');
-  var h = '<h2>QR Codes</h2><div class="row" style="margin-bottom:12px"><button class="btn" id="qrScan" style="flex:1">&#128247; Scan a code</button><button class="btn alt" id="qrPaste" style="flex:1">Paste a code</button></div>';
-  h += '<div class="card" style="margin-bottom:6px"><div class="row" style="align-items:center"><b style="white-space:nowrap">Trainer name</b><input id="qrTrainer" maxlength="16" placeholder="Your name" value="' + esc(S.trainer || '') + '" style="margin:0;flex:1"></div></div>';
-  h += '<h3>\u2694\uFE0F Battle Codes</h3><p class="note" style="margin-bottom:8px">Friends battle an AI copy of your critter. Your critter stays with you. (Also on any critter\u2019s page: \u2694\uFE0F Battle Code.)</p><div id="qrBattle"></div>';
-  h += '<h3>Invite a new player</h3><p class="note" style="margin-bottom:8px">They get a DNA pod of your critter that grows in their incubator (rarity re-rolls at hatch). Their thank-you code gets you a Stitch Kit.</p><div id="qrInvite"></div>';
+/* ---------- Multiplayer (v1.1.6): Invite a friend, Battle Player, Rivals, Scan a code (replaces the QR Codes page) ---------- */
+var mpInv = { sel:'', code:null, url:null, trainer:null }, mpDuel = null;
+function inviteFor(sel){
+  if (mpInv.code && mpInv.sel === sel && mpInv.trainer === (S.trainer || '')) return { ok:true, code:mpInv.code, url:mpInv.url };
+  var r = CS.makeInviteCode(S, sel || null, Math.random, Date.now()); if (!r.ok) return r;
+  mpInv = { sel:sel, code:r.code, url:r.url, trainer:S.trainer || '' }; return r;
+}
+// Web Share API when the phone has it; otherwise (or if sharing fails) copy the link
+function shareLink(url, text){
+  if (navigator.share) { navigator.share({ title:'Critter Stitcher', text:text, url:url }).catch(function(e){ if (!e || e.name !== 'AbortError') copyLink(url); }); return 'share'; }
+  copyLink(url); return 'copy';
+}
+function copyLink(url){
+  var done = function(){ toast('Link copied!'); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done, function(){ fallbackCopy(url); });
+  else fallbackCopy(url);
+}
+function renderMulti(){
+  var el = $('multi');
+  if (mpInv.sel && !CS.findCritter(S, mpInv.sel)) mpInv = { sel:'', code:null, url:null, trainer:null };
+  var h = '<h2>\uD83E\uDD1D Multiplayer</h2>';
+  h += '<div class="card" style="margin-bottom:10px"><div class="row" style="align-items:center"><b style="white-space:nowrap">Trainer name</b><input id="qrTrainer" maxlength="16" placeholder="Your name" value="' + esc(S.trainer || '') + '" style="margin:0;flex:1"></div></div>';
+  // Invite a friend (main action)
+  h += '<div class="card mp-invite" id="mpInvite"><div class="mp-h">\uD83C\uDF81 Invite a friend</div>' +
+    '<p class="note" style="margin:2px 0 8px">One link does both: it opens (and installs) Critter Stitcher and gives your friend a DNA pod to hatch after their starter. For brand-new players. They can also scan the QR with their phone camera.</p>' +
+    '<div class="mp-sub">Send a critter with your invite <span class="note">(optional)</span></div><div class="mp-pick" id="mpPick"></div>' +
+    '<div class="qrbox"><canvas id="mpQr"></canvas></div><div class="codetxt" id="mpUrl"></div><p class="note" id="mpWhat" style="margin:6px 2px"></p>' +
+    '<div class="row"><button class="btn" id="mpShare" style="flex:1">\uD83D\uDCE4 Share</button><button class="btn alt" id="mpCopy" style="flex:1">Copy link</button></div></div>';
+  // Battle Player
+  h += '<button class="btn block mp-battle" id="mpBattle">\u2694\uFE0F Battle Player</button><p class="note" style="font-size:12px;margin:4px 2px 10px">Show your critter\u2019s Battle Code, scan theirs, and you each battle on your own phone. Scanned critters are saved as Rivals.</p>';
+  // Scan any code
+  h += '<div class="row" style="margin-bottom:4px"><button class="btn alt" id="qrScan" style="flex:1">\uD83D\uDCF7 Scan a code</button><button class="btn alt" id="qrPaste" style="flex:1">Paste a code</button></div>' +
+    '<p class="note" style="font-size:12px;margin:0 2px 8px">Works with every Critter Stitcher code: Battle Codes, Rehome gifts, invites and thank-you codes (old codes too). Links that open the game work the same way.</p>';
+  // Rivals
+  var rv = (S.rivals || []).slice().sort(function(a, b){ return (b.updatedAt || 0) - (a.updatedAt || 0); });
+  h += '<h3>\uD83C\uDFC6 Rivals <span class="note" style="font-size:12px" id="mpRivCount">' + rv.length + ' / ' + CS.CFG.rivalCap + '</span></h3>' + (rv.length ? '<div id="mpRivals"></div><p class="note" style="font-size:11px;margin:2px">Rematch any rival with any of your critters. Battle Code rewards and daily limits apply. After ' + CS.CFG.rivalCap + ', the oldest scan is replaced.</p>' : '<p class="note" id="mpRivals0">No rivals yet. Scan a friend\u2019s Battle Code to add one.</p>');
   if (S.referral) h += '<h3>Thank-you code</h3><button class="btn alt block" id="qrThanks">Show my thank-you code for ' + esc(S.referral.fromName || 'my friend') + '</button>';
-  h += '<h3>Sent DNA gifts</h3>' + (S.codes.sent.length ? '<div id="qrSent"></div>' : '<p class="note">To gift a critter: Collection &rsaquo; critter &rsaquo; Rehome.</p>');
+  h += '<h3>Sent Rehome gifts</h3>' + (S.codes.sent.length ? '<div id="qrSent"></div>' : '<p class="note">To rehome a critter: Collection &rsaquo; critter &rsaquo; \uD83C\uDFE1 Rehome. Its code stays here so you can show it again.</p>');
+  h += '<p class="note mp-live" id="mpLive">\uD83D\uDCE1 Live battles \u2014 coming later.</p>';
   el.innerHTML = h;
+  $('qrTrainer').onchange = function(){ S.trainer = this.value.trim().slice(0, 16); save(); toast('Trainer name saved.'); renderMulti(); };
+  // invite picker: "Starter pod" (default) or one of your critters (a DNA copy; Instability 4+ blocked like Rehome)
+  var pk = $('mpPick'), opts = [{ id:'', label:'Starter pod', c:null }].concat(S.collection.map(function(c){ return { id:c.id, label:CS.displayName(c), c:c }; }));
+  opts.forEach(function(o){
+    var blocked = o.c && CS.instabilityOf(o.c) >= CS.CFG.giftBlockAt, b = document.createElement('button');
+    b.className = 'mp-opt' + (mpInv.sel === o.id ? ' sel' : ''); b.dataset.id = o.id; b.disabled = !!blocked;
+    if (o.c) b.appendChild(spriteCanvas(o.c)); else b.insertAdjacentHTML('beforeend', '<span class="mp-egg">\uD83E\uDDEC</span>');
+    b.insertAdjacentHTML('beforeend', '<span class="mp-nm">' + esc(o.label) + '</span>' + (blocked ? '<small>Too unstable</small>' : '<small>' + (o.c ? o.c.rarity : 'Common') + '</small>'));
+    b.onclick = function(){ sfx.tap(); mpInv.sel = o.id; mpInv.code = null; renderMulti(); };
+    pk.appendChild(b);
+  });
+  var inv = inviteFor(mpInv.sel);
+  if (inv.ok) {
+    var d = CS.decodeCode(inv.code), sel = mpInv.sel && CS.findCritter(S, mpInv.sel);
+    $('mpUrl').textContent = inv.url; drawQR($('mpQr'), inv.url, 5);
+    $('mpWhat').innerHTML = (sel ? 'Your friend gets a DNA pod of <b style="color:var(--ink)">' + esc(CS.displayName(sel)) + '</b>. You keep yours: it\u2019s a DNA copy, so Mutator buffs and Instability don\u2019t carry. ' : 'Your friend gets the usual welcome pod: a Common <b style="color:var(--ink)">' + esc(d.critter.parts.head) + '</b> DNA pod. ') + esc(CS.podOddsText(d.critter)) + ' Their thank-you code gets you a Stitch Kit.';
+    $('mpShare').onclick = function(){ sfx.tap(); shareLink(inv.url, (S.trainer || 'A friend') + ' invited you to Critter Stitcher!'); };
+    $('mpCopy').onclick = function(){ copyLink(inv.url); };
+  } else { $('mpWhat').textContent = inv.reason; $('mpShare').disabled = true; $('mpCopy').disabled = true; }
+  $('mpBattle').onclick = function(){ sfx.tap(); openBattlePlayer(); };
   $('qrScan').onclick = function(){ sfx.tap(); go('scan'); };
   $('qrPaste').onclick = openPaste;
-  $('qrTrainer').onchange = function(){ S.trainer = this.value.trim().slice(0, 16); save(); toast('Trainer name saved.'); };
-  critterRows('qrBattle', shareBattle); critterRows('qrInvite', shareInvite);
+  if ($('mpRivals')) rv.forEach(function(r){
+    var b = document.createElement('button'); b.className = 'crow rival'; b.dataset.key = r.key;
+    b.appendChild(spriteCanvas({ parts:r.parts, rarity:r.rarity, colors:r.colors || { shift:0, shiny:false } }));
+    b.insertAdjacentHTML('beforeend', '<div style="flex:1;text-align:left"><div style="font-weight:900">' + esc(r.name) + ' ' + rarTag(r.rarity) + '</div><div class="note" style="font-size:11px">' + esc(r.species) + ' &middot; ' + esc(r.trainer || 'a friend') + '</div><div class="note" style="font-size:11px">HP ' + r.stats.hp + ' &middot; ATK ' + r.stats.atk + ' &middot; DEF ' + r.stats.def + ' &middot; SPD ' + r.stats.spd + '</div><div class="note" style="font-size:11px">Scanned ' + new Date(r.scannedAt).toLocaleDateString() + ' &middot; <b class="rv-rec">' + r.wins + 'W &ndash; ' + r.losses + 'L</b></div></div><span class="go">Rematch &rsaquo;</span>');
+    b.onclick = function(){ sfx.tap(); if (!S.collection.length) { toast('Grow a critter in the Lab first!'); return; } openPickCode(r.code); };
+    $('mpRivals').appendChild(b);
+  });
   if ($('qrThanks')) $('qrThanks').onclick = shareThanks;
   if ($('qrSent')) S.codes.sent.forEach(function(g){
     var b = document.createElement('button'); b.className = 'crow';
     b.appendChild(spriteCanvas({ parts:g.parts, rarity:g.rarity, colors:{ shift:0, shiny:false } }));
-    b.insertAdjacentHTML('beforeend', '<div style="flex:1;text-align:left"><div style="font-weight:900">' + esc(g.name) + '</div><div class="note" style="font-size:11px">Gifted ' + new Date(g.at).toLocaleDateString() + ' &middot; code ' + g.id + '</div></div><span class="go">QR &rsaquo;</span>');
+    b.insertAdjacentHTML('beforeend', '<div style="flex:1;text-align:left"><div style="font-weight:900">' + esc(g.name) + '</div><div class="note" style="font-size:11px">Rehomed ' + new Date(g.at).toLocaleDateString() + ' &middot; code ' + g.id + '</div></div><span class="go">QR &rsaquo;</span>');
     b.onclick = function(){ openShare({ type:'sacrifice', code:g.code, url:CS.codeUrl(g.code) }); };
     $('qrSent').appendChild(b);
   });
+}
+// Battle Player: pick your critter -> its Battle Code (existing format and rules, incl. the Instability copy penalty)
+function openBattlePlayer(rivalKey){
+  if (!S.collection.length) { toast('Grow a critter in the Lab first!'); return; }
+  if (rivalKey) mpDuel = { rival:rivalKey };
+  var h = '<div style="font-weight:900;font-size:18px">\u2694\uFE0F Battle Player</div><p class="note" style="margin:4px 0 8px">' + (rivalKey ? 'Pick your critter to show back. Your friend scans it, and you each battle on your own phone.' : 'Pick the critter to show. Your friend scans its Battle Code, then shows you theirs.') + '</p><div id="bpList" class="bp-list"></div><button class="btn alt block" id="bpNo" style="margin-top:8px">Cancel</button>';
+  modal(h);
+  S.collection.forEach(function(c){
+    var b = document.createElement('button'); b.className = 'crow'; b.dataset.id = c.id; b.appendChild(spriteCanvas(c));
+    b.insertAdjacentHTML('beforeend', '<div style="flex:1;text-align:left"><div style="font-weight:900">' + esc(CS.displayName(c)) + ' ' + rarTag(c.rarity) + mutBadge(c) + '</div><div class="note" style="font-size:11px">HP ' + c.stats.hp + ' &middot; ATK ' + c.stats.atk + ' &middot; DEF ' + c.stats.def + ' &middot; SPD ' + c.stats.spd + '</div></div><span class="go">QR &rsaquo;</span>');
+    b.onclick = function(){ closeModal(); shareBattle(c, true); };
+    $('bpList').appendChild(b);
+  });
+  $('bpNo').onclick = closeModal;
+}
+// Critter Crate slots under the home crate (v1.1.6)
+function renderCrateSlots(){
+  var ci = CS.crateInfo(S), box = $('crateSlots'), cnt = $('crateCount'); if (!box || !cnt) return;
+  cnt.textContent = ci.used + '/' + ci.slots; cnt.className = ci.used >= ci.slots ? 'full' : '';
+  var h = '<div class="cs-row">';
+  for (var i = 0; i < Math.max(ci.max, ci.used); i++) h += i < ci.used ? '<i class="cs-on' + (i >= ci.slots ? ' over' : '') + '"></i>' : i < ci.slots ? '<i class="cs-free"></i>' : '<i class="cs-lock" title="' + esc(ci.next ? ci.next.text : 'Locked') + '">\uD83D\uDD12</i>';
+  h += '</div>';
+  if (ci.over) h += '<div class="cs-note over">Over the cap by ' + ci.over + '. Everyone stays; blend or rehome to add more.</div>';
+  else if (ci.next) h += '<div class="cs-note" id="crateLockTxt">\uD83D\uDD12 ' + esc(ci.next.text) + ' +' + ci.next.add + ' slots</div>';
+  box.innerHTML = h;
 }
 function openPaste(){
   modal('<div style="font-weight:900;font-size:18px">Paste a code</div><p class="note" style="margin:6px 0">Paste a code or a link a friend sent you.</p><textarea id="pcTa" placeholder="https://&hellip;#c=&hellip;"></textarea><div class="row"><button class="btn alt" id="pcNo" style="flex:1">Cancel</button><button class="btn" id="pcOk" style="flex:1">Use code</button></div>');
@@ -3466,7 +3669,10 @@ function handleCode(text){
     modal('<div style="font-weight:900;font-size:18px">Code not accepted</div><p class="note" style="margin:8px 0 12px">' + esc(d.reason) + '</p><button class="btn block" id="cdOk">OK</button>');
     $('cdOk').onclick = closeModal; return d;
   }
+  var rivalAdd = null;   // v1.1.6: every scanned (not own) battle code is saved as a Rival
+  if (d.type === 'battle' && !d.own) { rivalAdd = CS.addRival(S, d, Date.now()); if (rivalAdd.ok) { save(); mpDuel = { rival:rivalAdd.rival.key }; } }
   var h = '<div class="code-kind ' + d.type + '">' + TYPE_TITLE[d.type] + '</div>';
+  if (rivalAdd && rivalAdd.ok) h += '<div class="tip" id="cdRival" style="margin:6px 0 0;font-size:12px">\uD83C\uDFC6 ' + (rivalAdd.isNew ? 'Added to your Rivals (' + S.rivals.length + '/' + CS.CFG.rivalCap + ')' : 'Rival updated') + '. Rematch it any time from Multiplayer.</div>';
   if (d.critter) {
     var ec = d.critter;
     h += '<div class="share-who" style="margin:8px 0"><div id="cdCv"></div><div><div style="font-weight:900;font-size:17px">' + esc(CS.displayName(ec)) + ' ' + rarTag(ec.rarity) + '</div><div class="note" style="font-size:12px">' + esc(ec.name) + ' &middot; from <b style="color:var(--ink)">' + esc(d.trainer) + '</b></div><div style="margin-top:3px">' + SLOTS.map(function(sl){ return elTag(FAM[ec.parts[sl]].element); }).join(' ') + '</div><div class="note" style="font-size:11px">HP ' + ec.stats.hp + ' &middot; ATK ' + ec.stats.atk + ' &middot; DEF ' + ec.stats.def + ' &middot; SPD ' + ec.stats.spd + (ec.mutations.length ? ' &middot; ' + CS.mutationTag(ec.mutations.length) : '') + '</div>' + (ec.instability ? '<div style="margin-top:2px">' + mutBadge(ec) + (d.type === 'battle' || d.type === 'invite' ? ' <span class="note" style="font-size:11px">copy &minus;' + Math.round(ec.copyPenalty * 100) + '% stats</span>' : '') + '</div>' : '') + '</div></div>';
@@ -3475,7 +3681,9 @@ function handleCode(text){
   var go2 = { battle:'Battle!', sacrifice:'Redeem DNA pod', invite:d.canUse ? 'Accept gift' : 'Practice battle', thanks:'Collect kit' }[d.type];
   var can = d.type === 'invite' ? (d.canUse || (!d.own && S.collection.length > 0)) : d.canUse;
   h += '<div class="row"><button class="btn alt" id="cdNo" style="flex:1">Close</button><button class="btn" id="cdGo" style="flex:1"' + (can ? '' : ' disabled') + '>' + go2 + '</button></div>';
+  if (rivalAdd && rivalAdd.ok && S.collection.length) h += '<button class="btn alt block" id="cdBack" style="margin-top:8px">\u2694\uFE0F Show my code back</button>';
   modal(h);
+  if ($('cdBack')) $('cdBack').onclick = function(){ closeModal(); openBattlePlayer(rivalAdd.rival.key); };
   if (d.critter) $('cdCv').appendChild(spriteCanvas(d.critter));
   $('cdNo').onclick = closeModal;
   $('cdGo').onclick = function(){
@@ -3494,13 +3702,13 @@ function handleCode(text){
         '<p class="note" style="text-align:center;margin:6px 0">' + esc(r.from) + ' sent you a DNA pod of <b style="color:var(--ink)">' + esc(CS.displayName(d.critter)) + '</b>. ' + where + '</p>' +
         '<p class="note" style="text-align:center;font-size:12px;margin-bottom:10px">' + esc(CS.podOddsText(d.critter)) + '</p>';
       if (d.type === 'invite') {
-        h2 += (S.starter ? '' : '<p class="note" style="text-align:center;font-size:12px">Now pick your starter too!</p>') + '<p class="note" style="text-align:center;font-size:12px;margin-bottom:10px">Say thanks: show ' + esc(r.from) + ' your thank-you code (QR Codes screen) and they get a Stitch Kit.</p><div class="row"><button class="btn alt" id="ivTy" style="flex:1">Thank-you code</button><button class="btn" id="rdOk" style="flex:1">Continue</button></div>';
+        h2 += (S.starter ? '' : '<p class="note" style="text-align:center;font-size:12px">Now pick your starter too!</p>') + '<p class="note" style="text-align:center;font-size:12px;margin-bottom:10px">Say thanks: show ' + esc(r.from) + ' your thank-you code (Multiplayer screen) and they get a Stitch Kit.</p><div class="row"><button class="btn alt" id="ivTy" style="flex:1">Thank-you code</button><button class="btn" id="rdOk" style="flex:1">Continue</button></div>';
       } else h2 += '<div class="row"><button class="btn alt" id="rdOk" style="flex:1">Nice!</button><button class="btn" id="rdLab" style="flex:1">See incubator</button></div>';
       modal(h2);
       $('rdCv').appendChild(spriteCanvas(podSprite(r.pod), { silhouette:true }));
       $('rdOk').onclick = function(){ closeModal(); render(current); };
       if ($('rdLab')) $('rdLab').onclick = function(){ closeModal(); labTab = 'incubator'; go('lab'); };
-      if ($('ivTy')) $('ivTy').onclick = function(){ closeModal(); if (!S.starter) { toast('Pick your starter first, then find it under QR Codes.'); return; } shareThanks(); };
+      if ($('ivTy')) $('ivTy').onclick = function(){ closeModal(); if (!S.starter) { toast('Pick your starter first, then find it under Multiplayer.'); return; } shareThanks(); };
       return;
     }
     if (d.type === 'thanks') {
@@ -3632,16 +3840,16 @@ function renderSettings(){
   };
 }
 $('settingsBtn').onclick = function(){ sfx.tap(); go('settings'); };
-// Home "More" menu: Critterpedia, QR Codes, Settings
+// Home "More" menu: Collection, Critterpedia, Settings (v1.1.6: QR Codes retired -> Multiplayer; Collection moved here from the home grid)
 function openMore(){
   var dc = CS.discoveryCounts(S);
   modal('<div class="menu-sheet"><div class="menu-title">More</div>' +
+    '<button class="menu-item" id="menuColl"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#b07cff" d="M0 1h4v3H0zM5 1h4v3H5zM0 5h4v3H0zM5 5h4v3H5z"/></svg><span><b>Collection</b><small>' + S.collection.length + ' / ' + S.slots + ' critters' + (CS.crateInfo(S).over ? ' (over the cap)' : '') + '</small></span><i>&rsaquo;</i></button>' +
     '<button class="menu-item" id="menuPedia"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#49d3ff" d="M1 0h7v9H1zM2 1v7h5V1z"/><path fill="#49d3ff" d="M3 2h3v1H3zM3 4h3v1H3zM3 6h2v1H3z"/></svg><span><b>Critterpedia</b><small>' + dc.total + ' of 30 parts discovered</small></span><i>&rsaquo;</i></button>' +
-    '<button class="menu-item" id="menuQr"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#f1eefc" d="M0 0h4v4H0zM1 1v2h2V1zM5 0h4v4H5zM6 1v2h2V1zM0 5h4v4H0zM1 6v2h2V6zM5 5h1v1H5zM7 5h2v1H7zM5 7h2v2H5zM8 7h1v2H8z"/></svg><span><b>QR Codes</b><small>Battle &middot; Gift &middot; Invite &middot; Scan</small></span><i>&rsaquo;</i></button>' +
     '<button class="menu-item" id="menuSettings"><span class="gear">&#9881;</span><span><b>Settings</b><small>Trainer name &middot; sound &middot; backup</small></span><i>&rsaquo;</i></button>' +
     '<button class="btn alt block" id="menuClose" style="margin-top:6px">Close</button></div>');
   var to = function(id){ return function(){ sfx.tap(); closeModal(); go(id); }; };
-  $('menuPedia').onclick = to('log'); $('menuQr').onclick = to('qr'); $('menuSettings').onclick = to('settings');
+  $('menuColl').onclick = to('collection'); $('menuPedia').onclick = to('log'); $('menuSettings').onclick = to('settings');
   $('menuClose').onclick = closeModal;
 }
 $('moreBtn').onclick = function(){ sfx.tap(); openMore(); };
@@ -3734,7 +3942,7 @@ function boot(){
 // The page checks version.json (never cached) on launch and whenever the app comes back to the front. If a newer build
 // is live it reloads once, unless a battle or dialog is open; then it shows a tap-to-reload bar. A sessionStorage flag
 // makes sure it never auto-reloads twice for the same build, so a stale copy can't cause a reload loop.
-var APP_VERSION = '1.1.5', APP_BUILD = 'f9a8d55ad5';
+var APP_VERSION = '1.1.6', APP_BUILD = '46c773ef64';
 function verLabel(){ return 'v' + APP_VERSION + ' \u00b7 build ' + APP_BUILD; }
 var upd = { reg:null, hadController:false, pending:null, timer:null, go:null };
 function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('blendAnim') && !$('modal').classList.contains('on'); }
