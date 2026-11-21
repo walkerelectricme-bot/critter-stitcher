@@ -1198,14 +1198,17 @@ function blendSamples(s, key, n){
   s.stats.blended = (s.stats.blended || 0) + n;
   return { ok:true, fragments:fr, n:n };
 }
-function blendCritter(s, id){
+// Blending a whole critter pays the (Instability-reduced) Fragments and gives back ONE random part as a DNA sample
+// at the critter's rarity. The sample is plain DNA: no Instability, mutations, or glitches come with it.
+function blendCritter(s, id, rng){
   var c = findCritter(s, id); if (!c) return { ok:false, reason:'Not found.' };
   if (s.collection.length <= 1) return { ok:false, reason:'Keep at least one critter in your crate.' };
   if (s.activeBattle && s.activeBattle.cid === id) return { ok:false, reason:'That critter is in a battle.' };
-  var fr = blendCritterValue(c);
+  var fr = blendCritterValue(c), slot = pick(rng || Math.random, SLOTS);
   s.collection = s.collection.filter(function(x){ return x.id !== id; });
   s.fragments += fr; s.stats.blended = (s.stats.blended || 0) + 1;
-  return { ok:true, fragments:fr };
+  var isNew = addSample(s, c.parts[slot], slot, c.rarity, 1, false);
+  return { ok:true, fragments:fr, sample:{ family:c.parts[slot], slot:slot, rarity:c.rarity, key:sampleKey(c.parts[slot], slot, c.rarity), isNew:isNew } };
 }
 
 /* ---------- DNA pods (gift + invite codes grow in the incubator) ---------- */
@@ -1390,11 +1393,11 @@ function startIncubation(s, family, rng, now){
   s.stats.incubations++;
   return { ok:true, index:idx, critter:c };
 }
-// Splicer: choice per slot is {type:'sample', key} or {type:'critter', id}
+// Splicer (v1.1.3): DNA samples only, choice per slot is {type:'sample', key}. Parts can no longer be borrowed from grown critters.
 function resolveChoice(s, slot, ch){
   if (!ch) return null;
   if (ch.type === 'sample') { if (!s.samples[ch.key]) return null; var p = parseSampleKey(ch.key); if (p.slot !== slot) return null; return { family:p.family, rarity:p.rarity, from:'sample', key:ch.key }; }
-  if (ch.type === 'critter') { var c = findCritter(s, ch.id); if (!c) return null; return { family:c.parts[slot], rarity:c.rarity, from:'critter', critterId:c.id, critterName:displayName(c), gen:(c.lineage && c.lineage.generation) || 1 }; }
+  if (ch.type === 'critter') return null;   // removed in v1.1.3
   return null;
 }
 function splicePreview(s, choices){
@@ -2412,7 +2415,12 @@ function drawHabitat(t, dt){
     var frame = Math.floor((t + hc.seed) / 500) % 2;
     var y = ground - BUF + CS.PAD + 2 - hy - walkBob - hc.lane * 7;
     ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.fillRect(Math.round(hc.x + 14), ground - 1 - hc.lane * 7, 28, 2);
+    hc.box = { x:Math.round(hc.x), y:Math.round(y) };   // last drawn spot, for tap hit-testing
+    var sq = hc.squish > 0 ? Math.sin(hc.squish * Math.PI) * 0.22 : 0;
+    if (hc.squish > 0) hc.squish = Math.max(0, hc.squish - dt * 4);
+    if (sq) { ctx.save(); var fx = Math.round(hc.x) + BUF / 2, fy = Math.round(y) + BUF - CS.PAD; ctx.translate(fx, fy); ctx.scale(1 + sq, 1 - sq); ctx.translate(-fx, -fy); }
     drawSpriteTo(ctx, hc.c, Math.round(hc.x), Math.round(y), 1, t, { frame:ko ? 0 : frame, flip:hc.dir < 0, alpha:ko ? 0.55 : 1 });
+    if (sq) ctx.restore();
     if (ko) { ctx.fillStyle = '#e9d9a8'; ctx.font = 'bold 8px system-ui'; ctx.textAlign = 'center'; ctx.fillText('z', Math.round(hc.x + 40 + Math.sin(t / 400) * 2), Math.round(y + 4 - (t / 60) % 8)); }
     if (hc.emote && hc.emoteT > 0) {
       hc.emoteT -= dt;
@@ -2424,11 +2432,34 @@ function drawHabitat(t, dt){
     }
   });
 }
+// Tap a critter in the crate: hop + squish, then open its details page. Hit boxes cover the drawn sprite plus padding
+// (canvas units are 2 CSS px, so 10 = 20 px of slack) because the critters keep walking.
+var CRATE_PAD = 10;
+function crateHit(x, y){
+  var best = null, bd = 1e9;
+  hab.critters.forEach(function(hc){
+    var b = hc.box; if (!b) return;
+    var x0 = b.x + CS.PAD - CRATE_PAD, x1 = b.x + BUF - CS.PAD + CRATE_PAD, y0 = b.y + CS.PAD - CRATE_PAD, y1 = b.y + BUF - CS.PAD + CRATE_PAD;
+    if (x < x0 || x > x1 || y < y0 || y > y1) return;
+    var d = Math.hypot(x - (b.x + BUF / 2), y - (b.y + BUF / 2)) - hc.lane * 0.5;   // nearest centre; front lane wins ties
+    if (d < bd) { bd = d; best = hc; }
+  });
+  return best;
+}
 $('habitat').addEventListener('pointerdown', function(e){
-  var r = this.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * hab.w, y = (e.clientY - r.top) / r.height * hab.h, best = null, bd = 1e9;
-  hab.critters.forEach(function(hc){ var cx = hc.x + BUF / 2, d = Math.abs(cx - x); if (d < 24 && d < bd) { bd = d; best = hc; } });
-  if (best) { best.hop = 1; best.pause = 1.2; best.emote = ['heart', 'note', 'bang'][Math.floor(Math.random() * 3)]; best.emoteT = 1.4; sfx.chirp(); }
+  if (hab.opening) return;
+  var r = this.getBoundingClientRect(), x = (e.clientX - r.left) / r.width * hab.w, y = (e.clientY - r.top) / r.height * hab.h;
+  var hc = crateHit(x, y); if (!hc) return;
+  hc.hop = 0.7; hc.squish = 1; hc.pause = 1.2; hc.emote = 'heart'; hc.emoteT = 1; sfx.chirp();
+  if (navigator.vibrate) try { navigator.vibrate(15); } catch (x2) {}
+  var id = hc.c.id; hab.opening = true;
+  setTimeout(function(){ hab.opening = false; if (current !== 'home' || !CS.findCritter(S, id)) return; detailId = id; go('detail'); }, 200);
 });
+function crateSpot(id){ // test hook: screen position of a critter in the crate
+  var hc = hab.critters.filter(function(h){ return h.c.id === id; })[0]; if (!hc || !hc.box) return null;
+  var r = hab.cv.getBoundingClientRect();
+  return { x:r.left + (hc.box.x + BUF / 2) / hab.w * r.width, y:r.top + (hc.box.y + BUF / 2) / hab.h * r.height, scale:r.width / hab.w };
+}
 
 /* ---------- lab ---------- */
 var labTab = 'incubator', spliceSel = { head:null, torso:null, legs:null }, mutSel = null, lastMut = null;
@@ -2570,7 +2601,7 @@ function renderSplicer(body){
     h += '<div class="pname">' + pv.name + '</div><div style="margin:6px 0;display:flex;gap:4px;flex-wrap:wrap">' + SLOTS.map(function(sl){ return elTag(pv.elements[sl]); }).join('') + '</div>' +
       '<div class="note" style="font-size:12px">Defense element: <b style="color:var(--ink)">' + pv.elements.defense + '</b></div>' +
       '<div class="odds">Odds: Common ' + pv.odds[0] + '% &middot; <span style="color:var(--rare)">Rare ' + pv.odds[1] + '%</span> &middot; <span style="color:var(--legendary)">Legendary ' + pv.odds[2] + '%</span></div>';
-  } else h += '<div class="pname" style="color:var(--dim)">Pick 3 parts</div><p class="note" style="margin-top:6px">Choose a head, torso, and legs from your samples, or borrow a part from a critter you own (it is kept).</p>';
+  } else h += '<div class="pname" style="color:var(--dim)">Pick 3 parts</div><p class="note" style="margin-top:6px">Choose a head, torso, and legs from your DNA samples.</p>';
   h += '</div></div>';
   if (pv) {
     h += '<div style="margin-top:10px">';
@@ -2588,9 +2619,8 @@ function renderSplicer(body){
   SLOTS.forEach(function(sl){
     var pk = body.querySelector('#pk_' + sl), opts = [];
     Object.keys(S.samples).forEach(function(k){ var p = CS.parseSampleKey(k); if (p.slot === sl) opts.push({ ch:{ type:'sample', key:k }, family:p.family, rarity:p.rarity, label:'Sample', cnt:S.samples[k] }); });
-    S.collection.forEach(function(c){ opts.push({ ch:{ type:'critter', id:c.id }, family:c.parts[sl], rarity:c.rarity, label:'From ' + CS.displayName(c) }); });
     opts.sort(function(a, b){ return CS.FAMILIES.indexOf(a.family) - CS.FAMILIES.indexOf(b.family); });
-    if (!opts.length) { pk.innerHTML = '<p class="note">No ' + sl + ' DNA yet.</p>'; return; }
+    if (!opts.length) { pk.innerHTML = '<p class="note">No ' + sl + ' DNA yet. Open Stitch Kits, win battles, or blend a critter.</p>'; return; }
     opts.forEach(function(o){
       var d = document.createElement('button'); d.className = 'opt' + (choiceKey(spliceSel[sl]) === choiceKey(o.ch) ? ' sel' : '');
       d.appendChild(partCanvas(o.family, sl));
@@ -2722,25 +2752,32 @@ function openBlendConfirm(x){
     title = 'Blend ' + esc(CS.displayName(c)) + '?';
     lines = '<b>Parts</b><span>3 &times; ' + info.perPart + ' (' + c.rarity + ')' + (info.pure ? ' &times; ' + CS.CFG.blendPure + ' pure' : ' (hybrid)') + ' = ' + info.base + '</span>' +
       (info.instability ? '<b>Instability ' + info.instability + '</b><span style="color:#ff8aa0">&minus;' + pct(1 - info.keep) + '</span>' : '') +
-      '<b>You get</b><span style="color:var(--acc);font-weight:900">+' + value + ' Fragments</span>';
+      '<b>You get</b><span style="color:var(--acc);font-weight:900">+' + value + ' Fragments</span>' +
+      '<b>Plus</b><span>one random part back as ' + (c.rarity !== 'Common' ? c.rarity + ' ' : '') + 'DNA (' + c.parts.head + ' head, ' + c.parts.torso + ' torso, or ' + c.parts.legs + ' legs)</span>';
   } else {
     var p = CS.parseSampleKey(x.key), v = CS.blendSampleValue(x.key); value = v * x.n;
     title = 'Blend ' + (x.n > 1 ? x.n + ' samples' : 'this sample') + '?';
     lines = '<b>DNA</b><span>' + x.n + ' &times; ' + (p.rarity !== 'Common' ? p.rarity + ' ' : '') + p.family + ' ' + p.slot + '</span><b>Value</b><span>' + P[p.rarity] + ' &times; ' + CS.CFG.blendPure + ' pure = ' + v + ' each</span><b>You get</b><span style="color:var(--acc);font-weight:900">+' + value + ' Fragments</span>';
   }
   modal('<div style="font-weight:900;font-size:18px">' + title + '</div><div id="blCv" style="display:flex;justify-content:center;margin:6px 0"></div>' +
-    '<div class="danger-box">\u26A0 This destroys ' + (x.critter ? 'the critter and all 3 of its parts' : 'the DNA') + '. <b>Parts can\u2019t be recovered.</b></div>' +
+    (x.critter ? '<p class="note" style="margin:2px 0 6px">You\u2019ll get Fragments and one random part back.</p>' : '') +
+    '<div class="danger-box">\u26A0 This destroys ' + (x.critter ? 'the critter and the other 2 parts' : 'the DNA') + '. <b>' + (x.critter ? 'They' : 'Parts') + ' can\u2019t be recovered.</b></div>' +
     '<div class="kv card" style="margin-top:8px">' + lines + '</div>' +
     '<div class="row" style="margin-top:12px"><button class="btn alt" id="blNo" style="flex:1">Keep it</button><button class="btn warn" id="blYes" style="flex:1">Blend it</button></div>');
   $('blCv').appendChild(x.critter ? spriteCanvas(x.critter) : partCanvas(CS.parseSampleKey(x.key).family, CS.parseSampleKey(x.key).slot));
   $('blNo').onclick = closeModal;
   $('blYes').onclick = function(){
-    var r = x.critter ? CS.blendCritter(S, x.critter.id) : CS.blendSamples(S, x.key, x.n);
+    var r = x.critter ? CS.blendCritter(S, x.critter.id, Math.random) : CS.blendSamples(S, x.key, x.n);
     closeModal();
     if (!r.ok) { toast(r.reason); sfx.bad(); return; }
     save(); updateHeader(); sfx.bad(); flash('#ffc93c', 0.4);
-    toast('Blended! +' + r.fragments + ' Fragments', 2500);
     renderLab();
+    if (!r.sample) { toast('Blended! +' + r.fragments + ' Fragments', 2500); return; }
+    var sm = r.sample;
+    modal('<div style="font-weight:900;font-size:18px;text-align:center">Blended!</div><p class="note" style="text-align:center;margin:4px 0 8px">+' + r.fragments + ' Fragments, and this part came back:</p><div id="blRes" class="rw-row"></div><button class="btn block" id="blResOk" style="margin-top:10px">Nice!</button>');
+    var row = $('blRes'); row.appendChild(partCanvas(sm.family, sm.slot));
+    row.insertAdjacentHTML('beforeend', '<span id="blResTxt">' + (sm.rarity !== 'Common' ? '<span style="color:var(--' + sm.rarity.toLowerCase() + ')">' + sm.rarity + '</span> ' : '') + sm.family + ' ' + sm.slot + ' DNA' + (sm.isNew ? ' <span class="newtag">NEW PART</span>' : '') + '</span>');
+    $('blResOk').onclick = closeModal;
   };
 }
 
@@ -3619,7 +3656,7 @@ function boot(){
 // The page checks version.json (never cached) on launch and whenever the app comes back to the front. If a newer build
 // is live it reloads once, unless a battle or dialog is open; then it shows a tap-to-reload bar. A sessionStorage flag
 // makes sure it never auto-reloads twice for the same build, so a stale copy can't cause a reload loop.
-var APP_VERSION = '1.1.2', APP_BUILD = '1012300088';
+var APP_VERSION = '1.1.3', APP_BUILD = '13f554b691';
 function verLabel(){ return 'v' + APP_VERSION + ' \u00b7 build ' + APP_BUILD; }
 var upd = { reg:null, hadController:false, pending:null, timer:null, go:null };
 function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('modal').classList.contains('on'); }
@@ -3667,7 +3704,7 @@ window.CSApp = { get state(){ return S; }, set state(v){ S = v; }, save:save, go
   startBattle:startBattle, openPick:openPick, openKits:openKits, get battle(){ return B; },
   startFight:startFight, openPickCode:openPickCode, handleCode:handleCode, openShare:openShare, openStreak:openStreak, openGift:openGift, drawQR:drawQR,
   get music(){ return { unlocked:music.unlocked, cur:music.cur, missing:Object.keys(music.missing), found:music.found }; }, get scanEngine(){ return scan.engine; },
-  setSplice:function(sel){ spliceSel = sel; labTab = 'splicer'; }, setLabTab:function(t){ labTab = t; }, openDetail:function(id){ detailId = id; go('detail'); } };
+  setSplice:function(sel){ spliceSel = sel; labTab = 'splicer'; }, setLabTab:function(t){ labTab = t; }, openDetail:function(id){ detailId = id; go('detail'); }, crateSpot:crateSpot, freezeCrate:function(on, spread){ var n = hab.critters.length; hab.critters.forEach(function(h, i){ h.pause = on ? 1e9 : 0; if (spread) h.x = (i + 0.5) / n * (hab.w - BUF); }); } };
 })();
 </script>
 </body>
