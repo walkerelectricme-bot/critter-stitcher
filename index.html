@@ -333,6 +333,36 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
 .menu-item small { font-size:12px; color:var(--dim); font-weight:700; }
 .menu-item i { font-style:normal; font-size:22px; color:var(--dim); }
 .blend-row.pre { border-color:var(--acc); box-shadow:0 0 0 2px var(--acc) inset; }
+
+/* ---------- v1.1.5 blender animation ---------- */
+.bla{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(10,6,24,.72);backdrop-filter:blur(2px);cursor:pointer;touch-action:none}
+.bla-stage{position:relative;width:170px;height:250px;animation:blaShake .8s linear .62s 1 both}
+.bla-svg{position:absolute;left:5px;bottom:0;width:160px;height:230px;overflow:visible}
+.bla-drop{position:absolute;left:50%;top:60px;width:72px;height:72px;margin-left:-36px;display:flex;align-items:center;justify-content:center;animation:blaFall .55s cubic-bezier(.5,0,.9,.4) both, blaSink .3s ease-in .55s 1 forwards;z-index:2}
+.bla-drop canvas{max-width:72px;max-height:72px;image-rendering:pixelated}
+.bla-lid{transform-box:fill-box;transform-origin:50% 100%;animation:blaLid .75s ease-out both}
+.bla-blades{transform-box:fill-box;transform-origin:50% 50%;animation:blaSpin .14s linear .55s 6}
+.bla-swirl{transform-box:view-box;transform-origin:80px 112px;opacity:0;animation:blaSwirl .85s ease-in-out .6s 1 both}
+.bla-btn{transform-box:fill-box;transform-origin:50% 50%;animation:blaBtn .25s ease-in-out .5s 1}
+.bla-pop{position:absolute;left:50%;top:calc(50% - 150px);transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;opacity:0;animation:blaPop .45s cubic-bezier(.2,1.6,.4,1) 1.38s 1 forwards;pointer-events:none}
+.bla-frag{font-weight:900;font-size:26px;color:var(--acc);text-shadow:0 2px 0 #12301a,0 0 14px rgba(124,255,107,.6)}
+.bla-frag small{font-size:14px;color:var(--ink)}
+.bla-part{width:96px;height:32px;image-rendering:pixelated;filter:drop-shadow(0 0 8px #ffc93c)}
+.bla-skip{position:absolute;bottom:28px;font-size:12px;color:var(--dim);font-weight:800}
+.bla.reduced{animation:blaFade .45s ease both}
+.bla.reduced *{animation:none!important}
+.bla.reduced .bla-drop{display:none}
+.bla.reduced .bla-swirl{opacity:1}
+.bla.reduced .bla-pop{opacity:1}
+@keyframes blaFall{0%{transform:translateY(-240px) rotate(-18deg);opacity:0}15%{opacity:1}100%{transform:translateY(0) rotate(8deg)}}
+@keyframes blaSink{to{transform:translateY(46px) scale(.35) rotate(140deg);opacity:0}}
+@keyframes blaLid{0%{transform:translateY(-34px) rotate(-14deg)}60%{transform:translateY(-34px) rotate(-14deg)}72%{transform:translateY(0) rotate(0)}80%{transform:rotate(6deg)}88%{transform:rotate(-4deg)}94%{transform:rotate(2deg)}100%{transform:none}}
+@keyframes blaSpin{to{transform:rotate(360deg) scaleX(.9)}}
+@keyframes blaSwirl{0%{opacity:0;transform:rotate(0)}15%{opacity:1}85%{opacity:1}100%{opacity:.4;transform:rotate(900deg)}}
+@keyframes blaShake{0%,100%{transform:none}10%{transform:translate(-3px,1px) rotate(-1.5deg)}20%{transform:translate(3px,-1px) rotate(1.5deg)}30%{transform:translate(-4px,0) rotate(-2deg)}40%{transform:translate(4px,1px) rotate(2deg)}50%{transform:translate(-4px,-1px) rotate(-2deg)}60%{transform:translate(4px,0) rotate(2deg)}70%{transform:translate(-3px,1px) rotate(-1deg)}80%{transform:translate(2px,0) rotate(1deg)}90%{transform:translate(-1px,0)}}
+@keyframes blaBtn{50%{transform:scale(.8)}}
+@keyframes blaPop{0%{opacity:0;transform:translate(-50%,40px) scale(.4)}100%{opacity:1;transform:translate(-50%,0) scale(1)}}
+@keyframes blaFade{0%{opacity:0}35%{opacity:1}75%{opacity:1}100%{opacity:0}}
 </style>
 </head>
 <body>
@@ -1014,7 +1044,8 @@ var CFG = {
   maxMutations: 8,
   // Phase 4: Mutator instability gamble
   mutGoodOdds: [0.75, 0.62, 0.50],      // chance the next mutation is good, by current Instability (0, 1, 2+)
-  mutPct: [3, 8],                       // good = +3..8% to one stat, bad = -3..8%
+  mutPct: [1, 3],                       // v1.1.5: good = +1..3% to one stat, bad = -1..3% (was [3, 8])
+  mutCapUp: 0.12, mutCapDown: -0.12,    // v1.1.5: net mutation bonus per stat is clamped to -12%..+12% when stats are calculated (stored data is kept)
   mutColorFlavor: 0.30, mutTraitFlavor: 0.05,
   glitchAt: 3, glitchChance: 0.10,      // at Instability >= 3, 10% per mutation to pick up a glitch
   glitchSkip: 0.08, glitchFlip: 0.10,   // Stutter: skip 8% of turns; Flicker: 10% of attacks flip element
@@ -1098,10 +1129,13 @@ function baseStats(parts){ // parts: {head, torso, legs} family names
   SLOTS.forEach(function(s){ var ps = partStats(parts[s], s); for (var k in o) o[k] += ps[k]; });
   return o;
 }
-function computeStats(c){ // final stats from parts x rarity x roll x mutation bumps
+// Net mutation bonus on one stat, as used in stats: the stored total (c.bumps) clamped to CFG.mutCapDown..mutCapUp.
+// Older saves/codes above the cap keep their data; only the effective bonus is clamped.
+function mutationBonus(c, k){ var v = (c.bumps && c.bumps[k]) || 0; return Math.max(CFG.mutCapDown, Math.min(CFG.mutCapUp, v)); }
+function computeStats(c){ // final stats from parts x rarity x roll x mutation bonus (capped) x statScale (challengers / test rigs)
   var b = baseStats(c.parts), bonus = RARITY_BONUS[c.rarity] || 1, o = {};
   for (var k in b) {
-    var v = b[k] * bonus * (1 + (c.rolls[k] || 0)) * (1 + ((c.bumps && c.bumps[k]) || 0));
+    var v = b[k] * bonus * (1 + (c.rolls[k] || 0)) * (1 + mutationBonus(c, k)) * (c.statScale || 1);
     v *= 1 - Math.min(CFG.copyPenaltyMax, c.copyPenalty || 0);   // battle-code copies of unstable critters
     o[k] = Math.max(1, Math.round(v));
   }
@@ -1339,6 +1373,10 @@ function migrate(s){
   }
   var base = newSave(s.createdAt);
   for (var k in base) if (!(k in s)) s[k] = base[k];
+  // v1.1.5: recompute derived stats on every load so balance changes (e.g. the +/-12% mutation cap) apply to old critters.
+  // Stored data (bumps, mutations, rolls) is never changed.
+  (s.collection || []).forEach(function(c){ if (c && c.parts) refresh(c); });
+  (s.incubators || []).forEach(function(inc){ if (inc && inc.critter && inc.critter.parts) refresh(inc.critter); });
   return s;
 }
 function newDeviceId(){ return (Math.floor(Math.random() * 0xfffffffe) + 1) >>> 0; }
@@ -1642,7 +1680,7 @@ function challengerCritter(i){
   c.colors.shiny = false;
   STAT_KEYS.forEach(function(k){ c.rolls[k] = 0; });
   var scale = ch.power / RARITY_BONUS[ch.rarity];       // power already includes the rarity bonus
-  STAT_KEYS.forEach(function(k){ c.bumps[k] = scale - 1; });
+  STAT_KEYS.forEach(function(k){ c.bumps[k] = 0; }); c.statScale = scale;   // ladder power is not a mutation, so it isn't capped
   refresh(c); c.nickname = ch.nick;
   if (ch.boss && c.traits.length === 0) c.traits.push('Thick Hide');
   return c;
@@ -1813,7 +1851,7 @@ return {
   addSample:addSample, takeSample:takeSample, sampleCount:sampleCount, chooseStarter:chooseStarter, timerSeconds:timerSeconds,
   freeIncubator:freeIncubator, collectionFull:collectionFull, pureSampleKeys:pureSampleKeys, canIncubatePure:canIncubatePure,
   startIncubation:startIncubation, splicePreview:splicePreview, startSplice:startSplice, timeLeft:timeLeft, skipCost:skipCost,
-  skipTimer:skipTimer, hatch:hatch, findCritter:findCritter, mutateCritter:mutateCritter,
+  skipTimer:skipTimer, hatch:hatch, findCritter:findCritter, mutateCritter:mutateCritter, mutationBonus:mutationBonus,
   grantTestDNA:grantTestDNA, discoveryCounts:discoveryCounts, discover:discover,
   LEG_WORDS:LEG_WORDS, CHALLENGERS:CHALLENGERS, DROP_CHANCE:DROP_CHANCE,
   maxHp:maxHp, currentHp:currentHp, isHealing:isHealing, isFainted:isFainted, canBattle:canBattle, healLeft:healLeft, healSkipCost:healSkipCost,
@@ -2453,13 +2491,14 @@ function crateSpot(id){ // test hook: screen position of a critter in the crate
 }
 
 /* ---------- lab ---------- */
-var blendPre = null, labTab = 'incubator', spliceSel = { head:null, torso:null, legs:null }, mutSel = null, lastMut = null;
+var blendPre = null, spliceJump = false, labTab = 'incubator', spliceSel = { head:null, torso:null, legs:null }, mutSel = null, lastMut = null;
 function renderLab(){
-  var el = $('lab');
-  el.innerHTML = '<div class="tabs"><button class="tab" data-t="incubator">Incubator</button><button class="tab" data-t="splicer">Splicer</button><button class="tab" data-t="mutator">Mutator</button><button class="tab" data-t="blender">Blender</button></div><div id="labBody"></div>';
+  var el = $('lab'), toSplice = spliceJump; spliceJump = false;
+  if (labTab === 'splicer') { labTab = 'incubator'; toSplice = true; }   // v1.1.5: old Splicer links land on the Incubator's splice section
+  el.innerHTML = '<div class="tabs"><button class="tab" data-t="incubator">Incubator</button><button class="tab" data-t="mutator">Mutator</button><button class="tab" data-t="blender">Blender</button></div><div id="labBody"></div>';
   el.querySelectorAll('.tab').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-t') === labTab); b.onclick = function(){ labTab = b.getAttribute('data-t'); sfx.tap(); renderLab(); }; });
   var body = el.querySelector('#labBody');
-  if (labTab === 'incubator') renderIncubator(body); else if (labTab === 'splicer') renderSplicer(body); else if (labTab === 'blender') renderBlender(body); else renderMutator(body);
+  if (labTab === 'incubator') { renderIncubator(body); if (toSplice) { var sb = body.querySelector('#spliceBox'); if (sb) sb.scrollIntoView({ block:'start' }); } } else if (labTab === 'blender') renderBlender(body); else renderMutator(body);
 }
 var incCanvases = [];
 function renderIncubator(body){
@@ -2468,7 +2507,9 @@ function renderIncubator(body){
   S.incubators.forEach(function(inc, i){ h += '<div class="card incu" style="margin-bottom:10px"><div class="incslot" data-i="' + i + '"></div><div class="info" id="incInfo' + i + '"></div></div>'; });
   var q = S.podQueue || [];
   if (q.length) h += '<h3>DNA pods waiting (' + q.length + ')</h3><div id="podQueue"></div>';
-  h += '<h3>Grow a pure critter</h3><div id="pureList"></div><h3>DNA samples</h3><div class="samples" id="sampleGrid"></div>';
+  h += '<h3>Grow a pure critter</h3><div id="pureList"></div>' +
+    '<h3 id="spliceHead">\uD83E\uDDEC Splice a hybrid</h3><div id="spliceBox"></div>' +
+    '<h3>DNA samples</h3><div class="samples" id="sampleGrid"></div>';
   body.innerHTML = h;
   S.incubators.forEach(function(inc, i){
     var cv = document.createElement('canvas'); cv.width = 110; cv.height = 130;
@@ -2514,6 +2555,7 @@ function renderIncubator(body){
     row.appendChild(b); pl.appendChild(row);
   });
   if (!any) pl.innerHTML = '<p class="note">No samples yet. Win battles or open Stitch Kits for DNA.</p>';
+  renderSplicer(body.querySelector('#spliceBox'));   // v1.1.5: splicing moved here from its own Lab tab
   renderSampleGrid(body.querySelector('#sampleGrid'));
 }
 function renderSampleGrid(grid){
@@ -2625,7 +2667,7 @@ function renderSplicer(body){
     var r = CS.startSplice(S, spliceSel, Math.random, Date.now());
     if (!r.ok) { toast(r.reason); sfx.bad(); return; }
     save(); sfx.hum(); spliceSel = { head:null, torso:null, legs:null };
-    labTab = 'incubator'; updateHeader(); renderLab(); toast('Splicing ' + r.critter.name + '...');
+    labTab = 'incubator'; updateHeader(); renderLab(); $('lab').scrollTop = 0; toast('Splicing ' + r.critter.name + '...');
   };
 }
 function moveRow(m){
@@ -2646,7 +2688,7 @@ function renderMutator(body){
       '<div class="note" style="font-size:12px;margin-top:4px">Next mutation: Instability ' + inst + ' &rarr; <b>' + o.after + '</b>' + (o.glitch ? ' &middot; <span style="color:#ff8aa0">' + pct(o.glitch) + ' glitch risk</span>' : '') + '</div>') +
     '<div class="row" style="margin-top:10px"><button class="btn" id="mutGo" style="flex:1.3"' + (o.full || S.fragments < cost ? ' disabled' : '') + '>' + (o.full ? 'Max mutations' : 'Mutate &middot; ' + cost) + '</button>' +
     '<button class="btn alt" id="stabGo" style="flex:1"' + (!inst || S.fragments < scost ? ' disabled' : '') + '>Stabilize &minus;1 &middot; ' + scost + '</button></div>' +
-    '<p class="note" style="margin-top:8px;font-size:12px">Every mutation adds 1 Instability and the odds get worse: 75% good at first, 62% next, then a coin flip. From 3, glitches can appear. At 4+ a critter can\u2019t be gifted, its battle-code copies lose 5% stats per point, and the Blender pays 15% less per point.</p></div>' +
+    '<p class="note" style="margin-top:8px;font-size:12px">Every mutation adds 1 Instability and the odds get worse: 75% good at first, 62% next, then a coin flip. From 3, glitches can appear. At 4+ a critter can\u2019t be gifted, its battle-code copies lose 5% stats per point, and the Blender pays 15% less per point. Each stat\u2019s total mutation bonus is capped at ' + (CS.CFG.mutCapDown * 100) + '% to +' + (CS.CFG.mutCapUp * 100) + '%.</p></div>' +
     '<h3>Choose a critter</h3><div class="mut-list" id="mutList"></div>';
   body.innerHTML = h;
   var big = spriteCanvas(c); big.style.width = '168px'; big.style.height = '168px'; big.id = 'mutBig'; body.querySelector('#mutCv').appendChild(big);
@@ -2766,15 +2808,66 @@ function openBlendConfirm(x){
     var r = x.critter ? CS.blendCritter(S, x.critter.id, Math.random) : CS.blendSamples(S, x.key, x.n);
     closeModal();
     if (!r.ok) { toast(r.reason); sfx.bad(); return; }
-    save(); updateHeader(); sfx.bad(); flash('#ffc93c', 0.4);
-    renderLab();
+    // the reward is applied and saved BEFORE the animation, so skipping, closing, or reloading can't lose it
+    save(); updateHeader(); renderLab();
+    var into = x.critter ? spriteCanvas(x.critter) : partCanvas(CS.parseSampleKey(x.key).family, CS.parseSampleKey(x.key).slot);
+    playBlendAnim(into, r, function(){ blendResult(r); });
+  };
+}
+function blendResult(r){
+    sfx.bad(); flash('#ffc93c', 0.4);
     if (!r.sample) { toast('Blended! +' + r.fragments + ' Fragments', 2500); return; }
     var sm = r.sample;
     modal('<div style="font-weight:900;font-size:18px;text-align:center">Blended!</div><p class="note" style="text-align:center;margin:4px 0 8px">+' + r.fragments + ' Fragments, and this part came back:</p><div id="blRes" class="rw-row"></div><button class="btn block" id="blResOk" style="margin-top:10px">Nice!</button>');
     var row = $('blRes'); row.appendChild(partCanvas(sm.family, sm.slot));
     row.insertAdjacentHTML('beforeend', '<span id="blResTxt">' + (sm.rarity !== 'Common' ? '<span style="color:var(--' + sm.rarity.toLowerCase() + ')">' + sm.rarity + '</span> ' : '') + sm.family + ' ' + sm.slot + ' DNA' + (sm.isNew ? ' <span class="newtag">NEW PART</span>' : '') + '</span>');
     $('blResOk').onclick = closeModal;
-  };
+}
+
+/* ---------- blender animation (v1.1.5): original cartoon blender, ~1.8s, tap to skip, reduced motion = short fade ---------- */
+var BLEND_ANIM_MS = 1850, BLEND_FADE_MS = 450;
+function blenderSvg(){
+  return '<svg class="bla-svg" viewBox="0 0 160 230" aria-hidden="true">' +
+    '<defs><clipPath id="blaJarClip"><path d="M41 46 H119 L110 160 H50 Z"/></clipPath>' +
+    '<linearGradient id="blaGlass" x1="0" x2="1"><stop offset="0" stop-color="#bfe9ff" stop-opacity=".30"/><stop offset=".5" stop-color="#bfe9ff" stop-opacity=".12"/><stop offset="1" stop-color="#bfe9ff" stop-opacity=".28"/></linearGradient></defs>' +
+    '<path d="M118 66 q26 4 22 34 q-3 26 -27 30" fill="none" stroke="#8fd8ff" stroke-width="7" stroke-linecap="round" opacity=".75"/>' +                                   // handle
+    '<g clip-path="url(#blaJarClip)"><g class="bla-swirl">' +
+      '<circle cx="80" cy="112" r="58" fill="#7cff6b" opacity=".35"/><path d="M80 112 m-52 0 a52 52 0 0 1 52 -52 a26 26 0 0 1 0 52 a26 26 0 0 0 0 52 a52 52 0 0 1 -52 -52" fill="#ffc93c" opacity=".55"/>' +
+      '<circle cx="62" cy="92" r="7" fill="#fff" opacity=".7"/><circle cx="102" cy="128" r="5" fill="#3fe0d0" opacity=".8"/><circle cx="94" cy="84" r="4" fill="#ff7ab6" opacity=".8"/></g></g>' +
+    '<path d="M41 46 H119 L110 160 H50 Z" fill="url(#blaGlass)" stroke="#d9f3ff" stroke-width="4" stroke-linejoin="round"/>' +                                             // jar
+    '<path d="M52 58 L58 148" stroke="#fff" stroke-width="4" stroke-linecap="round" opacity=".45"/>' +                                                                     // shine
+    '<g class="bla-blades"><ellipse cx="80" cy="152" rx="20" ry="4" fill="#e8eef7"/><ellipse cx="80" cy="152" rx="4" ry="9" fill="#c3cfdf"/><circle cx="80" cy="152" r="3.5" fill="#5b6478"/></g>' +
+    '<g class="bla-lid"><rect x="36" y="32" width="88" height="15" rx="7" fill="#8f6cf0" stroke="#1d1036" stroke-width="3"/><rect x="69" y="20" width="22" height="14" rx="5" fill="#b9a2ff" stroke="#1d1036" stroke-width="3"/></g>' +
+    '<path d="M44 160 H116 L128 214 Q129 222 120 222 H40 Q31 222 32 214 Z" fill="#ff4d6d" stroke="#7a1430" stroke-width="3"/>' +                                           // base
+    '<rect x="50" y="170" width="60" height="9" rx="4" fill="#ff8aa0" opacity=".6"/>' +
+    '<circle class="bla-btn" cx="80" cy="198" r="10" fill="#ffc93c" stroke="#7a4b00" stroke-width="3"/>' +
+    '</svg>';
+}
+function playBlendAnim(intoCanvas, r, done){
+  var old = $('blendAnim'); if (old) old.remove();
+  var reduced = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  var el = document.createElement('div'); el.id = 'blendAnim'; el.className = 'bla' + (reduced ? ' reduced' : '');
+  el.setAttribute('role', 'button'); el.setAttribute('aria-label', 'Blending. Tap to skip.');
+  el.innerHTML = '<div class="bla-stage"><div class="bla-drop" id="blaDrop"></div>' + blenderSvg() + '</div>' +
+    '<div class="bla-pop" id="blaPop"><div class="bla-frag">+' + r.fragments + ' <small>Fragments</small></div></div>' +
+    '<div class="bla-skip">Tap to skip</div>';
+  el.querySelector('#blaDrop').appendChild(intoCanvas);
+  if (r.sample) { var pc = partCanvas(r.sample.family, r.sample.slot); pc.className = 'bla-part'; el.querySelector('#blaPop').appendChild(pc); }
+  document.body.appendChild(el);
+  var finished = false, timers = [];
+  function finish(){
+    if (finished) return; finished = true;
+    timers.forEach(clearTimeout);
+    if (el.parentNode) el.remove();
+    done && done();
+  }
+  el.addEventListener('pointerdown', function(e){ e.preventDefault(); finish(); });
+  if (!reduced) {
+    timers.push(setTimeout(function(){ beep(180, 0.5, 'sawtooth', 0.02); beep(240, 0.5, 'sawtooth', 0.015, 0.1); }, 600));
+    timers.push(setTimeout(function(){ sfx.rare(); }, 1400));
+  }
+  timers.push(setTimeout(finish, reduced ? BLEND_FADE_MS : BLEND_ANIM_MS));
+  return el;
 }
 
 /* ---------- reveal ---------- */
@@ -2867,9 +2960,9 @@ function renderDetail(){
   var h = '<div class="detail-hero ' + c.rarity + '"><div id="dCv"></div><div class="nm">' + esc(CS.displayName(c)) + '</div>' +
     '<div class="sub">' + (c.nickname ? esc(c.name) + ' &middot; ' : '') + 'Gen ' + (lin.generation || 1) + ' &middot; ' + (lin.kind === 'incubate' ? 'Pure ' + c.parts.head : 'Hybrid') + '</div>' +
     '<div style="margin-top:6px">' + rarTag(c.rarity) + (c.branded ? ' <span class="rar" style="color:#ffc93c;border-color:#ffc93c">\u2605 Branded</span>' : '') + mutBadge(c) + (c.mutations.length ? ' <span class="rar" style="color:#d6a8ff;border-color:#d6a8ff">' + CS.mutationTag(c.mutations.length) + '</span>' : '') + (c.colors.shiny ? ' <span class="rar" style="color:#fff;border-color:#fff">\u2728 Shiny</span>' : '') + '</div></div>';
-  h += '<div class="row" style="margin-top:12px"><button class="btn alt" id="dName" style="flex:1">Nickname</button><button class="btn alt" id="dShare" style="flex:1">Share code</button></div>';
+  h += '<div class="row" style="margin-top:12px"><button class="btn alt" id="dName" style="flex:1">Nickname</button><button class="btn alt" id="dShare" style="flex:1">\u2694\uFE0F Battle Code</button></div>';
   var lastOne = S.collection.length <= 1, fighting = !!(S.activeBattle && S.activeBattle.cid === c.id), why = lastOne ? 'Keep at least one critter' : fighting ? 'In a battle' : '';
-  h += '<div class="row" style="margin-top:8px"><button class="btn alt" id="dGift" style="flex:1"' + (why ? ' disabled title="' + why + '"' : '') + '>&#127873; Gift as QR</button><button class="btn warn" id="dBlend" style="flex:1"' + (why ? ' disabled title="' + why + '"' : '') + '>\uD83C\uDF00 Blend</button></div>' +
+  h += '<div class="row" style="margin-top:8px"><button class="btn alt" id="dGift" style="flex:1"' + (why ? ' disabled title="' + why + '"' : '') + '>\uD83C\uDFE1 Rehome</button><button class="btn warn" id="dBlend" style="flex:1"' + (why ? ' disabled title="' + why + '"' : '') + '>\uD83C\uDF00 Blend</button></div>' +
     (why ? '<p class="note" style="font-size:12px;margin:4px 0 0">' + (lastOne ? 'Your last critter can\u2019t be gifted or blended.' : 'It\u2019s in a battle right now.') + '</p>' : '');
   h += '<h3>Health</h3><div class="card">' + hpBlock(c) + (CS.isHealing(c) ? '<button class="btn alt block" id="dHeal" style="margin-top:8px">Heal now &middot; ' + CS.healSkipCost(c) + ' Fragments</button>' : '') + '</div>';
   h += '<h3>Stats</h3><div class="card">' + statBars(c) + '</div>';
@@ -2903,7 +2996,12 @@ function openGift(c){
     $('gfLab').onclick = function(){ closeModal(); mutSel = c.id; labTab = 'mutator'; go('lab'); };
     return;
   }
+  // v1.1.5: one-time first-use hint (flag kept in the save's tipsSeen)
+  S.tipsSeen = S.tipsSeen || {};
+  var firstGift = !S.tipsSeen.giftHint;
+  if (firstGift) { S.tipsSeen.giftHint = true; save(); }
   modal('<div style="font-weight:900;font-size:18px">Gift ' + esc(CS.displayName(c)) + '?</div><div id="gfCv" style="display:flex;justify-content:center;margin:6px 0"></div>' +
+    (firstGift ? '<div class="tip" id="gfHint" style="margin:0 0 8px;font-size:12px">\uD83D\uDCA1 Your friend scans this code with Critter Stitcher and gets a DNA pod to hatch. Rare critters may hatch as Common.</div>' : '') +
     '<p class="note">It <b style="color:#ff9bb0">leaves your crate for good</b> and becomes a single-use QR code. The friend who scans it gets a <b style="color:var(--ink)">DNA pod</b> that grows into a fresh ' + esc(c.name) + ' in their incubator. ' + esc(CS.podOddsText(c)) + ' Each phone can redeem it once; your own phone can\u2019t.</p>' +
     '<div class="row" style="margin-top:12px"><button class="btn alt" id="gfNo" style="flex:1">Keep it</button><button class="btn warn" id="gfYes" style="flex:1">Gift it</button></div>');
   $('gfCv').appendChild(spriteCanvas(c));
@@ -3160,7 +3258,7 @@ function openKits(){
   modal('<div style="font-weight:900;font-size:18px;text-align:center">Stitch Kits</div><div class="kit-stage"><div class="kit-burst" id="kitBurst"></div><canvas id="kitCv" width="28" height="21"></canvas><div class="kit-prize" id="kitPrize"></div></div>' +
     '<div class="note" style="text-align:center;margin-bottom:10px" id="kitCount">You have <b style="color:var(--ink)">' + (S.kits || 0) + '</b> kit' + (S.kits === 1 ? '' : 's') + '. Each holds 1 DNA sample + ' + CS.CFG.kitFragments[0] + '&ndash;' + CS.CFG.kitFragments[1] + ' Fragments.</div>' +
     (daily ? '<button class="btn block" id="kitDaily" style="margin-bottom:8px;background:#ffc93c;box-shadow:0 4px 0 #a06a00">\uD83D\uDD25 Daily streak: Day ' + CS.streakInfo(S, Date.now()).day + ' ready</button>' : '') +
-    '<div class="row"><button class="btn alt" id="kitClose" style="flex:1">Close</button><button class="btn" id="kitOpen" style="flex:1"' + (S.kits ? '' : ' disabled') + '>Open a kit</button></div>' +
+    '<div class="row"><button class="btn" id="kitClose" style="flex:1">Collect</button><button class="btn" id="kitOpen" style="flex:1"' + (S.kits ? '' : ' disabled') + '>Open a kit</button></div>' +
     '<p class="note" style="font-size:11px;margin-top:10px;text-align:center">Earn kits: the daily streak &middot; each challenger you beat the first time &middot; each new part you win in battle &middot; thank-you codes from friends you invite.</p>');
   drawKit($('kitCv'));
   $('kitClose').onclick = function(){ closeModal(); if (current === 'home') renderHome(); };
@@ -3189,7 +3287,7 @@ function openKits(){
 /* =====================================================================
    Phase 3 UI: QR codes (share / scan / paste / URL import), daily streak, music
    ===================================================================== */
-var TYPE_TITLE = { battle:'Battle code', sacrifice:'DNA gift code', invite:'Invite code', thanks:'Thank-you code' };
+var TYPE_TITLE = { battle:'Battle Code', sacrifice:'DNA gift code', invite:'Invite code', thanks:'Thank-you code' };
 function drawQR(cv, text, scale){
   var q = qrcode(0, 'M'); q.addData(text); q.make();
   var n = q.getModuleCount(), quiet = 4, total = n + quiet * 2; scale = scale || 6;
@@ -3220,7 +3318,8 @@ function renderShare(){
     sacrifice:'This critter has left your crate. Whoever scans this gets a DNA pod that grows in their incubator. ' + (d.critter ? esc(CS.podOddsText(d.critter)) : '') + ' Each phone can redeem it once. You can show it again from QR Codes &rsaquo; Sent gifts.',
     thanks:'Show this to <b>' + esc((S.referral && S.referral.fromName) || 'the friend who invited you') + '</b>. They scan it to get a thank-you Stitch Kit.'
   };
-  var h = '<h2>' + TYPE_TITLE[x.type] + '</h2><div class="share-card">';
+  var h = '<h2>' + (x.type === 'battle' ? '\u2694\uFE0F ' : '') + TYPE_TITLE[x.type] + '</h2>' +
+    (x.type === 'battle' ? '<p class="note" id="shSub" style="margin:-4px 2px 10px">Battle Code \u2014 a friend can battle this critter. It stays in your crate.</p>' : '') + '<div class="share-card">';
   if (d.critter) h += '<div class="share-who"><div id="shCv"></div><div><div style="font-weight:900;font-size:16px">' + esc(CS.displayName(d.critter)) + ' ' + rarTag(d.critter.rarity) + '</div><div class="note" style="font-size:12px">' + esc(d.critter.name) + ' &middot; by ' + esc(d.trainer) + '</div></div></div>';
   h += '<div class="qrbox"><canvas id="shQr"></canvas></div><div class="codetxt" id="shUrl">' + esc(x.url) + '</div></div>';
   h += '<p class="note" style="margin:10px 2px">' + notes[x.type] + '</p>';
@@ -3255,10 +3354,10 @@ function renderQr(){
   var el = $('qr');
   var h = '<h2>QR Codes</h2><div class="row" style="margin-bottom:12px"><button class="btn" id="qrScan" style="flex:1">&#128247; Scan a code</button><button class="btn alt" id="qrPaste" style="flex:1">Paste a code</button></div>';
   h += '<div class="card" style="margin-bottom:6px"><div class="row" style="align-items:center"><b style="white-space:nowrap">Trainer name</b><input id="qrTrainer" maxlength="16" placeholder="Your name" value="' + esc(S.trainer || '') + '" style="margin:0;flex:1"></div></div>';
-  h += '<h3>Battle codes</h3><p class="note" style="margin-bottom:8px">Friends battle an AI copy of your critter. Your critter stays with you.</p><div id="qrBattle"></div>';
+  h += '<h3>\u2694\uFE0F Battle Codes</h3><p class="note" style="margin-bottom:8px">Friends battle an AI copy of your critter. Your critter stays with you. (Also on any critter\u2019s page: \u2694\uFE0F Battle Code.)</p><div id="qrBattle"></div>';
   h += '<h3>Invite a new player</h3><p class="note" style="margin-bottom:8px">They get a DNA pod of your critter that grows in their incubator (rarity re-rolls at hatch). Their thank-you code gets you a Stitch Kit.</p><div id="qrInvite"></div>';
   if (S.referral) h += '<h3>Thank-you code</h3><button class="btn alt block" id="qrThanks">Show my thank-you code for ' + esc(S.referral.fromName || 'my friend') + '</button>';
-  h += '<h3>Sent DNA gifts</h3>' + (S.codes.sent.length ? '<div id="qrSent"></div>' : '<p class="note">To gift a critter: Collection &rsaquo; critter &rsaquo; Gift as QR.</p>');
+  h += '<h3>Sent DNA gifts</h3>' + (S.codes.sent.length ? '<div id="qrSent"></div>' : '<p class="note">To gift a critter: Collection &rsaquo; critter &rsaquo; Rehome.</p>');
   el.innerHTML = h;
   $('qrScan').onclick = function(){ sfx.tap(); go('scan'); };
   $('qrPaste').onclick = openPaste;
@@ -3635,10 +3734,10 @@ function boot(){
 // The page checks version.json (never cached) on launch and whenever the app comes back to the front. If a newer build
 // is live it reloads once, unless a battle or dialog is open; then it shows a tap-to-reload bar. A sessionStorage flag
 // makes sure it never auto-reloads twice for the same build, so a stale copy can't cause a reload loop.
-var APP_VERSION = '1.1.4', APP_BUILD = '15f6d3380c';
+var APP_VERSION = '1.1.5', APP_BUILD = 'f9a8d55ad5';
 function verLabel(){ return 'v' + APP_VERSION + ' \u00b7 build ' + APP_BUILD; }
 var upd = { reg:null, hadController:false, pending:null, timer:null, go:null };
-function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('modal').classList.contains('on'); }
+function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('blendAnim') && !$('modal').classList.contains('on'); }
 function reloadForUpdate(v){ try { sessionStorage.setItem('cs.updReload', v.build); } catch (e) {} save(); location.reload(); }
 function showUpdateBar(v){
   var b = $('updBar');
@@ -3683,7 +3782,7 @@ window.CSApp = { get state(){ return S; }, set state(v){ S = v; }, save:save, go
   startBattle:startBattle, openPick:openPick, openKits:openKits, get battle(){ return B; },
   startFight:startFight, openPickCode:openPickCode, handleCode:handleCode, openShare:openShare, openStreak:openStreak, openGift:openGift, drawQR:drawQR,
   get music(){ return { unlocked:music.unlocked, cur:music.cur, missing:Object.keys(music.missing), found:music.found }; }, get scanEngine(){ return scan.engine; },
-  setSplice:function(sel){ spliceSel = sel; labTab = 'splicer'; }, setLabTab:function(t){ labTab = t; }, openDetail:function(id){ detailId = id; go('detail'); }, crateSpot:crateSpot, freezeCrate:function(on, spread){ var n = hab.critters.length; hab.critters.forEach(function(h, i){ h.pause = on ? 1e9 : 0; if (spread) h.x = (i + 0.5) / n * (hab.w - BUF); }); } };
+  setSplice:function(sel){ spliceSel = sel; labTab = 'incubator'; spliceJump = true; }, setLabTab:function(t){ labTab = t; }, openDetail:function(id){ detailId = id; go('detail'); }, crateSpot:crateSpot, freezeCrate:function(on, spread){ var n = hab.critters.length; hab.critters.forEach(function(h, i){ h.pause = on ? 1e9 : 0; if (spread) h.x = (i + 0.5) / n * (hab.w - BUF); }); } };
 })();
 </script>
 </body>
