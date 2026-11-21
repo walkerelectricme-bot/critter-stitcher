@@ -1,6 +1,6 @@
 // Critter Stitcher service worker: caches the single page + icons so the game installs and runs offline.
 // Music files in music/ are cached the first time they play.
-const CACHE = 'critter-stitcher-fb4fae98d2';
+const CACHE = 'critter-stitcher-b05c97ccab';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {
