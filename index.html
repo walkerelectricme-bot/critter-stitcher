@@ -332,6 +332,7 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
 .menu-item b { font-size:16px; }
 .menu-item small { font-size:12px; color:var(--dim); font-weight:700; }
 .menu-item i { font-style:normal; font-size:22px; color:var(--dim); }
+.blend-row.pre { border-color:var(--acc); box-shadow:0 0 0 2px var(--acc) inset; }
 </style>
 </head>
 <body>
@@ -1006,7 +1007,7 @@ var TRAITS = {
 var TRAIT_NAMES = Object.keys(TRAITS);
 var CFG = {
   startFragments: 100,
-  spliceCost: 50, mutateCost: 30, sacrificeFragments: 20,
+  spliceCost: 50, mutateCost: 30,
   skipPerMinute: 10,
   mutationChanceSplice: 0.08, shinyChance: 0.01,
   rareTraitChance: 0.40, legendaryUniqueChance: 0.25,
@@ -1438,7 +1439,7 @@ function skipTimer(s, idx, now){
 function hatch(s, idx, now, rng){
   var inc = s.incubators[idx]; if (!inc) return { ok:false, reason:'Empty.' };
   if (timeLeft(inc, now) > 0) return { ok:false, reason:'Not ready yet.' };
-  if (collectionFull(s)) return { ok:false, reason:'Your collection is full (' + s.slots + ' slots). Sacrifice a critter to make room.' };
+  if (collectionFull(s)) return { ok:false, reason:'Your collection is full (' + s.slots + ' slots). Blend or gift a critter to make room.' };
   var c = inc.kind === 'pod' ? hatchPod(inc.pod, rng || Math.random, now) : inc.critter;
   s.incubators[idx] = null; s.collection.push(c);
   SLOTS.forEach(function(sl){ discover(s, c.parts[sl], sl); });
@@ -1454,16 +1455,6 @@ function mutateCritter(s, id, rng){
   s.fragments -= CFG.mutateCost;
   var r = mutate(c, rng); refresh(c); s.stats.mutations++;
   return r;
-}
-// Sacrifice: 2 of 3 parts back as samples (player picks one, the other random) + 20 Fragments.
-function sacrifice(s, id, keepSlot, rng){
-  var c = findCritter(s, id); if (!c) return { ok:false, reason:'Not found.' };
-  if (SLOTS.indexOf(keepSlot) < 0) return { ok:false, reason:'Pick a part to keep.' };
-  var others = SLOTS.filter(function(x){ return x !== keepSlot; }), second = pick(rng, others);
-  var got = [keepSlot, second].map(function(sl){ addSample(s, c.parts[sl], sl, c.rarity, 1); return { family:c.parts[sl], slot:sl, rarity:c.rarity }; });
-  s.collection = s.collection.filter(function(x){ return x.id !== id; });
-  s.fragments += CFG.sacrificeFragments; s.stats.sacrifices++;
-  return { ok:true, samples:got, fragments:CFG.sacrificeFragments };
 }
 function grantTestDNA(s){ FAMILIES.forEach(function(f){ SLOTS.forEach(function(sl){ addSample(s, f, sl, 'Common', 2); }); }); addSample(s, 'Starfang', 'head', 'Rare', 1); addSample(s, 'Zoraclaw', 'torso', 'Legendary', 1); s.fragments += 1000; s.kits = (s.kits || 0) + 5; }
 function discoveryCounts(s){
@@ -1822,7 +1813,7 @@ return {
   addSample:addSample, takeSample:takeSample, sampleCount:sampleCount, chooseStarter:chooseStarter, timerSeconds:timerSeconds,
   freeIncubator:freeIncubator, collectionFull:collectionFull, pureSampleKeys:pureSampleKeys, canIncubatePure:canIncubatePure,
   startIncubation:startIncubation, splicePreview:splicePreview, startSplice:startSplice, timeLeft:timeLeft, skipCost:skipCost,
-  skipTimer:skipTimer, hatch:hatch, findCritter:findCritter, mutateCritter:mutateCritter, sacrifice:sacrifice,
+  skipTimer:skipTimer, hatch:hatch, findCritter:findCritter, mutateCritter:mutateCritter,
   grantTestDNA:grantTestDNA, discoveryCounts:discoveryCounts, discover:discover,
   LEG_WORDS:LEG_WORDS, CHALLENGERS:CHALLENGERS, DROP_CHANCE:DROP_CHANCE,
   maxHp:maxHp, currentHp:currentHp, isHealing:isHealing, isFainted:isFainted, canBattle:canBattle, healLeft:healLeft, healSkipCost:healSkipCost,
@@ -2462,7 +2453,7 @@ function crateSpot(id){ // test hook: screen position of a critter in the crate
 }
 
 /* ---------- lab ---------- */
-var labTab = 'incubator', spliceSel = { head:null, torso:null, legs:null }, mutSel = null, lastMut = null;
+var blendPre = null, labTab = 'incubator', spliceSel = { head:null, torso:null, legs:null }, mutSel = null, lastMut = null;
 function renderLab(){
   var el = $('lab');
   el.innerHTML = '<div class="tabs"><button class="tab" data-t="incubator">Incubator</button><button class="tab" data-t="splicer">Splicer</button><button class="tab" data-t="mutator">Mutator</button><button class="tab" data-t="blender">Blender</button></div><div id="labBody"></div>';
@@ -2555,7 +2546,7 @@ function updateIncInfo(i){
 }
 function doHatch(i){
   var inc = S.incubators[i]; if (!inc) return;
-  if (CS.collectionFull(S)) { sfx.bad(); toast('Collection full (' + S.slots + '). Sacrifice a critter first.', 3000); return; }
+  if (CS.collectionFull(S)) { sfx.bad(); toast('Collection full (' + S.slots + '). Blend or gift a critter first.', 3000); return; }
   var r = CS.hatch(S, i, Date.now(), Math.random);
   if (!r.ok) { toast(r.reason); return; }
   save(); notified[inc.start] = true;
@@ -2729,6 +2720,7 @@ function renderBlender(body){
     b.textContent = '+' + info.value; b.disabled = !!locked; if (locked) b.title = S.collection.length <= 1 ? 'Keep at least one critter' : 'In a battle';
     b.onclick = function(){ openBlendConfirm({ critter:c }); };
     row.appendChild(b); bc.appendChild(row);
+    if (blendPre === c.id) { row.classList.add('pre'); row.id = 'blPre'; }
   });
   if (S.collection.length <= 1) bc.insertAdjacentHTML('beforeend', '<p class="note" style="font-size:12px">You need at least one critter left, so your last one can\u2019t go in.</p>');
   var bs = body.querySelector('#blSamp'), keys = Object.keys(S.samples).sort(function(a, b){ var pa = CS.parseSampleKey(a), pb = CS.parseSampleKey(b); return CS.RARITIES.indexOf(pb.rarity) - CS.RARITIES.indexOf(pa.rarity) || CS.FAMILIES.indexOf(pa.family) - CS.FAMILIES.indexOf(pb.family) || SLOTS.indexOf(pa.slot) - SLOTS.indexOf(pb.slot); });
@@ -2744,6 +2736,10 @@ function renderBlender(body){
     if (n > 1) { var b2 = document.createElement('button'); b2.className = 'btn warn'; b2.style.padding = '8px 10px'; b2.style.marginLeft = '6px'; b2.textContent = 'All \u00b7 +' + v * n; b2.onclick = function(){ openBlendConfirm({ key:k, n:n }); }; row.appendChild(b2); }
     bs.appendChild(row);
   });
+  // "Blend" from a critter's details page: that critter is highlighted and its confirm opens straight away
+  var pre = blendPre && S.collection.find(function(c){ return c.id === blendPre; }); blendPre = null;
+  var preRow = body.querySelector('#blPre');
+  if (pre && preRow) { preRow.scrollIntoView({ block:'center' }); if (!preRow.querySelector('button').disabled) openBlendConfirm({ critter:pre }); }
 }
 function openBlendConfirm(x){
   var title, lines, value, P = CS.CFG.blendPart;
@@ -2871,7 +2867,10 @@ function renderDetail(){
   var h = '<div class="detail-hero ' + c.rarity + '"><div id="dCv"></div><div class="nm">' + esc(CS.displayName(c)) + '</div>' +
     '<div class="sub">' + (c.nickname ? esc(c.name) + ' &middot; ' : '') + 'Gen ' + (lin.generation || 1) + ' &middot; ' + (lin.kind === 'incubate' ? 'Pure ' + c.parts.head : 'Hybrid') + '</div>' +
     '<div style="margin-top:6px">' + rarTag(c.rarity) + (c.branded ? ' <span class="rar" style="color:#ffc93c;border-color:#ffc93c">\u2605 Branded</span>' : '') + mutBadge(c) + (c.mutations.length ? ' <span class="rar" style="color:#d6a8ff;border-color:#d6a8ff">' + CS.mutationTag(c.mutations.length) + '</span>' : '') + (c.colors.shiny ? ' <span class="rar" style="color:#fff;border-color:#fff">\u2728 Shiny</span>' : '') + '</div></div>';
-  h += '<div class="row" style="margin-top:12px"><button class="btn alt" id="dName" style="flex:1">Nickname</button><button class="btn alt" id="dShare" style="flex:1">Share code</button><button class="btn warn" id="dSac" style="flex:1">Sacrifice</button></div>';
+  h += '<div class="row" style="margin-top:12px"><button class="btn alt" id="dName" style="flex:1">Nickname</button><button class="btn alt" id="dShare" style="flex:1">Share code</button></div>';
+  var lastOne = S.collection.length <= 1, fighting = !!(S.activeBattle && S.activeBattle.cid === c.id), why = lastOne ? 'Keep at least one critter' : fighting ? 'In a battle' : '';
+  h += '<div class="row" style="margin-top:8px"><button class="btn alt" id="dGift" style="flex:1"' + (why ? ' disabled title="' + why + '"' : '') + '>&#127873; Gift as QR</button><button class="btn warn" id="dBlend" style="flex:1"' + (why ? ' disabled title="' + why + '"' : '') + '>\uD83C\uDF00 Blend</button></div>' +
+    (why ? '<p class="note" style="font-size:12px;margin:4px 0 0">' + (lastOne ? 'Your last critter can\u2019t be gifted or blended.' : 'It\u2019s in a battle right now.') + '</p>' : '');
   h += '<h3>Health</h3><div class="card">' + hpBlock(c) + (CS.isHealing(c) ? '<button class="btn alt block" id="dHeal" style="margin-top:8px">Heal now &middot; ' + CS.healSkipCost(c) + ' Fragments</button>' : '') + '</div>';
   h += '<h3>Stats</h3><div class="card">' + statBars(c) + '</div>';
   h += '<h3>Elements</h3><div class="card kv"><b>Head</b><span>' + elTag(els.head) + ' ' + c.parts.head + '</span><b>Torso</b><span>' + elTag(els.torso) + ' ' + c.parts.torso + ' <span class="note">(defense element)</span></span><b>Legs</b><span>' + elTag(els.legs) + ' ' + c.parts.legs + '</span></div>';
@@ -2891,30 +2890,10 @@ function renderDetail(){
     $('nnClr').onclick = function(){ c.nickname = ''; save(); closeModal(); renderDetail(); };
   };
   el.querySelector('#dShare').onclick = function(){ shareBattle(c); };
-  el.querySelector('#dSac').onclick = function(){ openSacrifice(c); };
+  el.querySelector('#dGift').onclick = function(){ openGift(c); };
+  el.querySelector('#dBlend').onclick = function(){ blendPre = c.id; labTab = 'blender'; sfx.tap(); go('lab'); };
   if (el.querySelector('#dHeal')) el.querySelector('#dHeal').onclick = function(){ var r = CS.skipHeal(S, c.id, Date.now()); if (!r.ok) { toast(r.reason); sfx.bad(); return; } save(); updateHeader(); sfx.good(); renderDetail(); };
 }
-function openSacrifice(c){
-  modal('<div style="font-weight:900;font-size:18px">Sacrifice ' + esc(CS.displayName(c)) + '?</div><p class="note" style="margin-top:6px">It returns 2 of its 3 parts as ' + (c.rarity !== 'Common' ? c.rarity + ' ' : '') + 'DNA samples (your pick + 1 random) and ' + CS.CFG.sacrificeFragments + ' Fragments. This cannot be undone.</p><div style="font-weight:800;margin-top:10px">Pick the part to keep:</div><div class="keep-opts" id="keepOpts"></div><div class="row"><button class="btn alt" id="sacNo" style="flex:1">Cancel</button><button class="btn warn" id="sacYes" style="flex:1" disabled>Sacrifice</button></div><div class="or-line">or</div><button class="btn alt block" id="sacGift">&#127873; Gift it to a friend as a QR code</button>');
-  var keep = null, ko = $('keepOpts');
-  SLOTS.forEach(function(sl){
-    var b = document.createElement('button'); b.className = 'opt'; b.style.width = 'auto';
-    b.appendChild(partCanvas(c.parts[sl], sl)); b.insertAdjacentHTML('beforeend', '<div>' + cap(sl) + '</div><div class="src">' + c.parts[sl] + '</div>');
-    b.querySelector('canvas').style.width = '72px'; b.querySelector('canvas').style.height = '24px';
-    b.onclick = function(){ keep = sl; ko.querySelectorAll('.opt').forEach(function(x){ x.classList.remove('sel'); }); b.classList.add('sel'); $('sacYes').disabled = false; };
-    ko.appendChild(b);
-  });
-  $('sacNo').onclick = closeModal;
-  $('sacGift').onclick = function(){ openGift(c); };
-  $('sacYes').onclick = function(){
-    var r = CS.sacrifice(S, c.id, keep, Math.random);
-    if (!r.ok) { toast(r.reason); return; }
-    save(); closeModal(); flash('#ff4d6d', 0.5); sfx.bad();
-    toast('Returned: ' + r.samples.map(function(s){ return s.family + ' ' + s.slot; }).join(' + ') + ' + ' + r.fragments + ' Fragments', 3500);
-    history = ['home']; go('collection', { noHistory:true });
-  };
-}
-
 function openGift(c){
   var inst = CS.instabilityOf(c);
   if (inst >= CS.CFG.giftBlockAt) {
@@ -3279,7 +3258,7 @@ function renderQr(){
   h += '<h3>Battle codes</h3><p class="note" style="margin-bottom:8px">Friends battle an AI copy of your critter. Your critter stays with you.</p><div id="qrBattle"></div>';
   h += '<h3>Invite a new player</h3><p class="note" style="margin-bottom:8px">They get a DNA pod of your critter that grows in their incubator (rarity re-rolls at hatch). Their thank-you code gets you a Stitch Kit.</p><div id="qrInvite"></div>';
   if (S.referral) h += '<h3>Thank-you code</h3><button class="btn alt block" id="qrThanks">Show my thank-you code for ' + esc(S.referral.fromName || 'my friend') + '</button>';
-  h += '<h3>Sent DNA gifts</h3>' + (S.codes.sent.length ? '<div id="qrSent"></div>' : '<p class="note">To gift a critter: Collection &rsaquo; critter &rsaquo; Sacrifice &rsaquo; Gift as a QR code.</p>');
+  h += '<h3>Sent DNA gifts</h3>' + (S.codes.sent.length ? '<div id="qrSent"></div>' : '<p class="note">To gift a critter: Collection &rsaquo; critter &rsaquo; Gift as QR.</p>');
   el.innerHTML = h;
   $('qrScan').onclick = function(){ sfx.tap(); go('scan'); };
   $('qrPaste').onclick = openPaste;
@@ -3656,7 +3635,7 @@ function boot(){
 // The page checks version.json (never cached) on launch and whenever the app comes back to the front. If a newer build
 // is live it reloads once, unless a battle or dialog is open; then it shows a tap-to-reload bar. A sessionStorage flag
 // makes sure it never auto-reloads twice for the same build, so a stale copy can't cause a reload loop.
-var APP_VERSION = '1.1.3', APP_BUILD = '13f554b691';
+var APP_VERSION = '1.1.4', APP_BUILD = '15f6d3380c';
 function verLabel(){ return 'v' + APP_VERSION + ' \u00b7 build ' + APP_BUILD; }
 var upd = { reg:null, hadController:false, pending:null, timer:null, go:null };
 function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('modal').classList.contains('on'); }
