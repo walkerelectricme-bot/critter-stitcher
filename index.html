@@ -320,6 +320,18 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
 .ver-foot { text-align:center; font-size:10px; color:#ffffff; opacity:.28; margin:-4px 0 6px; letter-spacing:.3px; flex:0 0 auto; }
 #updBar { position:absolute; left:50%; top:62px; transform:translateX(-50%); z-index:90; display:none; background:#1b3a22; border:2px solid var(--acc); color:var(--ink); padding:9px 16px; border-radius:999px; font:inherit; font-weight:800; font-size:13px; box-shadow:0 6px 18px rgba(0,0,0,.5); white-space:nowrap; }
 #updBar.on { display:block; }
+
+/* ---------- v1.1.2: home More menu ---------- */
+.more-btn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:10px; padding:9px 12px; border-radius:12px; background:var(--panel); border:1px solid var(--line); color:var(--ink); font:inherit; font-weight:900; font-size:15px; }
+.more-btn small { font-weight:700; font-size:11px; color:var(--dim); }
+.more-btn:active { transform:translateY(1px); }
+.menu-sheet .menu-title { font-weight:900; font-size:18px; margin-bottom:8px; }
+.menu-item { display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:11px 12px; margin-bottom:8px; border-radius:12px; background:var(--panel2); border:1px solid var(--line); color:var(--ink); font:inherit; }
+.menu-item svg, .menu-item .gear { width:28px; height:28px; flex:0 0 28px; font-size:24px; line-height:28px; text-align:center; }
+.menu-item span { flex:1; display:flex; flex-direction:column; }
+.menu-item b { font-size:16px; }
+.menu-item small { font-size:12px; color:var(--dim); font-weight:700; }
+.menu-item i { font-style:normal; font-size:22px; color:var(--dim); }
 </style>
 </head>
 <body>
@@ -345,9 +357,8 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
           <button class="big battle" data-go="ladder"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#ff6a2b" d="M0 0h2l5 5 1-1 1 1-1 1 1 1-2 2-1-1-1 1-1-1 1-1L0 2z"/></svg>Battle<small id="ladderTxt"></small></button>
           <button class="big" data-go="collection"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#b07cff" d="M0 1h4v3H0zM5 1h4v3H5zM0 5h4v3H0zM5 5h4v3H5z"/></svg>Collection<small id="collCount"></small><span class="badge" id="healBadge"></span></button>
           <button class="big kit" id="kitBtn"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#8f6cf0" d="M0 2h9v7H0z"/><path fill="#4b2d94" d="M0 4h9v1H0z"/><path fill="#fff" d="M1 4h1v1H1zM3 4h1v1H3zM5 4h1v1H5zM7 4h1v1H7z"/><path fill="#7cff6b" d="M3 6h1v1H3zM5 6h1v1H5zM4 7h1v1H4z"/><path fill="#b9a2ff" d="M1 1h7v1H1z"/></svg>Stitch Kits<small id="kitTxt"></small><span class="badge" id="kitBadge"></span></button>
-          <button class="big" data-go="log"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#49d3ff" d="M1 0h7v9H1zM2 1v7h5V1z"/><path fill="#49d3ff" d="M3 2h3v1H3zM3 4h3v1H3zM3 6h2v1H3z"/></svg>Log<small id="logCount"></small></button>
-          <button class="big qr" data-go="qr"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#f1eefc" d="M0 0h4v4H0zM1 1v2h2V1zM5 0h4v4H5zM6 1v2h2V1zM0 5h4v4H0zM1 6v2h2V6zM5 5h1v1H5zM7 5h2v1H7zM5 7h2v2H5zM8 7h1v2H8z"/></svg>QR Codes<small>Battle &middot; Gift &middot; Invite</small></button>
         </div>
+        <button class="more-btn" id="moreBtn" aria-label="More">&#9776; More<small>Critterpedia &middot; QR Codes &middot; Settings</small></button>
       </div>
       <div id="habWrap"><div class="crate-label">CRITTER CRATE</div><canvas id="habitat"></canvas></div>
       <div class="ver-foot" id="verFoot"></div>
@@ -2326,7 +2337,6 @@ function renderHome(){
   else tip.style.display = 'none';
   renderNextUp(); renderStreakCard();
   $('collCount').textContent = S.collection.length + ' / ' + S.slots;
-  var dc = CS.discoveryCounts(S); $('logCount').textContent = dc.total + ' of 30 parts';
   updateBadges(); updateKits(); setupHabitat();
   $('verFoot').textContent = verLabel();
 }
@@ -3451,10 +3461,10 @@ function musicStatus(){
 }
 ['pointerdown', 'keydown'].forEach(function(ev){ window.addEventListener(ev, function(){ if (!music.unlocked) { music.unlocked = true; updateMusic(); } }, { capture:true }); });
 
-/* ---------- discovery log ---------- */
+/* ---------- Critterpedia (discovered parts; screen id + save keys still 'log' / 'discovered') ---------- */
 function renderLog(){
   var el = $('log'), dc = CS.discoveryCounts(S);
-  var h = '<h2>Discovery Log</h2><div class="logcount">' + dc.total + ' of 30 parts</div><p class="note" style="text-align:center">' + dc.head + ' of 10 heads &middot; ' + dc.torso + ' of 10 torsos &middot; ' + dc.legs + ' of 10 legs</p>';
+  var h = '<h2>Critterpedia</h2><div class="logcount">' + dc.total + ' of 30 parts</div><p class="note" style="text-align:center">' + dc.head + ' of 10 heads &middot; ' + dc.torso + ' of 10 torsos &middot; ' + dc.legs + ' of 10 legs</p>';
   var secrets = Object.keys(CS.SECRET_COMBOS).length, foundSecrets = {};
   S.collection.forEach(function(c){ var k = c.parts.head + '+' + c.parts.torso; if (CS.SECRET_COMBOS[k]) foundSecrets[k] = 1; });
   S.secretsFound = Object.assign(S.secretsFound || {}, foundSecrets);
@@ -3507,6 +3517,19 @@ function renderSettings(){
   };
 }
 $('settingsBtn').onclick = function(){ sfx.tap(); go('settings'); };
+// Home "More" menu: Critterpedia, QR Codes, Settings
+function openMore(){
+  var dc = CS.discoveryCounts(S);
+  modal('<div class="menu-sheet"><div class="menu-title">More</div>' +
+    '<button class="menu-item" id="menuPedia"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#49d3ff" d="M1 0h7v9H1zM2 1v7h5V1z"/><path fill="#49d3ff" d="M3 2h3v1H3zM3 4h3v1H3zM3 6h2v1H3z"/></svg><span><b>Critterpedia</b><small>' + dc.total + ' of 30 parts discovered</small></span><i>&rsaquo;</i></button>' +
+    '<button class="menu-item" id="menuQr"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#f1eefc" d="M0 0h4v4H0zM1 1v2h2V1zM5 0h4v4H5zM6 1v2h2V1zM0 5h4v4H0zM1 6v2h2V6zM5 5h1v1H5zM7 5h2v1H7zM5 7h2v2H5zM8 7h1v2H8z"/></svg><span><b>QR Codes</b><small>Battle &middot; Gift &middot; Invite &middot; Scan</small></span><i>&rsaquo;</i></button>' +
+    '<button class="menu-item" id="menuSettings"><span class="gear">&#9881;</span><span><b>Settings</b><small>Trainer name &middot; sound &middot; backup</small></span><i>&rsaquo;</i></button>' +
+    '<button class="btn alt block" id="menuClose" style="margin-top:6px">Close</button></div>');
+  var to = function(id){ return function(){ sfx.tap(); closeModal(); go(id); }; };
+  $('menuPedia').onclick = to('log'); $('menuQr').onclick = to('qr'); $('menuSettings').onclick = to('settings');
+  $('menuClose').onclick = closeModal;
+}
+$('moreBtn').onclick = function(){ sfx.tap(); openMore(); };
 $('backBtn').onclick = function(){ sfx.tap(); back(); };
 
 /* ---------- sprite sheet (hidden: ?sheet=1) ---------- */
@@ -3596,7 +3619,7 @@ function boot(){
 // The page checks version.json (never cached) on launch and whenever the app comes back to the front. If a newer build
 // is live it reloads once, unless a battle or dialog is open; then it shows a tap-to-reload bar. A sessionStorage flag
 // makes sure it never auto-reloads twice for the same build, so a stale copy can't cause a reload loop.
-var APP_VERSION = '1.1.1', APP_BUILD = '9d82c15c2a';
+var APP_VERSION = '1.1.2', APP_BUILD = '1012300088';
 function verLabel(){ return 'v' + APP_VERSION + ' \u00b7 build ' + APP_BUILD; }
 var upd = { reg:null, hadController:false, pending:null, timer:null, go:null };
 function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('modal').classList.contains('on'); }
