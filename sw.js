@@ -1,7 +1,7 @@
 // Critter Stitcher service worker: caches the single page + icons so the game installs and runs offline.
 // Pages are served NETWORK-FIRST (no HTTP cache, ~3 s timeout) so a new deploy shows up on the very next launch;
-// the cached copy is only used offline or on a very slow network. Music files in music/ are cached the first time they play.
-const VERSION = '1.1.6', BUILD = '46c773ef64';
+// the cached copy is only used offline or on a very slow network. Music (music/) and sound effects (sfx/) are cached the first time they load, so they work offline after that.
+const VERSION = '1.1.7', BUILD = '0462b7b76d';
 const CACHE = 'critter-stitcher-' + BUILD;
 const NAV_TIMEOUT = 3000;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
@@ -34,7 +34,7 @@ self.addEventListener('fetch', e => {
   if (url.pathname.endsWith('/version.json')) return;   // update check: always straight to the network
   if (req.mode === 'navigate') { e.respondWith(navigate()); return; }
   e.respondWith(caches.match(req, { ignoreSearch: true }).then(hit => hit || fetch(req).then(r => {
-    if (r.ok && url.pathname.includes('/music/')) { const copy = r.clone(); caches.open(CACHE).then(c => c.put(req, copy)); }
+    if (r.status === 200 && (url.pathname.includes('/music/') || url.pathname.includes('/sfx/'))) { const copy = r.clone(); caches.open(CACHE).then(c => c.put(req, copy)).catch(() => {}); }
     return r;
   })));
 });
