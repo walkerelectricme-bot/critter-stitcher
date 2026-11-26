@@ -1,7 +1,7 @@
 // Critter Stitcher service worker: caches the single page + icons so the game installs and runs offline.
 // Pages are served NETWORK-FIRST (no HTTP cache, ~3 s timeout) so a new deploy shows up on the very next launch;
 // the cached copy is only used offline or on a very slow network. Music (music/) and sound effects (sfx/) are cached the first time they load, so they work offline after that.
-const VERSION = '1.1.7', BUILD = '0462b7b76d';
+const VERSION = '1.1.8', BUILD = '079139fa02';
 const CACHE = 'critter-stitcher-' + BUILD;
 const NAV_TIMEOUT = 3000;
 const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
