@@ -62,10 +62,10 @@ p.note{color:var(--dim);font-size:13px;line-height:1.4}
 .big .badge{position:absolute;top:-6px;right:-6px;min-width:24px;height:24px;border-radius:12px;background:#ff3d7f;color:#fff;font-size:13px;display:none;place-items:center;padding:0 6px;border:2px solid var(--bg)}
 .big .badge.show{display:grid}
 #habWrap{flex:1 0 250px;min-height:250px;max-height:460px;position:relative;margin:0 8px 8px;border:3px solid #3a230f;border-radius:8px;
-  background:repeating-linear-gradient(0deg,#a8743d 0 22px,#8a5a2b 22px 24px);box-shadow:inset 0 0 0 3px #c48a4b,0 6px 0 #0d0b1a;padding:14px 12px 12px}
-#habWrap::before,#habWrap::after{content:'';position:absolute;width:14px;height:14px;background:#7a828d;border:2px solid #3a3f47;top:-3px;left:-3px;box-shadow:inset 2px 2px 0 #b8c0ca}
+  background:repeating-linear-gradient(0deg,var(--cr-a,#a8743d) 0 22px,var(--cr-b,#8a5a2b) 22px 24px);box-shadow:inset 0 0 0 3px var(--cr-in,#c48a4b),0 6px 0 #0d0b1a;padding:14px 12px 12px;border-color:var(--cr-bd,#3a230f)}
+#habWrap::before,#habWrap::after{content:'';position:absolute;width:14px;height:14px;background:var(--cr-mt,#7a828d);border:2px solid #3a3f47;top:-3px;left:-3px;box-shadow:inset 2px 2px 0 #b8c0ca}
 #habWrap::after{left:auto;right:-3px}
-.crate-label{position:absolute;top:-11px;left:50%;transform:translateX(-50%);z-index:2;background:#e9d9a8;color:#3a230f;border:2px solid #3a230f;border-radius:4px;
+.crate-label{position:absolute;top:-11px;left:50%;transform:translateX(-50%);z-index:2;background:var(--cr-lb,#e9d9a8);color:var(--cr-ink,#3a230f);border:2px solid var(--cr-ink,#3a230f);border-radius:4px;cursor:pointer;pointer-events:auto;
   font:900 11px/1 ui-monospace,Menlo,monospace;letter-spacing:2px;padding:4px 8px;white-space:nowrap}
 #habitat{position:absolute;left:12px;right:12px;top:14px;bottom:12px;width:calc(100% - 24px);height:calc(100% - 26px);touch-action:manipulation;border:2px solid #3a230f;border-radius:4px}
 /* starter */
@@ -651,6 +651,23 @@ header .back svg{width:18px;height:18px}
 .chal .go.ev-rest{font-size:11px;line-height:1.25;padding:8px 10px;opacity:1;background:#2a2547;color:var(--dim)}
 .ev-cool-note{margin:-2px 2px 10px;font-size:12px}
 .code-kind.event{background:#3a2612;color:#ffd08a}
+
+/* ---------- v1.2.2: Critter Crate looks ---------- */
+#habitat{border-color:var(--cr-bd,#3a230f)}
+.crate-label:focus-visible{outline:2px solid #ffc93c;outline-offset:2px}
+.crate-new{display:none;margin-left:5px;padding:0 4px;border-radius:3px;background:#ff3d7f;color:#fff;font:900 9px/14px system-ui,sans-serif;letter-spacing:.5px;vertical-align:1px}
+.crate-new.show{display:inline-block}
+.cl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:58vh;overflow-y:auto;padding:2px}
+.cl-tile{display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:6px;border-radius:10px;background:var(--panel2);border:2px solid var(--line);color:var(--ink);text-align:center;min-width:0}
+.cl-tile.on{border-color:#7cff6b;box-shadow:0 0 0 1px #7cff6b inset}
+.cl-tile.locked .cl-nm{color:var(--dim)}
+.cl-pv{border:2px solid var(--cr-bd,#3a230f);border-radius:5px;padding:3px;background:repeating-linear-gradient(0deg,var(--cr-a,#a8743d) 0 8px,var(--cr-b,#8a5a2b) 8px 9px)}
+.cl-cv{display:block;width:100%;height:auto;image-rendering:pixelated;border-radius:2px}
+.cl-nm{font-weight:900;font-size:12px;line-height:1.15}
+.cl-st{font-size:10px;line-height:1.2}
+.pd-empty{text-align:center;margin:18px 10px}
+.crate-label #crateCount{color:var(--cr-ink,#3a230f);opacity:.8}
+.crate-label #crateCount.full{color:#b3361a;opacity:1}
 </style>
 </head>
 <body>
@@ -679,7 +696,7 @@ header .back svg{width:18px;height:18px}
         </div>
         <button class="more-btn" id="moreBtn" aria-label="More">&#9776; More<small>Critterpedia &middot; Settings</small></button>
       </div>
-      <div id="habWrap"><div class="crate-label">CRITTER CRATE <span id="crateCount"></span><span id="crateIb"></span><button class="crate-ko" id="crateKo" aria-label="Fainted critters: heal"></button></div><canvas id="habitat"></canvas><div class="crate-slots" id="crateSlots"></div></div>
+      <div id="habWrap"><div class="crate-label" id="crateLabel" role="button" tabindex="0" aria-label="Critter Crate: change its look"><span id="crateTag">CRITTER CRATE</span> <span id="crateCount"></span><span id="crateNew" class="crate-new"></span><span id="crateIb"></span><button class="crate-ko" id="crateKo" aria-label="Fainted critters: heal"></button></div><canvas id="habitat"></canvas><div class="crate-slots" id="crateSlots"></div></div>
       <div class="ver-foot" id="verFoot"></div>
     </section>
     <section class="screen" id="lab"></section>
@@ -1365,7 +1382,7 @@ legs: [
 var CS = (function(){
 'use strict';
 var SAVE_KEY = 'critterStitcher.save';
-var SAVE_VERSION = 10;  // v10 (v1.2.1): seasonal events (boss clears, part rotation, cooldown, scanned event critters).  v9 (v1.2.0): Vibration setting, queued next splice.  v8 (v1.1.9): Critterpedia binder + achievements; full-crate hatch can be held (v7: music 40% default, swipe / Gene Stack / battle speed, crate pins)
+var SAVE_VERSION = 11;  // v11 (v1.2.2): Critter Crate looks (crateLook, looksSeen), event critters rest 1 hour (foe lastFight), crate 8 after The Stitchmaster.  v10 (v1.2.1): seasonal events (boss clears, part rotation, cooldown, scanned event critters).  v9 (v1.2.0): Vibration setting, queued next splice.  v8 (v1.1.9): Critterpedia binder + achievements; full-crate hatch can be held (v7: music 40% default, swipe / Gene Stack / battle speed, crate pins)
 var SIZE = 48, PAD = 4, BUF = SIZE + PAD*2;   // sprite buffer is 56x56 so outlines/aura fit
 
 var FAMILIES = ['Emberthorn','Skulldust','Vilebloom','Retchedslime','Glimmerfin','Frostbite','Pylophong','Starfang','Zoraclaw','Shadowmaw'];
@@ -1460,20 +1477,21 @@ var CFG = {
   blendPart: { Common:8, Rare:20, Legendary:50 }, blendPure: 1.5, blendInstabilityCut: 0.15,
   copyPenaltyPerInstability: 0.05, copyPenaltyMax: 0.5, giftBlockAt: 4,
   podOdds: { Common:{ Legendary:0, Rare:0.05 }, Rare:{ Legendary:0, Rare:0.35 }, Legendary:{ Legendary:0.15, Rare:0.35 } },
-  startSlots: 4, maxSlots: 6, startIncubators: 1,   // v1.1.6: crate capacity comes from CFG.crates (was 6 growing to 10 via ladder goals)
+  startSlots: 4, maxSlots: 8, startIncubators: 1,   // v1.1.6: crate capacity comes from CFG.crates (was 6 growing to 10 via ladder goals)
   // Critter Crates (v1.1.6). A crate is the owned-critter capacity (the collection limit). Each crate has levels; a level
   // adds slots when its unlock is met. Only the starter crate exists today. Future crates (bought or earned) can add more
   // crates and more levels/rows: keep <= crateRowMax critters per row and set activeCrate in the save to switch.
   crates: [
     { id:'starter', name:'Critter Crate', rows:1, levels:[
       { slots:4 },                                   // base
-      { slots:6, unlock:'boss1' }                    // +2 after the first boss
+      { slots:6, unlock:'boss1' },                   // +2 after the first boss
+      { slots:8, unlock:'boss2' }                    // v1.2.2: +2 after The Stitchmaster (cap 8 until the store; no 10-slot tier yet)
     ] }
   ],
-  crateUnlocks: { boss1: { challenger:'gristle' } },  // unlock id -> condition (beat this challenger)
-  crateRowMax: 6,
-  crateSpriteScale: { 1:1, 2:1, 3:1, 4:1, 5:0.9, 6:0.84 },   // hook: shrink crate sprites a little when a row holds 5-6
-  timers:     { incubate: 180, splice: 300, heal: 120, eventCooldown: 3600 },   // seconds (GDD start values); v1.2.1 event boss: 1 hour between fights
+  crateUnlocks: { boss1: { challenger:'gristle' }, boss2: { challenger:'stitch' } },  // unlock id -> condition (beat this challenger)
+  crateRowMax: 8,
+  crateSpriteScale: { 1:1, 2:1, 3:1, 4:1, 5:0.9, 6:0.84, 7:0.84, 8:0.84 },   // hook: shrink crate sprites a little when a row holds 5-6
+  timers:     { incubate: 180, splice: 300, heal: 120, eventCooldown: 3600 },   // seconds (GDD start values); v1.2.1 event boss / v1.2.2 every event critter: 1 hour between fights
   testTimers: { incubate: 10,  splice: 15,  heal: 5, eventCooldown: 30 },       // ?test=1
   kitFragments: [20, 30], kitRareChance: 0.08,              // Stitch Kit = 1 sample + 20-30 Fragments
   superEffective: 1.5, resisted: 1 / 1.5,   // element wheel multipliers (Doug: softened from 2x / 0.5x)
@@ -1493,7 +1511,7 @@ var CFG = {
   // v1.1.8: battle swipe trace. Clean = +1 damage and +10 accuracy; failed = -1 damage; ignored = normal. Off in Battle Code fights.
   swipe: { accBonus: 10, dmg: 1 },
   // v1.2.1 seasonal events: every event runs from eventDaysBefore days before its holiday to eventDaysAfter days after (local dates, inclusive)
-  eventDaysBefore: 7, eventDaysAfter: 7, eventFoeDailyWins: 3,
+  eventDaysBefore: 7, eventDaysAfter: 7,   // v1.2.2: the 3-rewarded-wins-a-day cap on event critters is gone; the 1-hour rest replaces it
   rivalCap: 20,                                               // v1.1.6: saved Rivals; the oldest scan is recycled first
   referralKitCap: 10,                                         // thank-you kits per referrer, lifetime
   // 7-day login streak. Day 1 matches the old free daily kit; missing a day restarts at Day 1.
@@ -1764,7 +1782,8 @@ function newSave(now){
     deviceId: newDeviceId(), streak: { day: 0, last: '', best: 0 },
     codes: { redeemed: {}, battles: {}, sent: [], thanked: {}, thankKits: 0 }, rivals: [],
     referral: null, activeBattle: null, trainer: '', podQueue: [],
-    playerId: newPlayerId(), mp: newMpStats(), bossRewards: {}, rewardLog: [], pedia: { entries:{} }, achieve: {}, spliceNext: null, events: newEventsLedger()
+    playerId: newPlayerId(), mp: newMpStats(), bossRewards: {}, rewardLog: [], pedia: { entries:{} }, achieve: {}, spliceNext: null, events: newEventsLedger(),
+    crateLook: 'plank', looksSeen: {}
   };
 }
 function migrate(s){
@@ -1843,6 +1862,12 @@ function migrate(s){
     s.events.boss = s.events.boss || {}; s.events.foes = s.events.foes || {};
     s.v = 10;
   }
+  if (s.v === 10) { // v1.2.2: crate looks (dress only, never capacity) + event critters get the boss's 1-hour rest; nothing removed
+    if (typeof s.crateLook !== 'string') s.crateLook = 'plank';
+    s.looksSeen = s.looksSeen && typeof s.looksSeen === 'object' ? s.looksSeen : {};
+    var L10 = s.events && s.events.foes; if (L10) Object.keys(L10).forEach(function(id){ var r = L10[id]; if (r && r.lastFight == null) r.lastFight = 0; });
+    s.v = 11;
+  }
   var base = newSave(s.createdAt);
   for (var k in base) if (!(k in s)) s[k] = base[k];
   if (s.ladder) updateSlots(s);   // v1.1.6: crate capacity (4, or 6 after the first boss); existing critters are never removed
@@ -1851,6 +1876,7 @@ function migrate(s){
   (s.collection || []).forEach(function(c){ if (c && c.parts) refresh(c); });
   (s.incubators || []).forEach(function(inc){ if (inc && inc.critter && inc.critter.parts) refresh(inc.critter); });
   backfillPedia(s);   // idempotent: fills binder gaps from crate / rivals / ladder without clearing flags or first-seen dates
+  if (!crateLookDef(s.crateLook) || !crateLookUnlocked(s, s.crateLook)) s.crateLook = 'plank';   // unknown / locked look falls back to Plank
   return s;
 }
 function newPlayerId(){ // permanent random player ID (16 hex chars); never changes once saved
@@ -2102,11 +2128,14 @@ function backfillPedia(s){
     logPedia(s, { head:ch.parts[0], torso:ch.parts[1], legs:ch.parts[2] }, 'beaten', s.ladder.beaten[ch.id], { rarity:ch.rarity, nickname:ch.nick });
   });
 }
+// v1.2.2: the binder lists only critters you made (hatched or spliced). Beaten-only records stay in the save, hidden, never deleted.
+function pediaMade(e){ return !!(e && e.parts && (e.owned || e.built)); }
+function pediaList(s){ var entries = (s.pedia && s.pedia.entries) || {}; return Object.keys(entries).map(function(k){ return entries[k]; }).filter(pediaMade); }
 function pediaCounts(s){
   var entries = (s.pedia && s.pedia.entries) || {}, n = 0, pures = 0, byFam = {};
   FAMILIES.forEach(function(f){ byFam[f] = 0; });
   Object.keys(entries).forEach(function(k){
-    var e = entries[k]; if (!e || !e.parts) return; n++;
+    var e = entries[k]; if (!pediaMade(e)) return; n++;
     if (e.parts.head === e.parts.torso && e.parts.torso === e.parts.legs) { pures++; if (byFam[e.parts.head] != null) byFam[e.parts.head]++; }
     else { var seen = {}; SLOTS.forEach(function(sl){ var f = e.parts[sl]; if (f && !seen[f] && byFam[f] != null) { seen[f] = 1; byFam[f]++; } }); }
   });
@@ -2132,10 +2161,10 @@ var ACHIEVEMENTS = [
   { id:'firstHatch',    name:'First Hatch',           blurb:'Hatch your first critter.',                         reward:{ fragments:15 } },
   { id:'firstPure',     name:'A Pure Family',         blurb:'Own a pure critter of one family.',                  reward:{ fragments:20 } },
   { id:'allPures',      name:'All 10 Pure Critters',  blurb:'Own a pure critter of every family.',                reward:{ fragments:50, kits:1 } },
-  { id:'entries10',     name:'10 Pedia Entries',      blurb:'Log 10 different critters in the binder.',           reward:{ fragments:15 } },
-  { id:'entries25',     name:'25 Pedia Entries',      blurb:'Log 25 different critters in the binder.',           reward:{ fragments:25 } },
-  { id:'entries50',     name:'50 Pedia Entries',      blurb:'Log 50 different critters in the binder.',           reward:{ fragments:40, kits:1 } },
-  { id:'entries100',    name:'100 Pedia Entries',     blurb:'Log 100 different critters in the binder.',          reward:{ fragments:75, kits:2 } },
+  { id:'entries10',     name:'10 Pedia Entries',      blurb:'Make 10 different critters for the binder.',           reward:{ fragments:15 } },
+  { id:'entries25',     name:'25 Pedia Entries',      blurb:'Make 25 different critters for the binder.',           reward:{ fragments:25 } },
+  { id:'entries50',     name:'50 Pedia Entries',      blurb:'Make 50 different critters for the binder.',           reward:{ fragments:40, kits:1 } },
+  { id:'entries100',    name:'100 Pedia Entries',     blurb:'Make 100 different critters for the binder.',          reward:{ fragments:75, kits:2 } },
   { id:'ladderClear',   name:'Beat Every Challenger', blurb:'Defeat all 8 Challenger Ladder fighters.',           reward:{ fragments:50, kits:1 } },
   { id:'bothBosses',    name:'Beat Both Bosses',      blurb:'Defeat Old Gristle and The Stitchmaster.',           reward:{ fragments:40, kits:1 } },
   { id:'firstLegendary',name:'First Legendary',       blurb:'Hatch or build a Legendary critter.',                reward:{ fragments:30, kits:1 } },
@@ -2493,6 +2522,60 @@ function updateSlots(s){
   var n = cr.levels[lv].slots; s.slots = n;
   var out = []; for (var k = before + 1; k <= n; k++) out.push(k); return out;
 }
+/* ---------- v1.2.2 Critter Crate looks ---------- */
+// A look is dress for the same box: it never changes capacity (capacity is the crate levels above). Unlocks are
+// derived from progress every time, so a look can't be lost; s.crateLook is the one you picked, s.looksSeen marks
+// the ones you've already been shown (for the small NEW dot on the crate label).
+var CRATE_ELEMENT_NAMES = { Fire:'Ember', Plant:'Bloom', Water:'Tide', Shock:'Spark', Earth:'Stone' };
+var CRATE_LOOKS = [
+  { id:'plank', name:'Plank Crate', tag:'CRITTER CRATE', hint:'You start with it.' },
+  { id:'el_Fire',  element:'Fire',  name:'Ember Crate', tag:'EMBER CRATE' },
+  { id:'el_Plant', element:'Plant', name:'Bloom Crate', tag:'BLOOM CRATE' },
+  { id:'el_Water', element:'Water', name:'Tide Crate',  tag:'TIDE CRATE' },
+  { id:'el_Shock', element:'Shock', name:'Spark Crate', tag:'SPARK CRATE' },
+  { id:'el_Earth', element:'Earth', name:'Stone Crate', tag:'STONE CRATE' },
+  { id:'quilt', name:'Quilt Crate', tag:'QUILT CRATE', hint:'Own a pure critter of all five elements.' },
+  { id:'tote', name:'Line Tote', tag:'LINE TOTE', hint:'Beat The Stitchmaster.' },
+  { id:'harvest', name:'Harvest Crate', tag:'HARVEST CRATE', hint:'Clear The Grand Gobbler, or collect every Gobblequill and Gourdling part.' },
+  { id:'bell', name:'Bell Hatch', tag:'BELL HATCH', hint:'Hatch 10 critters.' },
+  { id:'stitchworks', name:'Stitchworks Case', tag:'STITCHWORKS', hint:'Beat Old Gristle and The Stitchmaster.' },
+  { id:'barn', name:'Timber Barn', tag:'TIMBER BARN', hint:'Own a pure critter of all 10 core families.' }
+];
+CRATE_LOOKS.forEach(function(l){ if (l.element) { var fs = elementFamilies(l.element); l.families = fs; l.hint = 'Own a pure ' + fs.join(' and a pure ') + '.'; } });
+function elementFamilies(el){ return FAMILIES.filter(function(f){ return FAM[f].element === el; }); }
+function crateLookDef(id){ for (var i = 0; i < CRATE_LOOKS.length; i++) if (CRATE_LOOKS[i].id === id) return CRATE_LOOKS[i]; return null; }
+// progress toward a look: { have, need }
+function crateLookProgress(s, id){
+  var l = crateLookDef(id); if (!l) return { have:0, need:1 };
+  var pures = pediaPureOwned(s), beaten = (s.ladder && s.ladder.beaten) || {};
+  if (id === 'plank') return { have:1, need:1 };
+  if (l.element) return { have:l.families.filter(function(f){ return pures.indexOf(f) >= 0; }).length, need:l.families.length };
+  if (id === 'quilt') { var els = {}; pures.forEach(function(f){ els[FAM[f].element] = 1; }); return { have:Object.keys(els).length, need:ELEMENTS.length }; }
+  if (id === 'tote') return { have:beaten.stitch ? 1 : 0, need:1 };
+  if (id === 'stitchworks') return { have:(beaten.gristle ? 1 : 0) + (beaten.stitch ? 1 : 0), need:2 };
+  if (id === 'bell') return { have:Math.min(10, (s.stats && s.stats.hatches) || 0), need:10 };
+  if (id === 'barn') return { have:pures.length, need:FAMILIES.length };
+  if (id === 'harvest') {
+    var cleared = EVENTS.some(function(ev){ var r = s.events && s.events.boss && s.events.boss[ev.id]; return ev.id === 'thanksgiving' && r && r.firstClear; });
+    var parts = 0; EVENT_FAMILIES.forEach(function(f){ SLOTS.forEach(function(sl){ if (s.discovered && s.discovered[partId(f, sl)]) parts++; }); });
+    var need = EVENT_FAMILIES.length * SLOTS.length;
+    return cleared ? { have:need, need:need } : { have:parts, need:need };
+  }
+  return { have:0, need:1 };
+}
+function crateLookUnlocked(s, id){ var p = crateLookProgress(s, id); return p.have >= p.need; }
+function crateLooks(s){
+  return CRATE_LOOKS.map(function(l){ var p = crateLookProgress(s, l.id); return { id:l.id, name:l.name, tag:l.tag, element:l.element || null, hint:l.hint, have:p.have, need:p.need, unlocked:p.have >= p.need, active:(s.crateLook || 'plank') === l.id, seen:l.id === 'plank' || !!(s.looksSeen && s.looksSeen[l.id]) }; });
+}
+function currentCrateLook(s){ var id = s.crateLook || 'plank'; return crateLookDef(id) && crateLookUnlocked(s, id) ? crateLookDef(id) : CRATE_LOOKS[0]; }
+// switching never touches slots / capacity
+function setCrateLook(s, id){
+  var l = crateLookDef(id); if (!l) return { ok:false, reason:'Unknown crate look.' };
+  if (!crateLookUnlocked(s, id)) return { ok:false, reason:l.hint };
+  s.crateLook = id; return { ok:true, look:l };
+}
+function newCrateLooks(s){ return crateLooks(s).filter(function(l){ return l.unlocked && !l.seen; }); }
+function markCrateLooksSeen(s, now){ s.looksSeen = s.looksSeen || {}; crateLooks(s).forEach(function(l){ if (l.unlocked && l.id !== 'plank' && !s.looksSeen[l.id]) s.looksSeen[l.id] = now || Date.now(); }); }
 // Weighted DNA drop from the opponent's parts: parts you haven't found yet are 3x as likely.
 function pickDropSlot(s, ec, rng){
   var w = SLOTS.map(function(sl){ return s.discovered[partId(ec.parts[sl], sl)] ? 1 : 3; }), tot = w[0] + w[1] + w[2], x = rng() * tot;
@@ -2602,12 +2685,21 @@ function rotateDropSlot(s, rec, parts, rng){
   return sl;
 }
 function foeRecord(s, foeId){ var L = eventsLedger(s); return L.foes[foeId] || null; }
-function foeWinsLeft(s, foeId, now){ var r = foeRecord(s, foeId); if (!r) return 0; var today = dateKey(now); return r.day === today ? Math.max(0, CFG.eventFoeDailyWins - (r.dayWins || 0)) : CFG.eventFoeDailyWins; }
+// v1.2.2: every scanned event critter rests 1 hour after each battle (win, loss or forfeit), the same as the boss
+function eventFoeStatus(s, foeId, now){
+  now = now || Date.now(); var r = foeRecord(s, foeId) || {}, left = r.lastFight ? Math.max(0, r.lastFight + cooldownMs(s) - now) : 0;
+  return { ready:left <= 0, cooldownLeft:Math.ceil(left / 1000), wins:r.wins || 0, losses:r.losses || 0 };
+}
+// one check for any event opponent key ('boss:<eventId>' or 'foe:<foeId>')
+function eventReady(s, key, now){
+  var o = eventOpponent(key); if (!o) return { ready:false, cooldownLeft:0 };
+  return o.kind === 'boss' ? eventBossStatus(s, o.ev.id, now) : eventFoeStatus(s, o.def.id, now);
+}
 // Scanning an event code adds its critter to the Special Event page (once; scanning again just says it's there)
 function addEventFoe(s, foeId, now){
   var def = EVENT_FOES[foeId]; if (!def) return { ok:false, reason:'This event critter needs a newer version of the game.' };
   var L = eventsLedger(s), isNew = !L.foes[foeId];
-  if (isNew) L.foes[foeId] = { scannedAt:now || Date.now(), wins:0, losses:0, cycle:[], day:'', dayWins:0 };
+  if (isNew) L.foes[foeId] = { scannedAt:now || Date.now(), wins:0, losses:0, cycle:[], lastFight:0 };
   return { ok:true, isNew:isNew, def:def, ev:eventById(def.event) };
 }
 // Event foes visible right now: only the ones you scanned whose event is running
@@ -2616,8 +2708,8 @@ function eventFoesFor(s, evId){
   return Object.keys(L.foes).filter(function(id){ return EVENT_FOES[id] && EVENT_FOES[id].event === evId; }).map(function(id){ return EVENT_FOES[id]; });
 }
 // Apply a finished event battle. Boss: win = 1 rotating part + Fragments (+1 kit and a Rare part on the first clear);
-// every boss battle (win, loss or forfeit) starts the cooldown. Event critters: win = 1 rotating part + Fragments,
-// up to CFG.eventFoeDailyWins rewarded wins per critter per day, then practice only.
+// every event battle (boss or event critter; win, loss or forfeit) starts that fighter's 1-hour rest.
+// Event critters: win = 1 rotating part + Fragments, every time (v1.2.2: no daily cap; the rest paces it).
 function finishEventBattle(s, key, critterId, b, rng, now){
   now = now || Date.now(); rng = rng || Math.random;
   var o = eventOpponent(key); if (!o) return { ok:false, reason:'Unknown event fighter.' };
@@ -2640,17 +2732,12 @@ function finishEventBattle(s, key, critterId, b, rng, now){
     } else { rec.losses++; rew.fragments = CFG.lossFragments; }
   } else {
     rec = foeRecord(s, def.id) || addEventFoe(s, def.id, now) && foeRecord(s, def.id);
-    var today = dateKey(now); if (rec.day !== today) { rec.day = today; rec.dayWins = 0; }
-    var left = CFG.eventFoeDailyWins - rec.dayWins;
+    rec.lastFight = now; out.cooldown = timerSeconds(s, 'eventCooldown');
     if (won) {
-      rec.wins++; logPedia(s, ec.parts, 'beaten', now, { rarity:ec.rarity, nickname:ec.nickname });
-      if (left > 0) {
-        rec.dayWins++; out.first = rec.wins === 1;
-        var fsl = rotateDropSlot(s, rec, def.parts, rng);
-        rew.fragments = def.frag; rew.samples.push({ family:def.parts[SLOTS.indexOf(fsl)], slot:fsl, rarity:'Common', award:true });
-      } else out.capped = true;
-    } else { rec.losses++; if (left > 0) rew.fragments = CFG.lossFragments; else out.capped = true; }
-    out.winsLeft = Math.max(0, CFG.eventFoeDailyWins - rec.dayWins);
+      rec.wins++; out.first = rec.wins === 1; logPedia(s, ec.parts, 'beaten', now, { rarity:ec.rarity, nickname:ec.nickname });
+      var fsl = rotateDropSlot(s, rec, def.parts, rng);
+      rew.fragments = def.frag; rew.samples.push({ family:def.parts[SLOTS.indexOf(fsl)], slot:fsl, rarity:'Common', award:true });
+    } else { rec.losses++; rew.fragments = CFG.lossFragments; }
   }
   var g = grantReward(s, rew, 'event:' + key, now);
   out.fragments = g.fragments;
@@ -2793,7 +2880,8 @@ return {
   EVENT_FAMILIES:EVENT_FAMILIES, ALL_FAMILIES:ALL_FAMILIES, isEventFamily:isEventFamily, partElement:partElement, familyElements:familyElements,
   EVENTS:EVENTS, EVENT_FOES:EVENT_FOES, nthWeekday:nthWeekday, eventById:eventById, eventWindow:eventWindow, eventActive:eventActive, activeEvents:activeEvents, nextEventWindow:nextEventWindow,
   eventOpponent:eventOpponent, eventBossStatus:eventBossStatus, previewDropSlots:previewDropSlots, rotateDropSlot:rotateDropSlot, addEventFoe:addEventFoe, eventFoesFor:eventFoesFor,
-  foeWinsLeft:foeWinsLeft, finishEventBattle:finishEventBattle, presetCritter:presetCritter, bossRecord:bossRecord, newEventsLedger:newEventsLedger,
+  eventFoeStatus:eventFoeStatus, eventReady:eventReady, finishEventBattle:finishEventBattle,
+  CRATE_LOOKS:CRATE_LOOKS, CRATE_ELEMENT_NAMES:CRATE_ELEMENT_NAMES, elementFamilies:elementFamilies, crateLookDef:crateLookDef, crateLookProgress:crateLookProgress, crateLookUnlocked:crateLookUnlocked, crateLooks:crateLooks, currentCrateLook:currentCrateLook, setCrateLook:setCrateLook, newCrateLooks:newCrateLooks, markCrateLooksSeen:markCrateLooksSeen, pediaMade:pediaMade, pediaList:pediaList, presetCritter:presetCritter, bossRecord:bossRecord, newEventsLedger:newEventsLedger,
   composeGrid:composeGrid, stitchedGrid:stitchedGrid, renderRGBA:renderRGBA, renderPartRGBA:renderPartRGBA, paletteFor:paletteFor
 };
 })();
@@ -3083,7 +3171,7 @@ function previewCode(s, text, now){
     if (def) { d.critter = CS.eventOpponent('foe:' + def.id).critter; d.event = ev; d.active = !!CS.eventActive(ev, now); d.added = !!(s.events && s.events.foes && s.events.foes[def.id]); }
     d.note = !def ? 'This event critter needs a newer version of the game. Update, then scan it again.'
       : (d.added ? 'Already on your Special Event page. ' : 'Adds ' + def.name + ' to the Special Event page on the Battle screen. ')
-        + (d.active ? 'Win: +' + def.frag + ' Fragments and one ' + def.parts[0] + ' part (up to ' + CFG.eventFoeDailyWins + ' rewarded wins a day).' : 'It shows up there while the ' + ev.name + ' event is on.');
+        + (d.active ? 'Win: +' + def.frag + ' Fragments and one ' + def.parts[0] + ' part. It rests 1 hour after each battle.' : 'It shows up there while the ' + ev.name + ' event is on.');
   } else if (d.type === 'thanks') {
     var mine = d.referrer === s.deviceId;
     d.canUse = mine && !s.codes.thanked[d.owner] && (s.codes.thankKits || 0) < CFG.referralKitCap;
@@ -3600,6 +3688,8 @@ function openHeal(){
   $('healClose').onclick = closeModal;
 }
 $('crateKo').onclick = function(e){ e.stopPropagation(); sfx.tap(); openHeal(); };
+$('crateLabel').onclick = function(e){ if (e.target.closest && e.target.closest('.crate-ko,[data-info]')) return; sfx.tap(); openCrateLooks(); };   // v1.2.2 crate looks
+$('crateLabel').onkeydown = function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCrateLooks(); } };
 function updateBadges(){
   var ready = 0, now = Date.now();
   S.incubators.forEach(function(inc){ if (inc && CS.timeLeft(inc, now) <= 0) ready++; });
@@ -3621,7 +3711,7 @@ document.querySelectorAll('[data-go]').forEach(function(b){ b.onclick = function
 // v1.1.7 crate: an open wooden crate seen from an angled top-down view (no window). Spots sit in 2-3 depth rows
 // (back rows higher and a little smaller); free spots are straw nests, locked spots are roped off. Original pixel art.
 function crateLayout(w, h){
-  var ci = CS.crateInfo(S), n = Math.max(ci.max, ci.used, 1), rows = n <= 6 ? 2 : 3, per = [], i;
+  var ci = CS.crateInfo(S), n = Math.max(ci.next ? ci.next.slots : ci.slots, ci.used, 1), rows = n <= 6 ? 2 : 3, per = [], i;   // v1.2.2: rope off only the next tier's spots
   if (rows === 2) { per = [Math.floor(n / 2), n - Math.floor(n / 2)]; }
   else { var b0 = Math.floor(n / 3), ex = n % 3; per = [b0, b0 + (ex >= 2 ? 1 : 0), b0 + (ex >= 1 ? 1 : 0)]; }
   var y0 = 18, y1 = h - 9, LB = 24, LF = 7, base = (hab.scale || 1), spots = [];
@@ -3644,6 +3734,7 @@ function setupHabitat(){
   var cssW = cv.clientWidth || 412, cssH = cv.clientHeight || 224;
   hab.w = Math.round(cssW / 2); hab.h = Math.round(cssH / 2); cv.width = hab.w; cv.height = hab.h;
   var keep = {}; hab.critters.forEach(function(h){ keep[h.c.id] = h; });
+  applyCrateLook();   // v1.2.2
   hab.scale = CS.crateInfo(S).scale;   // CFG.crateSpriteScale: a little smaller when the crate holds 5-6
   hab.lay = crateLayout(hab.w, hab.h);
   hab.crowded = S.collection.length >= 5;   // v1.2.0: a busy crate walks slower and closer to home so taps land
@@ -3656,14 +3747,17 @@ function setupHabitat(){
   });
 }
 function hash01(n){ var x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); }
-function drawNest(ctx, cx, fy, sc, empty, t){
+function drawNest(ctx, cx, fy, sc, empty, t, P){
+  P = P || hab.P || crateLookPal('plank');
   var rx = Math.round(21 * sc), ry = Math.max(4, Math.round(6 * sc));
   ctx.fillStyle = 'rgba(40,24,8,.35)'; ctx.beginPath(); ctx.ellipse(cx, fy + 1, rx + 2, ry + 1.5, 0, 0, Math.PI * 2); ctx.fill();
-  ctx.fillStyle = '#b8873a'; ctx.beginPath(); ctx.ellipse(cx, fy, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
-  if (empty) { ctx.fillStyle = '#7a5426'; ctx.beginPath(); ctx.ellipse(cx, fy + 0.5, rx * 0.55, ry * 0.5, 0, 0, Math.PI * 2); ctx.fill(); }
-  for (var k = 0; k < 16; k++) {   // straw strands around the rim
+  ctx.fillStyle = P.nest; ctx.beginPath(); ctx.ellipse(cx, fy, rx, ry, 0, 0, Math.PI * 2); ctx.fill();
+  if (empty) { ctx.fillStyle = P.nestDark; ctx.beginPath(); ctx.ellipse(cx, fy + 0.5, rx * 0.55, ry * 0.5, 0, 0, Math.PI * 2); ctx.fill(); }
+  if (P.felt) {   // v1.2.2 Bell Hatch / Stitchworks: soft felt pads with a stitched rim instead of straw
+    ctx.strokeStyle = P.stitch; ctx.lineWidth = 1; ctx.setLineDash([2, 2]); ctx.beginPath(); ctx.ellipse(cx, fy, rx * 0.82, ry * 0.7, 0, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]);
+  } else for (var k = 0; k < 16; k++) {   // straw strands around the rim
     var a = k / 16 * Math.PI * 2 + hash01(cx + k) * 0.3, px = cx + Math.cos(a) * rx * 0.85, py = fy + Math.sin(a) * ry * 0.8;
-    ctx.fillStyle = k % 3 ? '#e8c46a' : '#8f6526'; ctx.fillRect(Math.round(px - 2), Math.round(py), 4, 1);
+    ctx.fillStyle = k % 3 ? P.nestStraw : P.nestStraw2; ctx.fillRect(Math.round(px - 2), Math.round(py), 4, 1);
   }
   if (empty && (Math.floor(t / 900) + cx) % 5 === 0) { ctx.fillStyle = 'rgba(255,240,180,.8)'; ctx.fillRect(cx - 1, fy - ry - 3, 2, 2); }
 }
@@ -3677,39 +3771,177 @@ function drawRope(ctx, cx, fy, sc){
   ctx.strokeStyle = '#c3ccd6'; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx + 0.5, ly + 1, 2, Math.PI, 0); ctx.stroke();
   ctx.fillStyle = '#9aa3ad'; ctx.fillRect(cx - 2, ly + 1, 5, 4); ctx.fillStyle = '#2a2f36'; ctx.fillRect(cx, ly + 2, 1, 2);
 }
-function drawCrateBox(ctx, w, h, L, t){
-  var y0 = L.y0, y1 = L.y1, LB = L.LB, LF = L.LF;
-  // floor boards running back to front, converging with the angle, under loose straw
-  ctx.fillStyle = '#946433'; ctx.beginPath(); ctx.moveTo(LB, y0); ctx.lineTo(w - LB, y0); ctx.lineTo(w - LF, y1); ctx.lineTo(LF, y1); ctx.closePath(); ctx.fill();
-  var boards = 7;
-  for (var b = 1; b < boards; b++) { var fb = b / boards, xb = LB + (w - 2 * LB) * fb, xf = LF + (w - 2 * LF) * fb; ctx.strokeStyle = '#6e4521'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xb, y0); ctx.lineTo(xf, y1); ctx.stroke(); }
+/* ---------- v1.2.2 Critter Crate looks: same box, same slots, different dress. All drawn in code (original art). ---------- */
+function shadeHex(hex, k){ // k < 0 darkens toward black, k > 0 lightens toward white
+  var r = parseInt(hex.substr(1, 2), 16), g = parseInt(hex.substr(3, 2), 16), b = parseInt(hex.substr(5, 2), 16), f = function(v){ return Math.round(k < 0 ? v * (1 + k) : v + (255 - v) * k); };
+  return '#' + [f(r), f(g), f(b)].map(function(v){ return ('0' + Math.max(0, Math.min(255, v)).toString(16)).slice(-2); }).join('');
+}
+// base colors per look (wood, dark, light, floor, trim, metal, label, ink, nest, nestDark, straw, accent); Plank is today's crate exactly
+var CRATE_BASE = {
+  el_Fire:  ['#a82a12', '#3a0d07', '#e0461b', '#6b2410', '#ff8a3d', '#8e8e8e', '#ffd23f', '#3a0d07', '#c44a1a', '#7a220c', '#ff8a3d', '#ffd23f'],
+  el_Plant: ['#2f7a2a', '#10290f', '#4fb043', '#1e4a1c', '#9be36b', '#8e8e8e', '#d6ffc4', '#10290f', '#4fb043', '#2f7a2a', '#9be36b', '#ff7ab8'],
+  el_Water: ['#1f5fa8', '#0b2140', '#3a8ee0', '#163a6a', '#8fd3ff', '#8e8e8e', '#d6f0ff', '#0b2140', '#3a8ee0', '#1f5fa8', '#8fd3ff', '#3fe0d0'],
+  el_Shock: ['#4a4436', '#1c1a12', '#c99a00', '#2e2a20', '#f5d000', '#8e8e8e', '#fff8d0', '#3a2c00', '#c99a00', '#6a5410', '#fff27a', '#ffffff'],
+  el_Earth: ['#9a6a3c', '#2a1a0d', '#c9a36b', '#6b4423', '#c9a36b', '#8e8e8e', '#e9d9a8', '#2a1a0d', '#9a6a3c', '#6b4423', '#c9a36b', '#b8664a'],
+  quilt:    ['#8a6a4a', '#3a230f', '#c4a07a', '#7a5838', '#e9d9a8', '#7a828d', '#f4f0e4', '#3a230f', '#b8873a', '#7a5426', '#e8c46a', '#e0461b'],
+  tote:     ['#2a3a4a', '#121820', '#3d5166', '#1a2430', '#e86a17', '#8a939c', '#e9d9a8', '#121820', '#4a5a6a', '#2a3a4a', '#8a939c', '#e86a17'],
+  harvest:  ['#a8743d', '#3a230f', '#c4a36a', '#8a6a3c', '#a84a1a', '#7a828d', '#e9d9a8', '#3a230f', '#b8873a', '#7a5426', '#d4a44a', '#e08a2a'],
+  bell:     ['#b08a3c', '#5a4018', '#d4b46a', '#6a5a4a', '#d4b46a', '#c4a86a', '#f4efe0', '#5a4018', '#8a6a5a', '#5a4038', '#ffe9a8', '#8fd3ff'],
+  stitchworks: ['#4a2a48', '#2a1528', '#6a3e68', '#3a2038', '#c9a36b', '#c9a36b', '#e9dfc9', '#2a1528', '#6a3e68', '#4a2a48', '#c9a36b', '#e9dfc9'],
+  barn:     ['#8a3a28', '#3a160f', '#b04a32', '#7a5a33', '#e9d9a8', '#7a828d', '#e9d9a8', '#3a160f', '#b8873a', '#7a5426', '#e8c46a', '#e9d9a8']
+};
+var crPalCache = {};
+function crateLookPal(id){
+  if (crPalCache[id]) return crPalCache[id];
+  var P;
+  if (!CRATE_BASE[id]) P = { id:'plank', floor:'#946433', floorLine:'#6e4521', straw:'#d9b05a', straw2:'#f1d58a', backA:'#5a3a20', backB:'#634126', backLine:'#3a230f', backEdge:'#2f1c0c',
+    side:'#4b301a', sideLine:'#3a230f', sideEdge:'#7a5230', front:'#6b4423', frontTop:'#a5713e', frontLine:'#3a230f', nail:'#2a1a0d', nest:'#b8873a', nestDark:'#7a5426', nestStraw:'#e8c46a', nestStraw2:'#8f6526',
+    frameA:'#a8743d', frameB:'#8a5a2b', frameIn:'#c48a4b', frameBd:'#3a230f', metal:'#7a828d', label:'#e9d9a8', ink:'#3a230f', trim:'#d9b05a', accent:'#f1d58a', stitch:'#e9d9a8' };
+  else {
+    var b = CRATE_BASE[id];
+    P = { id:id, floor:b[3], floorLine:shadeHex(b[3], -0.3), straw:b[10], straw2:shadeHex(b[10], 0.3), backA:shadeHex(b[0], -0.45), backB:shadeHex(b[0], -0.38), backLine:b[1], backEdge:shadeHex(b[1], -0.2),
+      side:shadeHex(b[0], -0.55), sideLine:b[1], sideEdge:shadeHex(b[0], -0.1), front:shadeHex(b[0], -0.3), frontTop:b[2], frontLine:b[1], nail:b[1], nest:b[8], nestDark:b[9], nestStraw:b[10], nestStraw2:shadeHex(b[10], -0.4),
+      frameA:b[0], frameB:shadeHex(b[0], -0.18), frameIn:b[2], frameBd:b[1], metal:b[5], label:b[6], ink:b[7], trim:b[4], accent:b[11], stitch:b[4] };
+  }
+  if (id === 'bell' || id === 'stitchworks') P.felt = true;
+  if (id === 'bell') { P.nestStraw = P.stitch = '#ffe9a8'; P.floorLine = P.floor; }
+  if (id === 'stitchworks') { P.stitch = '#c9a36b'; P.floorLine = P.floor; }
+  if (id.indexOf('el_') === 0) P.element = id.slice(3);
+  return (crPalCache[id] = P);
+}
+// small stitch motif along the front board, one per element (spark, vine, wave, zigzag, blanket stitch)
+function drawElementStitch(ctx, w, y, el, col){
+  ctx.strokeStyle = col; ctx.fillStyle = col; ctx.lineWidth = 1;
+  for (var x = 8; x < w - 8; x += 12) {
+    ctx.beginPath();
+    if (el === 'Fire') { ctx.moveTo(x, y + 3); ctx.lineTo(x + 3, y - 1); ctx.lineTo(x + 6, y + 3); }
+    else if (el === 'Plant') { ctx.moveTo(x, y + 1); ctx.quadraticCurveTo(x + 3, y - 2, x + 6, y + 1); ctx.quadraticCurveTo(x + 9, y + 4, x + 12, y + 1); ctx.stroke(); ctx.fillRect(x + 5, y - 2, 2, 2); continue; }
+    else if (el === 'Water') { ctx.moveTo(x, y + 1); ctx.quadraticCurveTo(x + 3, y - 2, x + 6, y + 1); }
+    else if (el === 'Shock') { ctx.moveTo(x, y); ctx.lineTo(x + 3, y + 3); ctx.lineTo(x + 6, y); ctx.lineTo(x + 9, y + 3); }
+    else { ctx.moveTo(x, y - 1); ctx.lineTo(x, y + 3); ctx.lineTo(x + 6, y + 3); }
+    ctx.stroke();
+  }
+}
+var QUILT_COLS = ['#b8482a', '#4f9a43', '#3a7ec0', '#c9a52a', '#8a6a3c'];
+function drawCrateBox(ctx, w, h, L, t, P){
+  P = P || hab.P || crateLookPal('plank');
+  var y0 = L.y0, y1 = L.y1, LB = L.LB, LF = L.LF, id = P.id;
+  // floor running back to front, converging with the angle, under loose straw (felt for the lab looks)
+  ctx.fillStyle = P.floor; ctx.beginPath(); ctx.moveTo(LB, y0); ctx.lineTo(w - LB, y0); ctx.lineTo(w - LF, y1); ctx.lineTo(LF, y1); ctx.closePath(); ctx.fill();
+  if (!P.felt) { var boards = 7; for (var b = 1; b < boards; b++) { var fb = b / boards, xb = LB + (w - 2 * LB) * fb, xf = LF + (w - 2 * LF) * fb; ctx.strokeStyle = P.floorLine; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(xb, y0); ctx.lineTo(xf, y1); ctx.stroke(); } }
+  if (id === 'harvest') { ctx.fillStyle = 'rgba(60,36,10,.18)'; for (var hy = y0 + 2; hy < y1; hy += 3) ctx.fillRect(0, hy, w, 1); }   // burlap weave
   var g = ctx.createLinearGradient(0, y0, 0, y1); g.addColorStop(0, 'rgba(20,10,0,.35)'); g.addColorStop(1, 'rgba(255,220,140,.08)'); ctx.fillStyle = g; ctx.fillRect(0, y0, w, y1 - y0);
-  for (var k = 0; k < 70; k++) { var ty = y0 + 4 + hash01(k * 3.1) * (y1 - y0 - 6), dep = (ty - y0) / (y1 - y0), lx = LB + (LF - LB) * dep, tx = lx + 3 + hash01(k * 7.7) * (w - 2 * lx - 6); ctx.fillStyle = k % 4 ? '#d9b05a' : '#f1d58a'; ctx.fillRect(Math.round(tx), Math.round(ty), 2 + Math.round(dep * 2), 1); }
-  // back wall (inner face), with planks
-  for (var py = 0; py < y0; py += 6) { ctx.fillStyle = (py / 6) % 2 ? '#5a3a20' : '#634126'; ctx.fillRect(0, py, w, 5); ctx.fillStyle = '#3a230f'; ctx.fillRect(0, py + 5, w, 1); }
-  ctx.fillStyle = '#2f1c0c'; ctx.fillRect(LB, y0 - 1, w - 2 * LB, 2);
+  var strands = P.felt ? 0 : id === 'barn' ? 140 : 70;
+  for (var k = 0; k < strands; k++) { var ty = y0 + 4 + hash01(k * 3.1) * (y1 - y0 - 6), dep = (ty - y0) / (y1 - y0), lx = LB + (LF - LB) * dep, tx = lx + 3 + hash01(k * 7.7) * (w - 2 * lx - 6); ctx.fillStyle = k % 4 ? P.straw : P.straw2; ctx.fillRect(Math.round(tx), Math.round(ty), 2 + Math.round(dep * 2), 1); }
+  if (P.felt) for (var fz = 0; fz < 24; fz++) { var fy = y0 + 4 + hash01(fz * 5.3) * (y1 - y0 - 6), fx = LB + hash01(fz * 2.9) * (w - 2 * LB); ctx.fillStyle = 'rgba(255,255,255,.07)'; ctx.fillRect(Math.round(fx), Math.round(fy), 2, 1); }
+  if (id === 'harvest') [[0.18, 0.55, '#c8541e'], [0.8, 0.7, '#e0a02a'], [0.62, 0.35, '#a83a1a'], [0.3, 0.85, '#d47a22']].forEach(function(lf){   // a few fallen leaves
+    var lx2 = Math.round(w * lf[0]), ly2 = Math.round(y0 + (y1 - y0) * lf[1]); ctx.fillStyle = lf[2]; ctx.fillRect(lx2, ly2, 4, 2); ctx.fillRect(lx2 + 1, ly2 - 1, 2, 4); ctx.fillStyle = '#5a3a14'; ctx.fillRect(lx2 + 4, ly2 + 1, 2, 1); });
+  if (id === 'stitchworks') [[LB + 3, y0 + 3], [w - LB - 8, y0 + 4], [LF + 6, y1 - 4], [w - LF - 10, y1 - 5]].forEach(function(q){   // loose thread ends in the corners
+    ctx.strokeStyle = '#c9a36b'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(q[0], q[1]); ctx.quadraticCurveTo(q[0] + 3, q[1] - 3, q[0] + 6, q[1]); ctx.stroke(); });
+  // back wall (inner face)
+  if (id === 'bell') {   // incubator glass in a brass frame, warm lamp glow
+    ctx.fillStyle = '#2a3440'; ctx.fillRect(0, 0, w, y0);
+    var lg = ctx.createRadialGradient(w / 2, 2, 2, w / 2, 2, w * 0.45); lg.addColorStop(0, 'rgba(255,214,120,.75)'); lg.addColorStop(1, 'rgba(255,214,120,0)'); ctx.fillStyle = lg; ctx.fillRect(0, 0, w, y1);
+    ctx.fillStyle = 'rgba(143,211,255,.22)'; ctx.fillRect(0, 0, w, y0);
+    ctx.fillStyle = P.metal; for (var bx = 0; bx <= w; bx += Math.round(w / 6)) ctx.fillRect(bx - 1, 0, 2, y0);
+    ctx.fillStyle = 'rgba(255,255,255,.35)'; for (var gx = 6; gx < w; gx += Math.round(w / 6)) ctx.fillRect(gx, 3, 1, y0 - 6);
+    ctx.fillStyle = '#ffe9a8'; ctx.fillRect(Math.round(w / 2) - 4, 1, 8, 3);   // the lamp
+  } else if (id === 'tote' || id === 'stitchworks') {   // canvas / cloth: a fine weave, no planks
+    ctx.fillStyle = P.backB; ctx.fillRect(0, 0, w, y0);
+    ctx.fillStyle = 'rgba(0,0,0,.18)'; for (var wy = 1; wy < y0; wy += 2) ctx.fillRect(0, wy, w, 1);
+    if (id === 'tote') {   // stitched handle arch behind the label
+      ctx.strokeStyle = P.metal; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(w * 0.3, y0); ctx.quadraticCurveTo(w * 0.5, -y0 * 0.6, w * 0.7, y0); ctx.stroke();
+      ctx.strokeStyle = '#e86a17'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]); ctx.beginPath(); ctx.moveTo(w * 0.3, y0); ctx.quadraticCurveTo(w * 0.5, -y0 * 0.6, w * 0.7, y0); ctx.stroke(); ctx.setLineDash([]);
+    } else { ctx.strokeStyle = P.stitch; ctx.lineWidth = 1; ctx.setLineDash([3, 2]); ctx.beginPath(); ctx.moveTo(0, y0 - 3); ctx.lineTo(w, y0 - 3); ctx.stroke(); ctx.setLineDash([]); }
+  } else if (id === 'barn') {   // vertical boards, a shallow roof peak and a hay loft opening behind the nests
+    for (var vx = 0; vx < w; vx += 7) { ctx.fillStyle = (vx / 7) % 2 ? P.backA : P.backB; ctx.fillRect(vx, 0, 6, y0); ctx.fillStyle = P.backLine; ctx.fillRect(vx + 6, 0, 1, y0); }
+    ctx.fillStyle = P.backLine; ctx.beginPath(); ctx.moveTo(w * 0.22, y0 * 0.55); ctx.lineTo(w * 0.5, 0); ctx.lineTo(w * 0.78, y0 * 0.55); ctx.lineTo(w * 0.78, y0 * 0.55 + 2); ctx.lineTo(w * 0.5, 2); ctx.lineTo(w * 0.22, y0 * 0.55 + 2); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = P.trim; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(w * 0.22, y0 * 0.55 + 2); ctx.lineTo(w * 0.5, 2); ctx.lineTo(w * 0.78, y0 * 0.55 + 2); ctx.stroke();
+    var lw = Math.round(y0 * 0.8), lx3 = Math.round(w / 2 - lw / 2), ly3 = Math.round(y0 * 0.3);
+    ctx.fillStyle = '#1e0d08'; ctx.fillRect(lx3, ly3, lw, y0 - ly3); ctx.strokeStyle = P.trim; ctx.strokeRect(lx3 + 0.5, ly3 + 0.5, lw - 1, y0 - ly3);
+    ctx.fillStyle = '#e8c46a'; for (var hz = 0; hz < 10; hz++) ctx.fillRect(lx3 + 1 + Math.round(hash01(hz * 1.7) * (lw - 4)), y0 - 2 - Math.round(hash01(hz * 4.1) * 3), 3, 1);
+  } else {
+    for (var py = 0; py < y0; py += 6) { ctx.fillStyle = (py / 6) % 2 ? P.backA : P.backB; ctx.fillRect(0, py, w, 5); ctx.fillStyle = P.backLine; ctx.fillRect(0, py + 5, w, 1); }
+    if (id === 'quilt') {   // big patches in the five element colors, joined by cream running stitches
+      var pw = Math.ceil((w - 2 * LB) / 5); for (var qi = 0; qi < 5; qi++) { ctx.fillStyle = QUILT_COLS[qi]; ctx.fillRect(LB + qi * pw, 1, pw, y0 - 2); }
+      ctx.strokeStyle = '#f4f0e4'; ctx.lineWidth = 1; ctx.setLineDash([2, 2]);
+      for (var qj = 1; qj < 5; qj++) { ctx.beginPath(); ctx.moveTo(LB + qj * pw + 0.5, 1); ctx.lineTo(LB + qj * pw + 0.5, y0 - 1); ctx.stroke(); }
+      ctx.beginPath(); ctx.moveTo(0, 2.5); ctx.lineTo(w, 2.5); ctx.stroke(); ctx.setLineDash([]);
+    }
+  }
+  ctx.fillStyle = P.backEdge; ctx.fillRect(LB, y0 - 1, w - 2 * LB, 2);
   // side walls (inner faces) slanting toward the viewer
   [[0, LB, LF], [w, w - LB, w - LF]].forEach(function(sd){
-    ctx.fillStyle = '#4b301a'; ctx.beginPath(); ctx.moveTo(sd[0], 0); ctx.lineTo(sd[1], 0); ctx.lineTo(sd[1], y0); ctx.lineTo(sd[2], y1); ctx.lineTo(sd[0], h); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle = '#3a230f'; ctx.lineWidth = 1;
-    for (var q = 1; q < 4; q++) { var fq = q / 4; ctx.beginPath(); ctx.moveTo(sd[0] + (sd[1] - sd[0]) * fq, y0 * fq); ctx.lineTo(sd[0] + (sd[2] - sd[0]) * fq, y1 + (h - y1) * fq * 0.2); ctx.stroke(); }
-    ctx.strokeStyle = '#7a5230'; ctx.beginPath(); ctx.moveTo(sd[1], y0); ctx.lineTo(sd[2], y1); ctx.stroke();
+    ctx.fillStyle = id === 'bell' ? 'rgba(120,170,200,.35)' : P.side; ctx.beginPath(); ctx.moveTo(sd[0], 0); ctx.lineTo(sd[1], 0); ctx.lineTo(sd[1], y0); ctx.lineTo(sd[2], y1); ctx.lineTo(sd[0], h); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = id === 'bell' ? P.metal : P.sideLine; ctx.lineWidth = 1;
+    if (id !== 'tote' && id !== 'stitchworks') for (var q = 1; q < 4; q++) { var fq = q / 4; ctx.beginPath(); ctx.moveTo(sd[0] + (sd[1] - sd[0]) * fq, y0 * fq); ctx.lineTo(sd[0] + (sd[2] - sd[0]) * fq, y1 + (h - y1) * fq * 0.2); ctx.stroke(); }
+    ctx.strokeStyle = id === 'stitchworks' ? P.stitch : P.sideEdge; if (id === 'stitchworks') ctx.setLineDash([3, 2]);
+    ctx.beginPath(); ctx.moveTo(sd[1], y0); ctx.lineTo(sd[2], y1); ctx.stroke(); ctx.setLineDash([]);
   });
 }
-function drawCrateFront(ctx, w, h, L){
-  ctx.fillStyle = '#6b4423'; ctx.fillRect(0, L.y1, w, h - L.y1);
-  ctx.fillStyle = '#a5713e'; ctx.fillRect(0, L.y1, w, 2);
-  ctx.fillStyle = '#3a230f'; ctx.fillRect(0, h - 1, w, 1);
-  for (var nx = 10; nx < w; nx += 34) { ctx.fillStyle = '#2a1a0d'; ctx.fillRect(nx, L.y1 + 4, 1, 1); }
+function drawCrateFront(ctx, w, h, L, P){
+  P = P || hab.P || crateLookPal('plank');
+  var id = P.id, fy = L.y1, fh = h - L.y1;
+  ctx.fillStyle = id === 'bell' ? 'rgba(143,211,255,.30)' : P.front; ctx.fillRect(0, fy, w, fh);
+  if (id === 'quilt') { var pw = Math.ceil(w / 5); for (var qi = 0; qi < 5; qi++) { ctx.fillStyle = QUILT_COLS[(qi + 2) % 5]; ctx.fillRect(qi * pw, fy + 2, pw, fh - 3); } }
+  if (id === 'barn') { ctx.strokeStyle = P.trim; ctx.lineWidth = 1; for (var bx = 0; bx < w; bx += Math.round(w / 4)) { ctx.beginPath(); ctx.moveTo(bx + 2, fy + 3); ctx.lineTo(bx + Math.round(w / 4) - 2, h - 2); ctx.moveTo(bx + Math.round(w / 4) - 2, fy + 3); ctx.lineTo(bx + 2, h - 2); ctx.stroke(); } }
+  ctx.fillStyle = id === 'tote' ? P.metal : id === 'bell' ? P.metal : P.frontTop; ctx.fillRect(0, fy, w, 2);
+  ctx.fillStyle = P.frontLine; ctx.fillRect(0, h - 1, w, 1);
+  if (id === 'tote') { ctx.fillStyle = '#e86a17'; ctx.fillRect(0, fy + 3, w, 1); ctx.fillStyle = '#111'; ctx.fillRect(6, h - 3, 10, 2); ctx.fillRect(w - 16, h - 3, 10, 2); }   // safety-orange trim + rubber feet
+  else if (id === 'harvest') { ctx.strokeStyle = '#d4a44a'; ctx.lineWidth = 1; ctx.setLineDash([3, 2]); ctx.beginPath(); ctx.moveTo(0, fy + 4.5); ctx.lineTo(w, fy + 4.5); ctx.stroke(); ctx.strokeStyle = '#a84a1a'; ctx.beginPath(); ctx.moveTo(2, fy + 6.5); ctx.lineTo(w, fy + 6.5); ctx.stroke(); ctx.setLineDash([]); }
+  else if (id === 'stitchworks') { ctx.strokeStyle = P.stitch; ctx.lineWidth = 1; ctx.setLineDash([3, 2]); ctx.beginPath(); ctx.moveTo(0, fy + 3.5); ctx.lineTo(w, fy + 3.5); ctx.stroke(); ctx.setLineDash([]); }
+  else if (P.element && fh > 6) drawElementStitch(ctx, w, fy + Math.round(fh / 2) - 1, P.element, P.trim);
+  else if (id !== 'bell' && id !== 'quilt' && id !== 'barn') for (var nx = 10; nx < w; nx += 34) { ctx.fillStyle = P.nail; ctx.fillRect(nx, fy + 4, 1, 1); }
+}
+// apply a look to the home crate: the wooden frame (CSS variables) and the label colors + name
+function applyCrateLook(){
+  var look = CS.currentCrateLook(S), P = crateLookPal(look.id), wrap = $('habWrap'); hab.P = P;
+  if (wrap) { wrap.style.setProperty('--cr-a', P.frameA); wrap.style.setProperty('--cr-b', P.frameB); wrap.style.setProperty('--cr-in', P.frameIn); wrap.style.setProperty('--cr-bd', P.frameBd); wrap.style.setProperty('--cr-mt', P.metal); wrap.style.setProperty('--cr-lb', P.label); wrap.style.setProperty('--cr-ink', P.ink); wrap.dataset.look = look.id; }
+  var tg = $('crateTag'); if (tg) tg.textContent = look.tag;
+  var nw = $('crateNew'); if (nw) { var n = CS.newCrateLooks(S).length; nw.className = n ? 'crate-new show' : 'crate-new'; nw.textContent = n ? 'NEW' : ''; }
+}
+// tap the crate label: a short list of looks. Locked ones are roped off with a one-line hint. Never changes slots.
+function openCrateLooks(){
+  var looks = CS.crateLooks(S), ci = CS.crateInfo(S);
+  var h = '<div style="font-weight:900;font-size:18px">Crate looks</div><p class="note" style="margin:4px 0 10px">Pick how your crate looks. Looks never change your slots (' + ci.used + '/' + ci.slots + ').</p><div class="cl-grid" id="clGrid"></div><button class="btn alt block" id="clClose" style="margin-top:10px">Close</button>';
+  modal(h);
+  var grid = $('clGrid');
+  looks.forEach(function(l){
+    var d = document.createElement('button'); d.className = 'cl-tile' + (l.unlocked ? '' : ' locked') + (l.active ? ' on' : ''); d.dataset.look = l.id;
+    var pv = document.createElement('div'); pv.className = 'cl-pv'; var P = crateLookPal(l.id);
+    pv.style.setProperty('--cr-a', P.frameA); pv.style.setProperty('--cr-b', P.frameB); pv.style.setProperty('--cr-bd', P.frameBd);
+    pv.appendChild(crateLookCanvas(l.id, !l.unlocked)); d.appendChild(pv);
+    d.insertAdjacentHTML('beforeend', '<div class="cl-nm">' + esc(l.name) + (l.unlocked && !l.seen ? ' <span class="newtag">NEW</span>' : '') + '</div><div class="cl-st note">' + (l.active ? '\u2714 Using' : l.unlocked ? 'Tap to use' : '\uD83D\uDD12 ' + esc(l.hint) + (l.need > 1 ? ' (' + l.have + '/' + l.need + ')' : '')) + '</div>');
+    d.onclick = function(){
+      if (!l.unlocked) { sfx.bad(); toast('\uD83D\uDD12 ' + esc(l.hint)); return; }
+      var r = CS.setCrateLook(S, l.id); if (!r.ok) { toast(esc(r.reason)); return; }
+      CS.markCrateLooksSeen(S, Date.now()); save(); sfx.good(); haptic('tap'); closeModal(); applyCrateLook(); toast('Crate look: ' + esc(l.name));
+    };
+    grid.appendChild(d);
+  });
+  CS.markCrateLooksSeen(S, Date.now()); save(); applyCrateLook();
+  $('clClose').onclick = closeModal;
+}
+// small still preview of a look (4 nests), drawn with the same code as the home crate
+function crateLookCanvas(id, dim){
+  var cv = document.createElement('canvas'), w = 96, h = 54; cv.width = w; cv.height = h; cv.className = 'cl-cv';
+  var ctx = cv.getContext('2d'), P = crateLookPal(id), L = { y0:12, y1:h - 6, LB:14, LF:4 };
+  ctx.imageSmoothingEnabled = false;
+  drawCrateBox(ctx, w, h, L, 0, P);
+  [[30, 27, 0.55], [66, 27, 0.55], [22, 41, 0.62], [74, 41, 0.62]].forEach(function(n, i){ drawNest(ctx, n[0], n[1], n[2], i > 1, 1, P); });
+  drawCrateFront(ctx, w, h, L, P);
+  if (dim) { ctx.fillStyle = 'rgba(14,12,26,.55)'; ctx.fillRect(0, 0, w, h); }
+  return cv;
 }
 function drawHabitat(t, dt){
   if (current !== 'home' || !hab.ctx) return;
   var ctx = hab.ctx, w = hab.w, h = hab.h, L = hab.lay || (hab.lay = crateLayout(w, h));
   ctx.clearRect(0, 0, w, h); ctx.imageSmoothingEnabled = false;
-  drawCrateBox(ctx, w, h, L, t);
+  var P = hab.P || crateLookPal('plank');
+  drawCrateBox(ctx, w, h, L, t, P);
   // spots back to front: nests under critters and free spots, ropes on locked spots
-  L.spots.slice().sort(function(a, b){ return b.lane - a.lane; }).forEach(function(sp){ if (sp.state === 'lock') drawRope(ctx, sp.cx, sp.feet, sp.sc); else drawNest(ctx, sp.cx, sp.feet, sp.sc, sp.state === 'free', t); });
-  if (!hab.critters.length) { ctx.fillStyle = '#f3e3b0'; ctx.font = 'bold 7px system-ui'; ctx.textAlign = 'center'; ctx.fillText('Your critters will nest here', w / 2, L.y0 + 12); drawCrateFront(ctx, w, h, L); return; }
+  L.spots.slice().sort(function(a, b){ return b.lane - a.lane; }).forEach(function(sp){ if (sp.state === 'lock') drawRope(ctx, sp.cx, sp.feet, sp.sc); else drawNest(ctx, sp.cx, sp.feet, sp.sc, sp.state === 'free', t, P); });
+  if (!hab.critters.length) { ctx.fillStyle = '#f3e3b0'; ctx.font = 'bold 7px system-ui'; ctx.textAlign = 'center'; ctx.fillText('Your critters will nest here', w / 2, L.y0 + 12); drawCrateFront(ctx, w, h, L, P); return; }
   hab.critters.slice().sort(function(a, b){ return b.lane - a.lane; }).forEach(function(hc){
     var sp = hc.spot, SC = sp.sc, BS = Math.round(BUF * SC), PD = CS.PAD * SC;
     var ko = CS.isFainted(hc.c);
@@ -3746,7 +3978,7 @@ function drawHabitat(t, dt){
       ctx.fillText(hc.emote === 'heart' ? '\u2665' : hc.emote === 'note' ? '\u266A' : '!', Math.round(ex + 7), Math.round(y + 7));
     }
   });
-  drawCrateFront(ctx, w, h, L);
+  drawCrateFront(ctx, w, h, L, P);
 }
 // Tap a critter in the crate: hop + squish, then open its details page. Hit boxes cover the drawn sprite plus padding
 // (canvas units are 2 CSS px, so 10 = 20 px of slack) because the critters keep walking.
@@ -3785,12 +4017,12 @@ function infoText(k){
   var C = CS.CFG, P = C.blendPart;
   var T = {
     incubator:['Incubator', 'Pick a head, torso and legs right under the tube and the pod starts there. Three parts of <b>one family</b> grow a <b>pure critter</b> for free (tap a <b>Pure set</b> to fill one in); mixed parts <b>splice a hybrid</b>. One critter grows at a time. <b>Speed up</b> finishes it now for Fragments (cheaper as the timer runs down). While you wait you can play <b>Gene Stack</b> for a small rarity boost. DNA pods from friends wait in line until the incubator is free.'],
-    genestack:['Gene Stack', 'Optional, one run per hatch. Stack DNA pieces in the pod: <b>swipe</b> left/right to move, <b>tap</b> to rotate, <b>swipe down</b> to drop (arrow keys + space on a keyboard). A full row stitches a strand; a row of one element is a <b>pure strand (x2)</b>. Strands fill the Stability meter, which adds up to <b>+' + Math.round(C.geneStack.rareMax * 100) + '% Rare</b> and <b>+' + Math.round(C.geneStack.legMax * 100) + '% Legendary</b> hatch odds. It never lowers your odds and never delays the hatch: the run ends when the incubator finishes or the stack tops out.'],
+    genestack:['Gene Stack', 'Optional, one run per hatch. Stack DNA pieces in the pod: <b>swipe</b> left/right to move, <b>tap</b> to rotate, <b>press and hold</b> to drop fast (arrow keys + space on a keyboard). A full row stitches a strand; a row of one element is a <b>pure strand (x2)</b>. Strands fill the Stability meter, which adds up to <b>+' + Math.round(C.geneStack.rareMax * 100) + '% Rare</b> and <b>+' + Math.round(C.geneStack.legMax * 100) + '% Legendary</b> hatch odds. It never lowers your odds and never delays the hatch: the run ends when the incubator finishes or the stack tops out.'],
     swipe:['Swipe trace', 'After you pick an attack, trace the glowing pattern (zigzag for Shock, swirl for Water, flame for Fire, vine for Plant, stomp for Earth). Start on the white dot and finish at the ring. A clean trace adds +1 damage and +10% hit chance; a wobbly one costs 1 damage; ignore it and the attack is normal. Lift early? Trace again until the bar runs out. Off in Battle Code fights so both phones play the same rules. Turn it off in Settings.'],
     splicer:['Splicing', 'Pick a head, torso and legs from your DNA samples. The torso sets the defense element. Odds show the rarity chances: rarer parts raise them. Stat ranges are before the rarity bonus (Rare +10%, Legendary +20%). Each splice has an 8% mutation chance. Costs ' + C.spliceCost + ' Fragments.'],
     mutator:['Mutator', 'Every mutation adds 1 Instability and the odds get worse: 75% good at first, 62% next, then a coin flip. From ' + C.glitchAt + ', glitches can appear. At ' + C.giftBlockAt + '+ a critter can\u2019t be gifted, its battle-code copies lose 5% stats per point, and the Blender pays 15% less per point. Each stat\u2019s total mutation bonus is capped at ' + (C.mutCapDown * 100) + '% to +' + (C.mutCapUp * 100) + '%. <b>Stabilize</b> removes 1 Instability for ' + C.stabilizeCost + ' Fragments.'],
     blender:['Blender', 'Turns DNA into Fragments. <b>Everything that goes in is destroyed.</b> Per part: Common ' + P.Common + ' &middot; Rare ' + P.Rare + ' &middot; Legendary ' + P.Legendary + '. Pure DNA &times;' + C.blendPure + ' (samples and single-family critters). &minus;' + pct(C.blendInstabilityCut) + ' per Instability point. Blending a critter also gives one random part back as DNA.'],
-    crate:['Critter Crate', 'Your critters live here. Each <b>straw nest</b> is a free spot; <b>roped-off spots</b> are locked until you earn them (beat Old Gristle for +2). Tap a critter to open its details. If the crate is full, a hatch still finishes: recycle (blend) or rehome a critter to make room, or leave the new one in the incubator until a nest opens.'],
+    crate:['Critter Crate', 'Your critters live here. Each <b>straw nest</b> is a free spot; <b>roped-off spots</b> are locked until you earn them (beat Old Gristle for 6, then The Stitchmaster for 8). Tap a critter to open its details. Tap the crate\u2019s label to change its look: looks are earned rewards and never change your slots. If the crate is full, a hatch still finishes: recycle (blend) or rehome a critter to make room, or leave the new one in the incubator until a nest opens.'],
     ladder:['Challenger Ladder', 'Beat 8 challengers in order. A first win pays Fragments, DNA and a Stitch Kit; rematches pay less. Bosses always drop DNA, and <b>Old Gristle</b> and <b>The Stitchmaster</b> each give a one-time <span style="color:var(--legendary)">Legendary DNA</span> the first time you beat them.'],
     multi:['Multiplayer', 'Your stats count every Battle Code fight: Battle Player, Rival rematches and scanned codes. Practice against your own critter doesn\u2019t count. Your trainer name shows on every code you share; older codes without a name show \u201cTrainer\u201d.'],
     invite:['Invite a friend', 'One link does both: it opens (and installs) Critter Stitcher and gives your friend a DNA pod to hatch after their starter. For brand-new players. They can also scan the QR with their phone camera. Send one of your critters with it if you like: you keep yours; they get a DNA copy (no Mutator buffs or Instability). Their thank-you code gets you a Stitch Kit.'],
@@ -3799,7 +4031,7 @@ function infoText(k){
     scan:['Scan a code', 'Works with every Critter Stitcher code: Battle Codes, special event codes (they add an event critter to the Battle screen), Rehome gifts, invites and thank-you codes (old codes too). Links that open the game work the same way. Everything stays on this phone.'],
     kits:['Stitch Kits', 'Each kit holds 1 DNA sample + ' + C.kitFragments[0] + '&ndash;' + C.kitFragments[1] + ' Fragments. Earn kits from the daily streak, each challenger you beat the first time, each new part you win in battle, and thank-you codes from friends you invite. Tap a kit to skip its animation, or <b>Open all</b> at once.'],
     streak:['Daily Streak', 'Come back every day: rewards climb to Day 7, then the cycle repeats. Miss a day and it restarts at Day 1.'],
-    pedia:['Critterpedia', 'A binder of whole critters you have hatched, built, or beaten. Each entry shows its three parts. Undiscovered pure families appear as silhouettes. Achievements pay a small reward the first time you unlock them.']
+    pedia:['Critterpedia', 'A binder of the critters you have made: every one you hatch or build in the Lab gets a page, filed under each family it uses. Only critters you have made show up, so there are no empty spots to fill. Achievements pay a small reward the first time you unlock them.']
   };
   return T[k] || ['Info', ''];
 }
@@ -4039,28 +4271,39 @@ function gsStart(i){
   save();
   var wrap = document.createElement('div'); wrap.className = 'card gs-wrap'; wrap.id = 'gsWrap';
   wrap.innerHTML = '<div class="sys-head"><b>\uD83E\uDDE9 Gene Stack</b>' + infoBtn('genestack') + '<span class="sp"></span><button class="btn alt gs-quit" id="gsQuit">Stop</button></div>' +
-    '<div class="gs-body"><canvas id="gsCv" width="' + (GS_COLS * GS_CELL + 16) + '" height="' + (GS_ROWS * GS_CELL + 20) + '" tabindex="0" aria-label="Gene Stack. Swipe left or right to move, tap to rotate, swipe down to drop."></canvas>' +
+    '<div class="gs-body"><canvas id="gsCv" width="' + (GS_COLS * GS_CELL + 16) + '" height="' + (GS_ROWS * GS_CELL + 20) + '" tabindex="0" aria-label="Gene Stack. Swipe left or right to move, tap to rotate, press and hold to drop fast."></canvas>' +
     '<div class="gs-side"><div class="note">Strands</div><div class="gs-n" id="gsStrands">0</div><div class="note">Stability</div><div class="gs-meter"><i id="gsMeter"></i></div><div class="gs-bonus" id="gsBonus">+0% Rare</div>' +
-    '<div class="note gs-help">Swipe \u2190 \u2192 move<br>Tap rotate<br>Swipe \u2193 drop</div></div></div>';
-  gs = { idx:i, wrap:wrap, els:gsElements(inc), grid:[], strands:0, piece:null, next:0, over:false, flashRows:null, flashAt:0 };
+    '<div class="note gs-help">Swipe \u2190 \u2192 move<br>Tap rotate<br>Hold to drop fast</div></div></div>';
+  gs = { idx:i, wrap:wrap, els:gsElements(inc), grid:[], strands:0, piece:null, next:0, over:false, flashRows:null, flashAt:0, fast:false };
   for (var y = 0; y < GS_ROWS; y++) gs.grid.push(new Array(GS_COLS).fill(null));
   gs.piece = gsNewPiece(); gs.next = performance.now() + 700;
   var holder = $('gsHolder'); if (holder) holder.appendChild(wrap);
   var btn = $('gsPlay'); if (btn) btn.remove();
   var cv = wrap.querySelector('#gsCv'); gs.cv = cv;
   wrap.querySelector('#gsQuit').onclick = function(){ gsEnd('quit'); };
+  // v1.2.2 controls: swipe left/right moves, a quick tap rotates, press and hold (GS_HOLD_MS, finger still) drops the
+  // piece fast until you let go or it lands. Swiping down does nothing now (it used to hard-drop).
   var st = null;
-  cv.addEventListener('pointerdown', function(e){ e.preventDefault(); st = { x:e.clientX, y:e.clientY, moved:0, t:performance.now() }; try { cv.setPointerCapture(e.pointerId); } catch (x) {} cv.focus(); });
+  function endHold(){ if (st && st.timer) clearTimeout(st.timer); if (gs) gs.fast = false; }
+  cv.addEventListener('pointerdown', function(e){
+    e.preventDefault(); endHold();
+    st = { x:e.clientX, y:e.clientY, x0:e.clientX, y0:e.clientY, moved:0, t:performance.now(), held:false, timer:0 };
+    st.timer = setTimeout(function(){ if (st && !st.moved && gs && !gs.over) { st.held = true; gsFastStart(); } }, GS_HOLD_MS);
+    try { cv.setPointerCapture(e.pointerId); } catch (x) {} cv.focus();
+  });
   cv.addEventListener('pointermove', function(e){
     if (!st || !gs) return; var px = cv.getBoundingClientRect().width / cv.width * GS_CELL, dx = e.clientX - st.x;
+    if (!st.held && Math.hypot(e.clientX - st.x0, e.clientY - st.y0) > 14) { st.moved = st.moved || 0.5; clearTimeout(st.timer); }   // a drag is not a hold
     while (dx > px * 0.8) { gsMove(1); st.x += px * 0.8; dx -= px * 0.8; st.moved++; }
     while (dx < -px * 0.8) { gsMove(-1); st.x -= px * 0.8; dx += px * 0.8; st.moved++; }
   });
   cv.addEventListener('pointerup', function(e){
-    if (!st || !gs) return; var dy = e.clientY - st.y;
-    if (dy > 36 && !st.moved) gsDrop(); else if (!st.moved && Math.abs(dy) < 12) gsRotate();
+    if (!st || !gs) { endHold(); st = null; return; }
+    var dy = e.clientY - st.y0, held = st.held; endHold();
+    if (!held && !st.moved && Math.abs(dy) < 12) gsRotate();   // quick tap; a downward swipe no longer drops
     st = null;
   });
+  cv.addEventListener('pointercancel', function(){ endHold(); st = null; });
   gsUpdateSide(); sfx.chirp();
 }
 function gsMove(d){ if (!gs || gs.over || !gs.piece) return; if (gsFits(gs.piece.cells, gs.piece.x + d, gs.piece.y)) { gs.piece.x += d; beep(520, 0.03, 'square', 0.02); } }
@@ -4071,8 +4314,10 @@ function gsRotate(){
   [0, -1, 1, -2, 2].some(function(k){ if (gsFits(rot, gs.piece.x + k, gs.piece.y)) { gs.piece.cells = rot; gs.piece.x += k; sfx.tap(); return true; } return false; });
 }
 function gsDrop(){ if (!gs || gs.over || !gs.piece) return; while (gsFits(gs.piece.cells, gs.piece.x, gs.piece.y + 1)) gs.piece.y++; gsLock(); }
+var GS_HOLD_MS = 220, GS_FAST_MS = 32;   // v1.2.2 press-and-hold fast drop: hold time before it kicks in, then one row every 32 ms
+function gsFastStart(){ if (!gs || gs.over || !gs.piece) return; gs.fast = true; gs.next = Math.min(gs.next, performance.now()); }
 function gsLock(){
-  var p = gs.piece, top = false;
+  var p = gs.piece, top = false; if (gs.fast) { gs.fast = false; gs.next = performance.now() + 450; }   // the fast drop stops when a piece lands; hold again for the next one
   p.cells.forEach(function(c){ var cx = p.x + c[0], cy = p.y + c[1]; if (cy < 0) top = true; else gs.grid[cy][cx] = p.el; });
   beep(260, 0.05, 'square', 0.03);
   if (top) { gsEnd('top'); return; }
@@ -4109,7 +4354,7 @@ function gsEnd(why){
 function drawGeneStack(t){
   if (!gs || !gs.cv || !gs.cv.isConnected) return;
   var inc = S.incubators[gs.idx]; if (!inc || CS.timeLeft(inc) <= 0) { gsEnd('hatch'); return; }
-  if (!gs.over && t >= gs.next) { gs.next = t + Math.max(260, 700 - gs.strands * 25); if (gsFits(gs.piece.cells, gs.piece.x, gs.piece.y + 1)) gs.piece.y++; else gsLock(); if (!gs) return; }
+  if (!gs.over && t >= gs.next) { gs.next = t + (gs.fast ? GS_FAST_MS : Math.max(260, 700 - gs.strands * 25)); if (gsFits(gs.piece.cells, gs.piece.x, gs.piece.y + 1)) gs.piece.y++; else gsLock(); if (!gs) return; }
   var ctx = gs.cv.getContext('2d'), W = gs.cv.width, H = gs.cv.height, ox = 8, oy = 10;
   ctx.clearRect(0, 0, W, H);
   // pod-shaped well: a rounded capsule of incubator glass (v1.2.1: same green liquid + rising bubbles as the incubator tube)
@@ -4853,7 +5098,7 @@ function renderEventTab(live){
   var h = ladderTabs(live);
   h += '<div class="card ev-head" id="evHead"><div class="ev-ic" aria-hidden="true">' + ev.icon + '</div><div style="flex:1;min-width:0"><div class="ev-nm">' + esc(ev.name) + '</div><div class="note">' + esc(ev.holiday) + ' event &middot; ' + evDates(w) + '</div></div><div class="ev-cd" id="evCountdown">' + evCountdownText(w) + '</div></div>';
   S.tipsSeen = S.tipsSeen || {};
-  if (!S.tipsSeen.eventIntro) h += '<div class="tip ev-tip" id="evTip"><span style="flex:1">Seasonal event! Beat the boss for one of its parts each clear (a different part each time). It rests 1 hour between battles. Scan event codes from Home &rsaquo; Scanner to add more fights here.</span><button class="nudge-x" id="evTipX" aria-label="Dismiss tip">&#10005;</button></div>';
+  if (!S.tipsSeen.eventIntro) h += '<div class="tip ev-tip" id="evTip"><span style="flex:1">Seasonal event! Beat the boss for one of its parts each clear (a different part each time). Every event fighter rests 1 hour between battles. Scan event codes from Home &rsaquo; Scanner to add more fights here.</span><button class="nudge-x" id="evTipX" aria-label="Dismiss tip">&#10005;</button></div>';
   h += '<h3>Event boss</h3><div id="evBoss"></div><h3>Event critters</h3><div id="evFoes"></div>';
   el.innerHTML = h; wireLadderTabs(el);
   if ($('evTipX')) $('evTipX').onclick = function(){ S.tipsSeen.eventIntro = Date.now(); save(); sfx.tap(); var t = $('evTip'); if (t) t.remove(); };
@@ -4877,15 +5122,16 @@ function renderEventTab(live){
   var foes = CS.eventFoesFor(S, ev.id), box = $('evFoes');
   if (!foes.length) box.innerHTML = '<p class="note" id="evFoesEmpty">No event critters yet. Scan a special event code from <b>Home &rsaquo; Scanner</b> and it shows up here as a fight.</p>';
   foes.forEach(function(f){
-    var fo = CS.eventOpponent('foe:' + f.id), fc = fo.critter, left = CS.foeWinsLeft(S, f.id, now), rec = S.events.foes[f.id] || {};
+    var fo = CS.eventOpponent('foe:' + f.id), fc = fo.critter, fst = CS.eventFoeStatus(S, f.id, now), rec = S.events.foes[f.id] || {};
     var r = document.createElement('div'); r.className = 'chal ev-foe'; r.dataset.foe = f.id;
     r.appendChild(spriteCanvas(fc));
     var inf = document.createElement('div'); inf.style.minWidth = '0';
     inf.innerHTML = '<div class="cn">' + esc(f.name) + (f.practice ? ' <span class="ev-tag">PRACTICE</span>' : '') + '</div><div class="ct">' + esc(f.nick) + ' (' + esc(fc.name) + ') &middot; ' + (rec.wins || 0) + 'W ' + (rec.losses || 0) + 'L</div>' +
-      '<div>' + evElTags(fc) + ' ' + rarTag(f.rarity) + '</div><div class="stars">' + stars(f) + '</div><div class="rw">' + (left ? 'Win: 1 ' + esc(f.parts[0]) + ' part + ' + f.frag + ' Fragments &middot; ' + left + ' left today' : 'Practice only today (rewards reset tomorrow)') + '</div>';
+      '<div>' + evElTags(fc) + ' ' + rarTag(f.rarity) + '</div><div class="stars">' + stars(f) + '</div><div class="rw">Win: 1 ' + esc(f.parts[0]) + ' part + ' + f.frag + ' Fragments' + (fst.ready ? '' : ' &middot; resting') + '</div>';
     r.appendChild(inf);
-    var fb = document.createElement('button'); fb.className = 'btn go'; fb.textContent = 'Fight';
-    fb.onclick = function(){ sfx.tap(); if (allFainted()) { openHeal(); return; } openPickEvent('foe:' + f.id); };
+    var fb = document.createElement('button'); fb.className = 'btn go'; fb.dataset.foeGo = f.id;
+    if (fst.ready) { fb.textContent = 'Fight'; fb.onclick = function(){ sfx.tap(); if (allFainted()) { openHeal(); return; } openPickEvent('foe:' + f.id); }; }
+    else { fb.disabled = true; fb.classList.add('ev-rest'); fb.innerHTML = 'Resting<br><span class="ev-fcool">' + fmt(fst.cooldownLeft) + '</span>'; }   // v1.2.2: 1-hour rest like the boss
     r.appendChild(fb); box.appendChild(r);
   });
 }
@@ -4898,6 +5144,12 @@ function tickEventTab(){
   var st = CS.eventBossStatus(S, live.ev.id, Date.now()), btn = $('evBossGo');
   if (btn && btn.disabled === st.ready) { renderLadder(); return; }   // cooldown finished (or started): redraw the card
   if (!st.ready) { if ($('evCool')) $('evCool').textContent = fmt(st.cooldownLeft); if ($('evCool2')) $('evCool2').textContent = fmt(st.cooldownLeft); }
+  var redraw = false;   // v1.2.2: event critters rest too
+  document.querySelectorAll('#evFoes [data-foe-go]').forEach(function(fb){
+    var fs = CS.eventFoeStatus(S, fb.dataset.foeGo, Date.now());
+    if (fb.disabled === fs.ready) redraw = true; else if (!fs.ready) { var sp = fb.querySelector('.ev-fcool'); if (sp) sp.textContent = fmt(fs.cooldownLeft); }
+  });
+  if (redraw) renderLadder();
 }
 
 /* ---------- pick a fighter ---------- */
@@ -4913,8 +5165,8 @@ function renderPick(){
   else if (pickCtx.kind === 'event') {   // v1.2.1
     var eo = CS.eventOpponent(pickCtx.key); if (!eo) { el.innerHTML = '<p class="note">This event fighter is not available.</p>'; return; }
     ec = eo.critter; ch = { name:eo.def.name, nick:eo.def.nick, boss:eo.kind === 'boss' };
-    var bst = eo.kind === 'boss' ? CS.eventBossStatus(S, eo.ev.id, now) : null;
-    d = { note:eo.kind === 'boss' ? (bst.ready ? 'Fixed boss: it can’t be changed. Win for one ' + eo.def.parts[0] + ' part. After this battle the boss rests 1 hour.' : 'The boss is resting: back in ' + fmt(bst.cooldownLeft) + '.') : (CS.foeWinsLeft(S, eo.def.id, now) ? 'Event critter: win for one ' + eo.def.parts[0] + ' part (' + CS.foeWinsLeft(S, eo.def.id, now) + ' rewarded wins left today).' : 'Practice only today: rewarded wins reset tomorrow.') };
+    var bst = CS.eventReady(S, pickCtx.key, now);
+    d = { note:eo.kind === 'boss' ? (bst.ready ? 'Fixed boss: it can’t be changed. Win for one ' + eo.def.parts[0] + ' part. After this battle the boss rests 1 hour.' : 'The boss is resting: back in ' + fmt(bst.cooldownLeft) + '.') : (bst.ready ? 'Event critter: win for one ' + eo.def.parts[0] + ' part. After this battle it rests 1 hour.' : eo.def.name + ' is resting: back in ' + fmt(bst.cooldownLeft) + '.') };
   }
   else { pickIdx = pickCtx.idx; ch = CS.CHALLENGERS[pickIdx]; ec = CS.challengerCritter(pickIdx); }
   var h = '<h2>Choose your fighter</h2><div class="chal' + (ch.boss ? ' boss' : '') + '" id="pkFoe"></div>' + (d ? '<p class="note" style="margin:-4px 2px 8px;font-size:12px">' + esc(d.note) + '</p>' : '') + '<h3>Your critters</h3><div id="pkList"></div>';
@@ -4940,7 +5192,7 @@ function renderPick(){
         $('hYes').onclick = function(){ var r = CS.skipHeal(S, c.id, Date.now()); if (!r.ok) { toast(r.reason); return; } save(); updateHeader(); closeModal(); sfx.good(); renderPick(); };
         return;
       }
-      if (pickCtx.kind === 'event') { var eo2 = CS.eventOpponent(pickCtx.key); if (eo2 && eo2.kind === 'boss' && !CS.eventBossStatus(S, eo2.ev.id, Date.now()).ready) { toast('The boss is resting. Try again soon.'); renderPick(); return; } }
+      if (pickCtx.kind === 'event') { var eo2 = CS.eventOpponent(pickCtx.key); if (eo2 && !CS.eventReady(S, pickCtx.key, Date.now()).ready) { toast((eo2.kind === 'boss' ? 'The boss' : esc(eo2.def.name)) + ' is resting. Try again soon.'); renderPick(); return; } }
       sfx.tap(); startFight(pickCtx, c.id);
     };
     list.appendChild(d);
@@ -5273,10 +5525,9 @@ function endEventBattle(){
   if (r.fragments) h += '<div class="rw-row"><span style="font-size:20px">\uD83E\uDDEC</span><span>+' + cup(r.fragments) + ' Fragments' + (won ? '' : ' (consolation)') + '</span></div>';
   if (r.sample) h += '<div class="rw-row ev-part" id="rwSample"><span style="flex:1">' + (r.sample.rarity !== 'Common' ? '<span style="color:var(--' + r.sample.rarity.toLowerCase() + ')">' + r.sample.rarity + '</span> ' : '') + r.sample.family + ' ' + r.sample.slot + ' DNA ' + (r.sample.isNew ? '<span class="newtag">NEW PART</span>' : '') + '<br><small class="note">Event part: one per ' + (r.kind === 'boss' ? 'clear' : 'win') + (r.kind === 'boss' && r.next && r.next.length ? ' &middot; next clear: ' + r.next.map(cap).join(' or ') : '') + '</small></span></div>';
   if (r.kits) h += '<div class="rw-row"><span style="font-size:20px">\uD83C\uDF81</span><span>+' + cup(r.kits) + ' Stitch Kit' + (r.kits > 1 ? 's' : '') + '</span></div>';
-  if (r.capped) h += '<div class="rw-row"><span>Practice battle: today\u2019s rewarded wins are used up. Back tomorrow!</span></div>';
-  if (r.kind === 'boss') h += '<div class="rw-row ev-cool" id="rwCool"><span style="font-size:20px">\u23F3</span><span>The boss rests for <b>' + fmtLong(r.cooldown) + '</b> before the next battle.</span></div>';
+  if (r.cooldown) h += '<div class="rw-row ev-cool" id="rwCool"><span style="font-size:20px">\u23F3</span><span>' + (r.kind === 'boss' ? 'The boss' : nmFoe) + ' rests for <b>' + fmtLong(r.cooldown) + '</b> before the next battle.</span></div>';   // v1.2.2: every event fighter rests
   if (c) h += '<div class="rw-row" style="display:block"><div>' + esc(CS.displayName(c)) + '</div>' + hpBlock(c) + '</div>';
-  h += '<div class="row" style="margin-top:12px"><button class="btn alt" id="resHome" style="flex:1">Home</button><button class="btn" id="resEvent" style="flex:1">Event</button>' + (r.kind !== 'boss' ? '<button class="btn" id="resRematch" style="flex:1">Rematch</button>' : '') + '</div>';
+  h += '<div class="row" style="margin-top:12px"><button class="btn alt" id="resHome" style="flex:1">Home</button><button class="btn" id="resEvent" style="flex:1">Event</button></div>';   // (v1.2.2: no Rematch: every event fighter is resting now)
   var box = $('resultsBox'); box.className = 'box' + (won ? '' : ' lose'); box.innerHTML = h;
   if (r.sample) $('rwSample').insertBefore(partCanvas(r.sample.family, r.sample.slot), $('rwSample').firstChild);
   $('results').classList.add('on'); countUp(box);
@@ -5628,6 +5879,8 @@ function renderCrateSlots(){
   var ci = CS.crateInfo(S), box = $('crateSlots'), cnt = $('crateCount'); if (!box || !cnt) return;
   cnt.textContent = ci.used + '/' + ci.slots; cnt.className = ci.used >= ci.slots ? 'full' : '';
   if ($('crateIb')) $('crateIb').innerHTML = infoBtn('crate');
+  S.tipsSeen = S.tipsSeen || {};
+  if (CS.newCrateLooks(S).length && !S.tipsSeen.crateLookTip) { S.tipsSeen.crateLookTip = Date.now(); save(); setTimeout(function(){ toast('\uD83C\uDF81 New crate look unlocked! Tap the crate\u2019s label to try it.', 3200); }, 900); }   // v1.2.2, once
   var h = '';   // v1.1.7: free spots are straw nests and locked spots are roped off in the crate art itself
   if (ci.over) h += '<div class="cs-note over">Over the cap by ' + ci.over + '. Everyone stays; blend or rehome to add more.</div>';
   else if (ci.next && ci.used >= ci.slots) h += '<div class="cs-note" id="crateLockTxt">\uD83D\uDD12 ' + esc(ci.next.text) + ' +' + ci.next.add + ' slots</div>';
@@ -5804,7 +6057,7 @@ function handleEventCode(d){
     h += '<div class="tip" id="cdEvAdded" style="margin:6px 0 0;font-size:12px">' + (add && add.isNew ? '\u2705 Added to your Special Event page.' : '\u2714 Already on your Special Event page.') + '</div>';
   }
   var w = d.event ? CS.eventActive(d.event, evNow()) : null, nx = d.event && !w ? CS.nextEventWindow(d.event, evNow()) : null;
-  h += '<p class="note" style="margin:6px 0 12px">' + esc(d.foe ? (w ? 'Find it on the Battle screen under ' + d.event.name + '. Win: +' + d.foe.frag + ' Fragments and one ' + d.foe.parts[0] + ' part (up to ' + CS.CFG.eventFoeDailyWins + ' rewarded wins a day).' : 'It shows up on the Battle screen while the ' + d.event.name + ' event is on' + (nx ? ' (' + evDates(nx) + ')' : '') + '.') : d.note) + '</p>';
+  h += '<p class="note" style="margin:6px 0 12px">' + esc(d.foe ? (w ? 'Find it on the Battle screen under ' + d.event.name + '. Win: +' + d.foe.frag + ' Fragments and one ' + d.foe.parts[0] + ' part. It rests 1 hour after each battle.' : 'It shows up on the Battle screen while the ' + d.event.name + ' event is on' + (nx ? ' (' + evDates(nx) + ')' : '') + '.') : d.note) + '</p>';
   h += '<div class="row"><button class="btn alt" id="cdNo" style="flex:1">Close</button><button class="btn" id="cdGo" style="flex:1"' + (d.foe && w ? '' : ' disabled') + '>Go to event</button></div>';
   if (d.foe) sfx.rare(); else sfx.bad();
   modal(h);
@@ -5930,35 +6183,28 @@ function renderLog(){
   h += '<div class="logcount">' + counts.total + ' logged</div><p class="note" style="text-align:center">' + counts.pures + '/' + counts.ofPures + ' pure families</p>';
   el.innerHTML = h;
   el.querySelectorAll('.pd-tab').forEach(function(b){ b.onclick = function(){ sfx.tap(); pediaTab = b.dataset.tab; renderLog(); }; });
-  var evSeen = CS.EVENT_FAMILIES.filter(function(f){ return Object.keys(entries).some(function(k){ return CS.pediaFamilies(entries[k]).indexOf(f) >= 0; }); });   // v1.2.1: seasonal families show once logged
-  CS.FAMILIES.concat(evSeen).forEach(function(f){
-    var pureKey = CS.pediaKey({ head:f, torso:f, legs:f }), pure = entries[pureKey];
-    var hybrids = Object.keys(entries).map(function(k){ return entries[k]; }).filter(function(e){ return e.parts && CS.pediaFamilies(e).indexOf(f) >= 0 && CS.pediaFamilies(e).length > 1; });   // v1.2.0: a hybrid shows under every family it contains
-    hybrids.sort(function(a, b){ return a.firstSeen - b.firstSeen; });
-    var n = (pure ? 1 : 0) + hybrids.length;
-    var sec = document.createElement('div'); sec.className = 'pd-fam';
-    sec.innerHTML = '<h3>' + f + ' ' + CS.familyElements(f).map(elTag).join('') + (FAM[f].event ? ' <span class="ev-tag">EVENT</span>' : '') + ' <span class="note">' + n + ' logged' + (pure ? '' : ' \u00b7 pure unknown') + '</span></h3><div class="pd-grid"></div>';
+  // v1.2.2: only critters you made (hatched or built). No placeholders: a family shows up once you have made one with it.
+  var made = CS.pediaList(S);
+  if (!made.length) { el.insertAdjacentHTML('beforeend', '<p class="note pd-empty" id="pdEmpty">Nothing here yet. Hatch or build a critter in the Lab and it gets a page.</p>'); return; }
+  CS.FAMILIES.concat(CS.EVENT_FAMILIES).forEach(function(f){
+    var list = made.filter(function(e){ return CS.pediaFamilies(e).indexOf(f) >= 0; });   // a hybrid shows under every family it contains
+    if (!list.length) return;
+    list.sort(function(a, b){ var pa = CS.pediaFamilies(a).length === 1 ? 0 : 1, pb = CS.pediaFamilies(b).length === 1 ? 0 : 1; return pa - pb || a.firstSeen - b.firstSeen; });   // pure first
+    var sec = document.createElement('div'); sec.className = 'pd-fam'; sec.dataset.fam = f;
+    sec.innerHTML = '<h3>' + f + ' ' + CS.familyElements(f).map(elTag).join('') + (FAM[f].event ? ' <span class="ev-tag">EVENT</span>' : '') + ' <span class="note">' + list.length + ' logged</span></h3><div class="pd-grid"></div>';
     var grid = sec.querySelector('.pd-grid');
-    function addCard(e, familyForUnknown){
-      var known = !!e, d = document.createElement('button');
-      d.className = 'pd-card' + (known ? '' : ' unk');
-      var spr = known ? CS.pediaSprite(e) : { parts:{ head:familyForUnknown, torso:familyForUnknown, legs:familyForUnknown }, rarity:'Common', colors:{ shift:0, shiny:false } };
-      d.appendChild(spriteCanvas(spr, known ? {} : { silhouette:true }));
-      d.insertAdjacentHTML('beforeend', '<div class="pd-title">' + (known ? esc(e.nickname || e.name) : 'Unknown') + '</div>' + (known ? '<div class="pd-flags">' + pediaFlags(e) + '</div>' : '<div class="note">???</div>'));
-      d.onclick = function(){ sfx.tap(); openPediaEntry(known ? e : null, familyForUnknown); };
+    list.forEach(function(e){
+      var d = document.createElement('button'); d.className = 'pd-card';
+      d.appendChild(spriteCanvas(CS.pediaSprite(e)));
+      d.insertAdjacentHTML('beforeend', '<div class="pd-title">' + esc(e.nickname || e.name) + '</div><div class="pd-flags">' + pediaFlags(e) + '</div>');
+      d.onclick = function(){ sfx.tap(); openPediaEntry(e); };
       grid.appendChild(d);
-    }
-    addCard(pure || null, f);
-    hybrids.forEach(function(e){ addCard(e); });
+    });
     el.appendChild(sec);
   });
 }
-function openPediaEntry(e, family){
-  if (!e) {
-    modal('<div style="font-weight:900;font-size:18px">Unknown</div><div id="pdCv" style="display:flex;justify-content:center;margin:8px 0"></div><p class="note">A pure ' + family + ' has not been logged yet. Hatch, splice, or beat one in battle to fill this page.</p><button class="btn block" id="pdOk">Close</button>');
-    $('pdCv').appendChild(spriteCanvas({ parts:{ head:family, torso:family, legs:family }, rarity:'Common', colors:{ shift:0, shiny:false } }, { silhouette:true }));
-    $('pdOk').onclick = closeModal; return;
-  }
+function openPediaEntry(e){
+  if (!e) return;
   var secret = CS.SECRET_COMBOS[e.parts.head + '+' + e.parts.torso];
   var h = '<div style="font-weight:900;font-size:18px">' + esc(e.nickname || e.name) + ' ' + rarTag(e.rarity || 'Common') + '</div>';
   h += '<div id="pdCv" style="display:flex;justify-content:center;margin:8px 0"></div>';
@@ -6128,7 +6374,7 @@ function boot(){
 // The page checks version.json (never cached) on launch and whenever the app comes back to the front. If a newer build
 // is live it reloads once, unless a battle or dialog is open; then it shows a tap-to-reload bar. A sessionStorage flag
 // makes sure it never auto-reloads twice for the same build, so a stale copy can't cause a reload loop.
-var APP_VERSION = '1.2.1', APP_BUILD = '5c76229149';
+var APP_VERSION = '1.2.2', APP_BUILD = '95cb9002be';
 function verLabel(){ return 'v' + APP_VERSION + ' \u00b7 build ' + APP_BUILD; }
 var upd = { reg:null, hadController:false, pending:null, timer:null, go:null };
 function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('blendAnim') && !$('modal').classList.contains('on'); }
@@ -6180,7 +6426,7 @@ window.CSApp = { get state(){ return S; }, set state(v){ S = v; }, save:save, go
   get music(){ return { unlocked:music.unlocked, cur:music.cur, missing:Object.keys(music.missing), found:music.found }; }, get scanEngine(){ return scan.engine; },
   setSplice:function(sel){ spliceSel = sel; labTab = 'incubator'; spliceJump = true; }, setLabTab:function(t){ labTab = t; }, openDetail:function(id){ detailId = id; go('detail'); }, crateSpot:crateSpot, freezeCrate:function(on, spread){ hab.critters.forEach(function(h){ h.pause = on ? 1e9 : 0; if (spread) h.x = h.home; }); },
   openBattlePlayer:openBattlePlayer, openInvite:openInvite, openMutationDiff:openMutationDiff, shareCritterImage:shareCritterImage, critterCardCanvas:critterCardCanvas,
-  get gs(){ return gs ? { idx:gs.idx, strands:gs.strands, over:gs.over, piece:gs.piece && { name:gs.piece.name, x:gs.piece.x, y:gs.piece.y, el:gs.piece.el, cells:gs.piece.cells }, grid:gs.grid } : null; }, gsStart:gsStart, gsEnd:gsEnd, gsMove:gsMove, gsRotate:gsRotate, gsDrop:gsDrop, gsSetGrid:function(fn){ if (gs) fn(gs.grid, gs); }, scoreSwipe:scoreSwipe, swipePath:swipePath, get kitHaul(){ return kitHaul; }, get bt(){ return bt; }, get reveal(){ return rv; }, toast:toast, get toastState(){ return { cur:toastCur && toastCur.msg, queue:toastQ.map(function(x){ return x.msg; }) }; }, get crowded(){ return !!hab.crowded; }, openHeal:openHeal, systemBack:systemBack, openForfeit:openForfeit, openInfo:openInfo, get inviteUrl(){ return mpInv.url; }, get crateSpots(){ return (hab.lay ? hab.lay.spots : []).map(function(x){ return { state:x.state, lane:x.lane, cx:x.cx, feet:x.feet, sc:x.sc }; }); }, get audio(){ return { unlocked:aud.unlocked, sfx:Object.keys(aud.buf).filter(function(k){ return aud.buf[k] instanceof AudioBuffer; }), cur:music.cur, override:music.override }; } };
+  get gs(){ return gs ? { idx:gs.idx, strands:gs.strands, over:gs.over, piece:gs.piece && { name:gs.piece.name, x:gs.piece.x, y:gs.piece.y, el:gs.piece.el, cells:gs.piece.cells }, grid:gs.grid, fast:!!gs.fast } : null; }, gsStart:gsStart, gsEnd:gsEnd, gsMove:gsMove, gsRotate:gsRotate, gsDrop:gsDrop, gsSetGrid:function(fn){ if (gs) fn(gs.grid, gs); }, scoreSwipe:scoreSwipe, swipePath:swipePath, get kitHaul(){ return kitHaul; }, get bt(){ return bt; }, get reveal(){ return rv; }, toast:toast, get toastState(){ return { cur:toastCur && toastCur.msg, queue:toastQ.map(function(x){ return x.msg; }) }; }, get crowded(){ return !!hab.crowded; }, openHeal:openHeal, systemBack:systemBack, openForfeit:openForfeit, openInfo:openInfo, get inviteUrl(){ return mpInv.url; }, openCrateLooks:openCrateLooks, get crateLook(){ return CS.currentCrateLook(S).id; }, get crateSpots(){ return (hab.lay ? hab.lay.spots : []).map(function(x){ return { state:x.state, lane:x.lane, cx:x.cx, feet:x.feet, sc:x.sc }; }); }, get audio(){ return { unlocked:aud.unlocked, sfx:Object.keys(aud.buf).filter(function(k){ return aud.buf[k] instanceof AudioBuffer; }), cur:music.cur, override:music.override }; } };
 })();
 </script>
 </body>
