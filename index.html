@@ -632,6 +632,25 @@ header .back svg{width:18px;height:18px}
 #homeTip[data-nudge]{cursor:pointer}
 /* kits: tap the kit to skip */
 .kit-stage{cursor:pointer}
+/* v1.2.1 seasonal events */
+.ev-tabs{margin:0 0 10px}
+.pd-tab.ev.on{background:#3a2a12;border-color:#ffb347;color:#ffe2b0}
+.ev-head{display:flex;gap:10px;align-items:center;margin-bottom:10px;border-color:#a0682a;background:linear-gradient(90deg,#3a2612,#211d3a)}
+.ev-ic{font-size:30px;line-height:1}
+.ev-nm{font-weight:900;font-size:17px;color:#ffe2b0}
+.ev-cd{flex:0 0 auto;text-align:right;font-size:12px;color:#ffd08a;background:#2a1a0d;border:1px solid #a0682a;border-radius:10px;padding:6px 8px;line-height:1.3}
+.ev-cd b{display:block;font-size:15px;color:#fff3dc}
+.ev-tip{background:#3a2a12;border-color:#a0682a;color:#ffe9c8;font-size:13px}
+.ev-tag{display:inline-block;background:#a0682a;color:#fff3dc;font-size:9px;font-weight:900;padding:1px 5px;border-radius:6px;vertical-align:middle;letter-spacing:.04em}
+.chal.ev-boss{border-color:#ffb347;background:linear-gradient(90deg,#40280f,#211d3a)}
+.chal.ev-foe{border-color:#4f8a33}
+.ev-pips{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+.ev-pip{font-size:10px;font-weight:800;padding:1px 6px;border-radius:999px;border:1px solid var(--line);color:var(--dim)}
+.ev-pip.have{border-color:#3fbf6a;color:#a8ffb0}
+.ev-pip.nx{border-color:#ffb347;color:#ffe2b0}
+.chal .go.ev-rest{font-size:11px;line-height:1.25;padding:8px 10px;opacity:1;background:#2a2547;color:var(--dim)}
+.ev-cool-note{margin:-2px 2px 10px;font-size:12px}
+.code-kind.event{background:#3a2612;color:#ffd08a}
 </style>
 </head>
 <body>
@@ -650,7 +669,7 @@ header .back svg{width:18px;height:18px}
       <div class="home-top">
         <div class="logo-big"><div class="t1">CRITTER STITCHER</div><div class="t2">GROW &middot; SPLICE &middot; BATTLE</div></div>
         <div class="tip" id="homeTip" style="display:none"></div>
-        <button class="scan-home" id="homeScan"><span class="sh-ic"><svg class="scan-ic" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true"><path fill="#ff4d6d" d="M9 1h1v1H9zM10 2h1v1h-1zM10 4h2v1h-2zM10 6h1v1h-1zM9 7h1v1H9z" opacity=".85"/><path fill="#5d6672" d="M1 2h8v4H5v5H2V6H1z"/><path fill="#a7b0ba" d="M1 2h8v1H1zM2 6h3v1H2z"/><path fill="#49d3ff" d="M7 3h2v2H7z"/><path fill="#ffc93c" d="M3 7h1v2H3z"/><path fill="#2a2f36" d="M2 10h3v1H2z"/></svg></span><span><b>Scanner</b><small>Battle &middot; Rehome &middot; Invite &middot; Thank-you codes</small></span><i>&rsaquo;</i></button>
+        <button class="scan-home" id="homeScan"><span class="sh-ic"><svg class="scan-ic" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true"><path fill="#ff4d6d" d="M9 1h1v1H9zM10 2h1v1h-1zM10 4h2v1h-2zM10 6h1v1h-1zM9 7h1v1H9z" opacity=".85"/><path fill="#5d6672" d="M1 2h8v4H5v5H2V6H1z"/><path fill="#a7b0ba" d="M1 2h8v1H1zM2 6h3v1H2z"/><path fill="#49d3ff" d="M7 3h2v2H7z"/><path fill="#ffc93c" d="M3 7h1v2H3z"/><path fill="#2a2f36" d="M2 10h3v1H2z"/></svg></span><span><b>Scanner</b><small>Battle &middot; Event &middot; Rehome &middot; Invite codes</small></span><i>&rsaquo;</i></button>
         <div id="streakCard"></div>
         <div class="grid-btns">
           <button class="big lab" data-go="lab"><svg viewBox="0 0 9 9" shape-rendering="crispEdges"><path fill="#7cff6b" d="M3 0h3v1H5v2l3 4v2H1V7l3-4V1H3z"/><path fill="#1f3a2a" d="M2 7h5v1H2z"/></svg>Lab<span class="badge" id="labBadge">!</span></button>
@@ -1235,6 +1254,110 @@ legs: [
 "......sbbbbbbbbbbbbs....",
 "......wsswsswsssssss....",
 "........................",
+"........................"]},
+Gobblequill: {   // v1.2.1 event family (original art)
+head: [
+"........................",
+"......................aa",
+"...................sbbaa",
+".................sbbhhhb",
+"................sbbhhbbb",
+"...............sbbbbbbbb",
+"...............sbkkkbbbb",
+"...............sbkwkbbbb",
+"...............sbbbbbaaa",
+"................sbbbbaaa",
+"................sbbbrrar",
+".................sbbrrrr",
+".................sbbrrrr",
+"..................sbbrrb",
+"...................sbbbb",
+"....................bbbb"],
+torso: [
+"..n.....n.....n.....bbbb",
+".nhn...nhn...nhn...sbbbb",
+".nhhn.nhhhn.nhhhn.sbbbbb",
+"..nhhnhhshhnhhshhnsbbbbb",
+"..nhhhhssshhhssshhsbhhbb",
+"...nhhsssbbsssbbsshsbhhh",
+"...nhssbbbbbbbbbbbsshbhh",
+"....nsbbbbsbbbbsbbbshbbh",
+"....nsbbbsbbbbsbbbbshbbb",
+".....nsbbbbbbbbbbbbbsbbb",
+"......nssbbbbbbbbbbsbbbb",
+".........sssbbbbbbbsbbbb",
+"............sbbbhhbbbbbb",
+"............sbbhhbbbbbbb",
+".............sbbbbbbbbbb",
+"................ssssssss"],
+legs: [
+"................bbbbbbbb",
+"...............sbbbbbbbb",
+"...............sbbbbbbbs",
+"................sbbbbbs.",
+".................saas...",
+".................saa....",
+".................saa....",
+".................saa....",
+".................saa....",
+".................saa....",
+"................saaa....",
+"..............saaaaa....",
+".............saasaasa...",
+"............sa..sa..sa..",
+"........................",
+"........................"]},
+Gourdling: {   // v1.2.1 event family (original art)
+head: [
+"......................ss",
+".................hh...ss",
+"...............hhbbh..ss",
+"..............hbbbbbhhss",
+"...........sssbbbbbbbbbb",
+".........ssbbbsbbbbbsbbb",
+"........sbbbbsbbbbbsbbbb",
+".......sbbbbsbbkkkbsbbbb",
+".......sbbbbsbbkwkbsbbbb",
+".......sbbbbsbbbbbbsbbbb",
+".......sbbbbsbbbbbbsbbkk",
+"........sbbbbsbbbbbsbkrr",
+".........sbbbsbbbbbsbbbb",
+"..........sssbbbbbbbbbbb",
+"..............ssssssbbbb",
+"....................bbbb"],
+torso: [
+"................bbbbbbbb",
+"............sssbbbbbbbbb",
+"..........ssbbbsbbbbbsbb",
+".........sbbbbsbbbbbbsbb",
+"....h...sbbbbsbbbbbbbsbb",
+"...h.h.sbbbbsbbbbbbbbsbb",
+"...h..hsbbbbsbbbhhbbbsbb",
+"....hh.sbbbbsbbbhbbbbsbb",
+".......sbbbbsbbbbbbbbsbb",
+".......sbbbbsbbbbbbbbsbb",
+"........sbbbsbbbbbbbbsbb",
+"........sbbbbsbbbbbbsbbb",
+".........sbbbsbbbbbbsbbb",
+"..........ssbbsbbbbbsbbb",
+"............ssssbbbbbbbb",
+"................ssssssss"],
+legs: [
+"................ssssssss",
+"..............sbbbbbbbbb",
+".............sbbbbbbbbbb",
+".............sbbbbbbbbbb",
+"..............sbbbbs....",
+"..............sbbbbs....",
+"..............sbbbbs....",
+".............sbbbbbs....",
+"............sbbbbbbs....",
+"...........shhbbbbbs....",
+"..........shhbbbbbbbs...",
+"..........sssssssssss...",
+"........................",
+"........................",
+"........................",
 "........................"]}
 };
 /* ===== Critter Stitcher: game engine (pure logic, no DOM) =====
@@ -1242,7 +1365,7 @@ legs: [
 var CS = (function(){
 'use strict';
 var SAVE_KEY = 'critterStitcher.save';
-var SAVE_VERSION = 9;   // v9 (v1.2.0): Vibration setting, queued next splice.  v8 (v1.1.9): Critterpedia binder + achievements; full-crate hatch can be held (v7: music 40% default, swipe / Gene Stack / battle speed, crate pins)
+var SAVE_VERSION = 10;  // v10 (v1.2.1): seasonal events (boss clears, part rotation, cooldown, scanned event critters).  v9 (v1.2.0): Vibration setting, queued next splice.  v8 (v1.1.9): Critterpedia binder + achievements; full-crate hatch can be held (v7: music 40% default, swipe / Gene Stack / battle speed, crate pins)
 var SIZE = 48, PAD = 4, BUF = SIZE + PAD*2;   // sprite buffer is 56x56 so outlines/aura fit
 
 var FAMILIES = ['Emberthorn','Skulldust','Vilebloom','Retchedslime','Glimmerfin','Frostbite','Pylophong','Starfang','Zoraclaw','Shadowmaw'];
@@ -1270,8 +1393,20 @@ var FAM = {
   Zoraclaw:    { element:'Earth', look:'Armored',            stats:{hp:150,atk:34,def:38,spd:14}, pre:'Zora', suf:'claw',
                  moves:{heavy:'Pincer Crush', special:'Rockslide', guard:'Shell Up', jab:'Claw Skitter'} },
   Shadowmaw:   { element:'Earth', look:'Creepy',             stats:{hp:150,atk:38,def:26,spd:22}, pre:'Shado', suf:'maw',
-                 moves:{heavy:'Maw Clamp', special:'Cave-In', guard:'Stone Hide', jab:'Shadow Swipe'} }
+                 moves:{heavy:'Maw Clamp', special:'Cave-In', guard:'Stone Hide', jab:'Shadow Swipe'} },
+  // v1.2.1 seasonal EVENT families. Same five elements, but one part may carry a second element (slotEl), so an event
+  // critter mixes one or two elements. They never appear in starters, kits, streak DNA or the core 10-family counts.
+  Gobblequill: { element:'Earth', slotEl:{ head:'Fire' }, event:'thanksgiving', look:'Harvest turkey', stats:{hp:150,atk:38,def:30,spd:24}, pre:'Gobble', suf:'quill',
+                 moves:{heavy:'Wattle Scorch', special:'Harvest Blaze', guard:'Fan Feather Wall', jab:'Drumstick Stomp'} },
+  Gourdling:   { element:'Plant', event:'thanksgiving', look:'Squash sprout',        stats:{hp:150,atk:28,def:34,spd:16}, pre:'Gourd', suf:'ling',
+                 moves:{heavy:'Gourd Bonk', special:'Vine Harvest', guard:'Rind Shell', jab:'Tendril Trip'} }
 };
+var EVENT_FAMILIES = ['Gobblequill','Gourdling'];
+var ALL_FAMILIES = FAMILIES.concat(EVENT_FAMILIES);   // battle codes index into this list (4 bits: room for 16)
+function isEventFamily(f){ return EVENT_FAMILIES.indexOf(f) >= 0; }
+// element of one part: an event family can give one slot a second element; everything else uses the family element
+function partElement(family, slot){ var d = FAM[family]; if (!d) return null; return (d.slotEl && d.slotEl[slot]) || d.element; }
+function familyElements(family){ var out = []; SLOTS.forEach(function(sl){ var e = partElement(family, sl); if (out.indexOf(e) < 0) out.push(e); }); return out; }
 var STARTERS = ['Emberthorn','Glimmerfin','Vilebloom'];   // one Fire, one Water, one Plant
 // Share of each family stat carried by each part (head mostly Atk, torso HP/Def, legs Spd; a little to the others).
 var WEIGHTS = { head:{hp:.2,atk:.6,def:.2,spd:.2}, torso:{hp:.6,atk:.2,def:.6,spd:.2}, legs:{hp:.2,atk:.2,def:.2,spd:.6} };
@@ -1338,8 +1473,8 @@ var CFG = {
   crateUnlocks: { boss1: { challenger:'gristle' } },  // unlock id -> condition (beat this challenger)
   crateRowMax: 6,
   crateSpriteScale: { 1:1, 2:1, 3:1, 4:1, 5:0.9, 6:0.84 },   // hook: shrink crate sprites a little when a row holds 5-6
-  timers:     { incubate: 180, splice: 300, heal: 120 },   // seconds (GDD start values)
-  testTimers: { incubate: 10,  splice: 15,  heal: 5 },     // ?test=1
+  timers:     { incubate: 180, splice: 300, heal: 120, eventCooldown: 3600 },   // seconds (GDD start values); v1.2.1 event boss: 1 hour between fights
+  testTimers: { incubate: 10,  splice: 15,  heal: 5, eventCooldown: 30 },       // ?test=1
   kitFragments: [20, 30], kitRareChance: 0.08,              // Stitch Kit = 1 sample + 20-30 Fragments
   superEffective: 1.5, resisted: 1 / 1.5,   // element wheel multipliers (Doug: softened from 2x / 0.5x)
   lossFragments: 5, rematchFragmentShare: 0.5,
@@ -1357,6 +1492,8 @@ var CFG = {
   geneStack: { fullAt: 10, rareMax: 0.03, legMax: 0.01 },
   // v1.1.8: battle swipe trace. Clean = +1 damage and +10 accuracy; failed = -1 damage; ignored = normal. Off in Battle Code fights.
   swipe: { accBonus: 10, dmg: 1 },
+  // v1.2.1 seasonal events: every event runs from eventDaysBefore days before its holiday to eventDaysAfter days after (local dates, inclusive)
+  eventDaysBefore: 7, eventDaysAfter: 7, eventFoeDailyWins: 3,
   rivalCap: 20,                                               // v1.1.6: saved Rivals; the oldest scan is recycled first
   referralKitCap: 10,                                         // thank-you kits per referrer, lifetime
   // 7-day login streak. Day 1 matches the old free daily kit; missing a day restarts at Day 1.
@@ -1390,7 +1527,8 @@ function parseSampleKey(k){ var p = k.split(':'); return { family:p[0], slot:p[1
 /* ---------- naming ---------- */
 // Legs add a descriptive word when they differ from the torso, so every one of the 1,000 combos gets its own name.
 var LEG_WORDS = { Emberthorn:'Blazing', Skulldust:'Bony', Vilebloom:'Rooted', Retchedslime:'Oozing', Glimmerfin:'Finned',
-                  Frostbite:'Frosty', Pylophong:'Wired', Starfang:'Swift', Zoraclaw:'Skittering', Shadowmaw:'Stomping' };
+                  Frostbite:'Frosty', Pylophong:'Wired', Starfang:'Swift', Zoraclaw:'Skittering', Shadowmaw:'Stomping',
+                  Gobblequill:'Strutting', Gourdling:'Vining' };
 function autoName(head, torso, legs){
   var base = head === torso ? head : FAM[head].pre + FAM[torso].suf;
   if (legs && legs !== torso) base = LEG_WORDS[legs] + ' ' + base;
@@ -1441,16 +1579,17 @@ function statRange(parts, rarity){ // expected range for the Splicer preview (ro
 /* ---------- moves ---------- */
 function movesFor(c){
   var p = c.parts, list = [];
-  list.push({ id:'jab', name:FAM[p.legs].moves.jab, kind:'Quick Jab', element:FAM[p.legs].element, power:12, acc:97, from:'legs' });
-  list.push({ id:'heavy', name:FAM[p.head].moves.heavy, kind:'Heavy Hit', element:FAM[p.head].element, power:22, acc:80, from:'head' });
-  list.push({ id:'guard', name:FAM[p.torso].moves.guard, kind:'Guard', element:FAM[p.torso].element, power:0, acc:100, from:'torso', note:MOVE_KINDS.guard.note });
+  var eH = partElement(p.head, 'head'), eT = partElement(p.torso, 'torso'), eL = partElement(p.legs, 'legs');
+  list.push({ id:'jab', name:FAM[p.legs].moves.jab, kind:'Quick Jab', element:eL, power:12, acc:97, from:'legs' });
+  list.push({ id:'heavy', name:FAM[p.head].moves.heavy, kind:'Heavy Hit', element:eH, power:22, acc:80, from:'head' });
+  list.push({ id:'guard', name:FAM[p.torso].moves.guard, kind:'Guard', element:eT, power:0, acc:100, from:'torso', note:MOVE_KINDS.guard.note });
   var sc = SECRET_COMBOS[p.head + '+' + p.torso];
-  if (c.uniqueMove) list.push({ id:'special', name:c.uniqueMove, kind:'Special (unique)', element:FAM[p.head].element, power:44, acc:95, cost:100, from:'head', unique:true });
-  else if (sc) list.push({ id:'special', name:sc.name, kind:'Special (secret combo)', element:FAM[p.head].element, power:sc.power, acc:95, cost:100, from:'head+torso', secret:true });
-  else list.push({ id:'special', name:FAM[p.head].moves.special, kind:'Special', element:FAM[p.head].element, power:38, acc:95, cost:100, from:'head' });
+  if (c.uniqueMove) list.push({ id:'special', name:c.uniqueMove, kind:'Special (unique)', element:eH, power:44, acc:95, cost:100, from:'head', unique:true });
+  else if (sc) list.push({ id:'special', name:sc.name, kind:'Special (secret combo)', element:eH, power:sc.power, acc:95, cost:100, from:'head+torso', secret:true });
+  else list.push({ id:'special', name:FAM[p.head].moves.special, kind:'Special', element:eH, power:38, acc:95, cost:100, from:'head' });
   return list;
 }
-function elementsOf(c){ return { head:FAM[c.parts.head].element, torso:FAM[c.parts.torso].element, legs:FAM[c.parts.legs].element, defense:FAM[c.parts.torso].element }; }
+function elementsOf(c){ var t = partElement(c.parts.torso, 'torso'); return { head:partElement(c.parts.head, 'head'), torso:t, legs:partElement(c.parts.legs, 'legs'), defense:t }; }
 
 /* ---------- mutations ---------- */
 function mutationTag(n){ if (!n) return ''; if (n === 1) return 'Modified'; if (n <= 3) return 'Highly Mutated'; return 'Compromised'; }
@@ -1625,7 +1764,7 @@ function newSave(now){
     deviceId: newDeviceId(), streak: { day: 0, last: '', best: 0 },
     codes: { redeemed: {}, battles: {}, sent: [], thanked: {}, thankKits: 0 }, rivals: [],
     referral: null, activeBattle: null, trainer: '', podQueue: [],
-    playerId: newPlayerId(), mp: newMpStats(), bossRewards: {}, rewardLog: [], pedia: { entries:{} }, achieve: {}, spliceNext: null
+    playerId: newPlayerId(), mp: newMpStats(), bossRewards: {}, rewardLog: [], pedia: { entries:{} }, achieve: {}, spliceNext: null, events: newEventsLedger()
   };
 }
 function migrate(s){
@@ -1698,6 +1837,11 @@ function migrate(s){
     if (s.spliceNext === undefined) s.spliceNext = null;
     s.tipsSeen = s.tipsSeen && typeof s.tipsSeen === 'object' ? s.tipsSeen : {};
     s.v = 9;
+  }
+  if (s.v === 9) { // v1.2.1: seasonal events ledger (boss clears / part rotation / cooldown, scanned event critters); nothing removed
+    s.events = s.events && typeof s.events === 'object' ? s.events : newEventsLedger();
+    s.events.boss = s.events.boss || {}; s.events.foes = s.events.foes || {};
+    s.v = 10;
   }
   var base = newSave(s.createdAt);
   for (var k in base) if (!(k in s)) s[k] = base[k];
@@ -1949,6 +2093,10 @@ function backfillPedia(s){
     if (!r || !r.parts || !(r.wins > 0)) return;
     logPedia(s, r.parts, 'beaten', r.firstSeen || r.lastBattle || r.scannedAt || fallback, { rarity:r.rarity });
   });
+  if (s.events && s.events.boss) EVENTS.forEach(function(ev){   // v1.2.1: event bosses you have cleared
+    var rec = s.events.boss[ev.id]; if (!rec || !rec.firstClear) return;
+    logPedia(s, { head:ev.boss.parts[0], torso:ev.boss.parts[1], legs:ev.boss.parts[2] }, 'beaten', rec.firstClear, { rarity:ev.boss.rarity, nickname:ev.boss.nick });
+  });
   if (s.ladder && s.ladder.beaten) CHALLENGERS.forEach(function(ch){
     if (!s.ladder.beaten[ch.id]) return;
     logPedia(s, { head:ch.parts[0], torso:ch.parts[1], legs:ch.parts[2] }, 'beaten', s.ladder.beaten[ch.id], { rarity:ch.rarity, nickname:ch.nick });
@@ -1975,7 +2123,7 @@ function pediaPureOwned(s){
   var have = {}, entries = (s.pedia && s.pedia.entries) || {};
   Object.keys(entries).forEach(function(k){
     var e = entries[k], p = e && e.parts;
-    if (p && (e.owned || e.built) && p.head === p.torso && p.torso === p.legs) have[p.head] = 1;
+    if (p && (e.owned || e.built) && p.head === p.torso && p.torso === p.legs && FAMILIES.indexOf(p.head) >= 0) have[p.head] = 1;   // v1.2.1: event families don't count toward the 10
   });
   return Object.keys(have);
 }
@@ -2172,7 +2320,7 @@ function openKit(s, rng){
 function moveById(c, id){ for (var i = 0; i < c.moves.length; i++) if (c.moves[i].id === id) return c.moves[i]; return null; }
 function makeSide(c, hp){
   return { c:c, maxHp:maxHp(c), hp:hp == null ? maxHp(c) : hp, energy:c.traits.indexOf('Quick Start') >= 0 ? CFG.quickStartEnergy : 0,
-           guarding:false, lastGuard:false, secondWind:false, defense:FAM[c.parts.torso].element };
+           guarding:false, lastGuard:false, secondWind:false, defense:partElement(c.parts.torso, 'torso') };
 }
 function createBattle(pc, ec, opts){
   opts = opts || {};
@@ -2289,16 +2437,18 @@ var CHALLENGERS = [
   { id:'stitch',  name:'The Stitchmaster', title:'Keeper of the Lab', tier:2, boss:true,  parts:['Emberthorn','Zoraclaw','Starfang'],       rarity:'Legendary', power:1.14, ai:0.85, nick:'Patchwork Prime', frag:50, seed:18 }
 ];
 var DROP_CHANCE = { 1:0.25, 2:0.35 };   // rematch Pristine odds (doc 8.2); bosses always drop
-function challengerCritter(i){
-  var ch = CHALLENGERS[i], rng = makeRng(ch.seed * 7919);
+function challengerCritter(i){ return presetCritter(CHALLENGERS[i], 'ch_'); }
+// A fixed preset fighter (ladder challengers, v1.2.1 event bosses and event critters): same seed, same critter, every time.
+function presetCritter(ch, prefix){
+  var rng = makeRng(ch.seed * 7919);
   var src = { head:{ family:ch.parts[0], rarity:ch.rarity }, torso:{ family:ch.parts[1], rarity:ch.rarity }, legs:{ family:ch.parts[2], rarity:ch.rarity } };
-  var c = makeCritter(src, rng, { id:'ch_' + ch.id, forceRarity:ch.rarity, allowMutation:false, now:0, kind:'challenger' });
+  var c = makeCritter(src, rng, { id:(prefix || 'ch_') + ch.id, forceRarity:ch.rarity, allowMutation:false, now:0, kind:'challenger' });
   c.colors.shiny = false;
   STAT_KEYS.forEach(function(k){ c.rolls[k] = 0; });
   var scale = ch.power / RARITY_BONUS[ch.rarity];       // power already includes the rarity bonus
   STAT_KEYS.forEach(function(k){ c.bumps[k] = 0; }); c.statScale = scale;   // ladder power is not a mutation, so it isn't capped
   refresh(c); c.nickname = ch.nick;
-  if (ch.boss && c.traits.length === 0) c.traits.push('Thick Hide');
+  if (ch.boss && c.traits.length === 0) c.traits.push(ch.trait || 'Thick Hide');
   return c;
 }
 function ladderUnlocked(s, i){ return i === 0 || !!s.ladder.beaten[CHALLENGERS[i - 1].id]; }
@@ -2380,6 +2530,136 @@ function finishLadderBattle(s, i, critterId, b, rng, now){
   return out;
 }
 
+/* ---------- v1.2.1 seasonal events ---------- */
+// Data-driven: each event names its holiday (a date function per year), its boss and its event critters. Every event runs
+// from CFG.eventDaysBefore days before the holiday to CFG.eventDaysAfter days after, inclusive, in local time.
+// To add one later: a new entry here (+ its event families in FAM / art). Nothing else needs to change.
+function nthWeekday(y, month, weekday, n){ // month 0-11, weekday 0=Sun; n-th (1-based) weekday of that month, local midnight
+  var d = new Date(y, month, 1), off = (weekday - d.getDay() + 7) % 7;
+  return new Date(y, month, 1 + off + (n - 1) * 7);
+}
+var EVENTS = [
+  { id:'thanksgiving', name:'Harvest Feast', holiday:'Thanksgiving', icon:'\uD83E\uDD83',
+    date:function(y){ return nthWeekday(y, 10, 4, 4); },   // US Thanksgiving: 4th Thursday of November
+    boss:{ id:'gobbler', name:'The Grand Gobbler', title:'Harvest Feast Boss', nick:'Sir Gobbleton', parts:['Gobblequill','Gobblequill','Gobblequill'],
+           rarity:'Rare', power:1.08, ai:0.8, frag:40, fragAgain:25, seed:31, boss:true, trait:'Thick Hide' },
+    foes:['squash'] }
+];
+// Scannable event critters. A special event code carries only the id; the fighter itself ships with the game.
+var EVENT_FOES = {
+  squash:{ id:'squash', event:'thanksgiving', name:'Patch the Gourdling', title:'Practice event critter', nick:'Butternut', parts:['Gourdling','Gourdling','Gourdling'],
+           rarity:'Common', power:0.72, ai:0.3, frag:12, seed:32, practice:true }
+};
+function eventById(id){ for (var i = 0; i < EVENTS.length; i++) if (EVENTS[i].id === id) return EVENTS[i]; return null; }
+function newEventsLedger(){ return { boss:{}, foes:{} }; }
+// [start, end) in ms for the event's window around the holiday in year y (end = midnight after the last day)
+function eventWindow(ev, y){
+  var h = ev.date(y);
+  var start = new Date(h.getFullYear(), h.getMonth(), h.getDate() - CFG.eventDaysBefore);
+  var end = new Date(h.getFullYear(), h.getMonth(), h.getDate() + CFG.eventDaysAfter + 1);
+  return { start:start.getTime(), end:end.getTime(), holiday:h.getTime(), year:y, lastDay:end.getTime() - 864e5 };
+}
+// the window that contains now, or null. Checks last year too, for holidays near New Year.
+function eventActive(ev, now){
+  now = now || Date.now(); var y = new Date(now).getFullYear();
+  for (var k = -1; k <= 1; k++) { var w = eventWindow(ev, y + k); if (now >= w.start && now < w.end) return w; }
+  return null;
+}
+function activeEvents(now){ return EVENTS.filter(function(ev){ return !!eventActive(ev, now); }).map(function(ev){ return { ev:ev, win:eventActive(ev, now) }; }); }
+function nextEventWindow(ev, now){ now = now || Date.now(); var y = new Date(now).getFullYear(); for (var k = 0; k <= 1; k++) { var w = eventWindow(ev, y + k); if (w.end > now) return w; } return null; }
+function eventsLedger(s){ s.events = s.events && typeof s.events === 'object' ? s.events : newEventsLedger(); s.events.boss = s.events.boss || {}; s.events.foes = s.events.foes || {}; return s.events; }
+function bossRecord(s, evId){ var L = eventsLedger(s); return L.boss[evId] || (L.boss[evId] = { clears:0, wins:0, losses:0, cycle:[], lastFight:0, firstClear:0 }); }
+function eventBossCritter(ev){ var c = presetCritter(ev.boss, 'ev_'); c.eventId = ev.id; return c; }
+function eventFoeCritter(f){ var c = presetCritter(f, 'evf_'); c.eventId = f.event; return c; }
+// opponent key: 'boss:<eventId>' or 'foe:<foeId>'
+function eventOpponent(key){
+  var m = String(key || '').split(':'), def, c, ev;
+  if (m[0] === 'boss') { ev = eventById(m[1]); if (!ev) return null; def = ev.boss; c = eventBossCritter(ev); return { key:key, kind:'boss', ev:ev, def:def, critter:c }; }
+  if (m[0] === 'foe') { def = EVENT_FOES[m[1]]; if (!def) return null; ev = eventById(def.event); c = eventFoeCritter(def); return { key:key, kind:'foe', ev:ev, def:def, critter:c }; }
+  return null;
+}
+function cooldownMs(s){ return timerSeconds(s, 'eventCooldown') * 1000; }
+// Boss status: ready, or resting for the cooldown (1 hour after every boss battle: win, loss or forfeit)
+function eventBossStatus(s, evId, now){
+  now = now || Date.now(); var rec = bossRecord(s, evId), left = rec.lastFight ? Math.max(0, rec.lastFight + cooldownMs(s) - now) : 0;
+  var ev = eventById(evId), owned = ev ? SLOTS.filter(function(sl, i){ return !!s.discovered[partId(ev.boss.parts[i], sl)]; }) : [];
+  return { ready:left <= 0, cooldownLeft:Math.ceil(left / 1000), clears:rec.clears, wins:rec.wins, losses:rec.losses, owned:owned, next:previewDropSlots(s, rec, ev ? ev.boss.parts : null) };
+}
+// Rotation: each clear drops ONE part. Slots already dropped in this cycle are skipped, parts you don't own come first,
+// and after all three have dropped the cycle starts over. So three clears always give head, torso and legs.
+function previewDropSlots(s, rec, parts){
+  if (!parts) return [];
+  var cyc = (rec && rec.cycle) || [], cand = SLOTS.filter(function(sl){ return cyc.indexOf(sl) < 0; });
+  if (!cand.length) cand = SLOTS.slice();
+  var unowned = cand.filter(function(sl){ return !s.discovered[partId(parts[SLOTS.indexOf(sl)], sl)]; });
+  return unowned.length ? unowned : cand;
+}
+function rotateDropSlot(s, rec, parts, rng){
+  rec.cycle = Array.isArray(rec.cycle) ? rec.cycle : [];
+  if (rec.cycle.length >= SLOTS.length) rec.cycle = [];
+  var pool = previewDropSlots(s, rec, parts), sl = pool[Math.floor((rng || Math.random)() * pool.length)];
+  rec.cycle.push(sl);
+  return sl;
+}
+function foeRecord(s, foeId){ var L = eventsLedger(s); return L.foes[foeId] || null; }
+function foeWinsLeft(s, foeId, now){ var r = foeRecord(s, foeId); if (!r) return 0; var today = dateKey(now); return r.day === today ? Math.max(0, CFG.eventFoeDailyWins - (r.dayWins || 0)) : CFG.eventFoeDailyWins; }
+// Scanning an event code adds its critter to the Special Event page (once; scanning again just says it's there)
+function addEventFoe(s, foeId, now){
+  var def = EVENT_FOES[foeId]; if (!def) return { ok:false, reason:'This event critter needs a newer version of the game.' };
+  var L = eventsLedger(s), isNew = !L.foes[foeId];
+  if (isNew) L.foes[foeId] = { scannedAt:now || Date.now(), wins:0, losses:0, cycle:[], day:'', dayWins:0 };
+  return { ok:true, isNew:isNew, def:def, ev:eventById(def.event) };
+}
+// Event foes visible right now: only the ones you scanned whose event is running
+function eventFoesFor(s, evId){
+  var L = eventsLedger(s);
+  return Object.keys(L.foes).filter(function(id){ return EVENT_FOES[id] && EVENT_FOES[id].event === evId; }).map(function(id){ return EVENT_FOES[id]; });
+}
+// Apply a finished event battle. Boss: win = 1 rotating part + Fragments (+1 kit and a Rare part on the first clear);
+// every boss battle (win, loss or forfeit) starts the cooldown. Event critters: win = 1 rotating part + Fragments,
+// up to CFG.eventFoeDailyWins rewarded wins per critter per day, then practice only.
+function finishEventBattle(s, key, critterId, b, rng, now){
+  now = now || Date.now(); rng = rng || Math.random;
+  var o = eventOpponent(key); if (!o) return { ok:false, reason:'Unknown event fighter.' };
+  var c = findCritter(s, critterId), won = b.winner === 'p', def = o.def;
+  var out = { ok:true, kind:o.kind, won:won, first:false, fragments:0, sample:null, kits:0, newParts:0, capped:false, cooldown:0, slots:[] };
+  s.stats.battles = (s.stats.battles || 0) + 1; s.stats.eventBattles = (s.stats.eventBattles || 0) + 1;
+  var kitsBefore = s.kits || 0;
+  if (c) { if (won) c.wins++; else c.losses++; setAfterBattleHp(s, c, b.p.hp, now); }
+  var ec = (b.e && b.e.c) || o.critter, rew = { fragments:0, kits:0, samples:[] }, rec;
+  if (o.kind === 'boss') {
+    rec = bossRecord(s, o.ev.id); rec.lastFight = now;
+    out.cooldown = timerSeconds(s, 'eventCooldown');
+    if (won) {
+      out.first = !rec.firstClear; rec.clears++; rec.wins++;
+      if (out.first) rec.firstClear = now;
+      var sl = rotateDropSlot(s, rec, def.parts, rng);
+      rew.fragments = out.first ? def.frag : def.fragAgain; rew.kits = out.first ? 1 : 0;
+      rew.samples.push({ family:def.parts[SLOTS.indexOf(sl)], slot:sl, rarity:out.first ? def.rarity : 'Common', award:true });
+      logPedia(s, ec.parts, 'beaten', now, { rarity:ec.rarity, nickname:ec.nickname });
+    } else { rec.losses++; rew.fragments = CFG.lossFragments; }
+  } else {
+    rec = foeRecord(s, def.id) || addEventFoe(s, def.id, now) && foeRecord(s, def.id);
+    var today = dateKey(now); if (rec.day !== today) { rec.day = today; rec.dayWins = 0; }
+    var left = CFG.eventFoeDailyWins - rec.dayWins;
+    if (won) {
+      rec.wins++; logPedia(s, ec.parts, 'beaten', now, { rarity:ec.rarity, nickname:ec.nickname });
+      if (left > 0) {
+        rec.dayWins++; out.first = rec.wins === 1;
+        var fsl = rotateDropSlot(s, rec, def.parts, rng);
+        rew.fragments = def.frag; rew.samples.push({ family:def.parts[SLOTS.indexOf(fsl)], slot:fsl, rarity:'Common', award:true });
+      } else out.capped = true;
+    } else { rec.losses++; if (left > 0) rew.fragments = CFG.lossFragments; else out.capped = true; }
+    out.winsLeft = Math.max(0, CFG.eventFoeDailyWins - rec.dayWins);
+  }
+  var g = grantReward(s, rew, 'event:' + key, now);
+  out.fragments = g.fragments;
+  if (g.samples[0]) { out.sample = g.samples[0]; if (out.sample.isNew) out.newParts = 1; }
+  if (o.kind === 'boss') out.next = previewDropSlots(s, rec, def.parts);
+  out.kits = (s.kits || 0) - kitsBefore;
+  return out;
+}
+
 /* ---------- pixel rendering ---------- */
 var PALETTES = { // outline, shade, base, highlight, accent
   Fire:  { o:'#3a0d07', s:'#a82a12', b:'#e0461b', h:'#ff8a3d', a:'#ffd23f' },
@@ -2448,7 +2728,7 @@ function renderRGBA(c, opts){
   var parts = c.parts, frame = opts.frame || 0, t = opts.t || 0;
   var colors = c.colors || { shift:0, shiny:false }, rarity = opts.rarity || c.rarity || 'Common';
   var g = stitchedGrid(parts, frame), n = BUF*BUF, px = opts.out || new Uint8ClampedArray(n*4);
-  var pal = {}; SLOTS.forEach(function(sl){ if (parts[sl]) pal[sl] = paletteFor(FAM[parts[sl]].element, colors.shift, colors.shiny); });
+  var pal = {}; SLOTS.forEach(function(sl){ if (parts[sl]) pal[sl] = paletteFor(partElement(parts[sl], sl), colors.shift, colors.shiny); });
   var shimmerPos = (t / 40) % 80;
   var gray = opts.gray || null; // {head:true,...}: parts the player is missing, drawn washed out
   for (var i = 0; i < n; i++) {
@@ -2471,7 +2751,7 @@ function renderRGBA(c, opts){
   return px;
 }
 function renderPartRGBA(family, slot, silhouette){ // a single part, for the discovery log
-  var parts = { head:family, torso:family, legs:family }, g = composeGrid(parts, 0), px = new Uint8ClampedArray(48*16*4), pal = paletteFor(FAM[family].element, 0, false);
+  var parts = { head:family, torso:family, legs:family }, g = composeGrid(parts, 0), px = new Uint8ClampedArray(48*16*4), pal = paletteFor(partElement(family, slot), 0, false);
   var y0 = { head:0, torso:16, legs:32 }[slot];
   for (var y = 0; y < 16; y++) for (var x = 0; x < 48; x++) {
     var i = (y + y0 + PAD)*BUF + x + PAD, o = (y*48 + x)*4, ch = g.part[i] === slot ? g.slot[i] : null;
@@ -2510,6 +2790,10 @@ return {
   isPureChoice:isPureChoice, startPureFrom:startPureFrom, startGrow:startGrow, geneStackBonus:geneStackBonus, canPlayGeneStack:canPlayGeneStack, startGeneStack:startGeneStack, recordGeneStack:recordGeneStack, applyHatchBoost:applyHatchBoost,
   battleUse:battleUse, crateOrder:crateOrder, togglePin:togglePin,
   achievementProgress:achievementProgress, pediaFamilies:pediaFamilies, forfeitBattle:forfeitBattle, queueSplice:queueSplice, startQueuedSplice:startQueuedSplice,
+  EVENT_FAMILIES:EVENT_FAMILIES, ALL_FAMILIES:ALL_FAMILIES, isEventFamily:isEventFamily, partElement:partElement, familyElements:familyElements,
+  EVENTS:EVENTS, EVENT_FOES:EVENT_FOES, nthWeekday:nthWeekday, eventById:eventById, eventWindow:eventWindow, eventActive:eventActive, activeEvents:activeEvents, nextEventWindow:nextEventWindow,
+  eventOpponent:eventOpponent, eventBossStatus:eventBossStatus, previewDropSlots:previewDropSlots, rotateDropSlot:rotateDropSlot, addEventFoe:addEventFoe, eventFoesFor:eventFoesFor,
+  foeWinsLeft:foeWinsLeft, finishEventBattle:finishEventBattle, presetCritter:presetCritter, bossRecord:bossRecord, newEventsLedger:newEventsLedger,
   composeGrid:composeGrid, stitchedGrid:stitchedGrid, renderRGBA:renderRGBA, renderPartRGBA:renderPartRGBA, paletteFor:paletteFor
 };
 })();
@@ -2526,10 +2810,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = CS;
 (function(CS){
 var CODE_VERSION = 2;   // v2 (Phase 4) adds instability, glitches, branded; v1 codes still read
 var MIN_CODE_VERSION = 1;
-var TYPES = { battle:1, sacrifice:2, invite:3, thanks:4 }, TYPE_NAMES = { 1:'battle', 2:'sacrifice', 3:'invite', 4:'thanks' };
+var TYPES = { battle:1, sacrifice:2, invite:3, thanks:4, event:5 }, TYPE_NAMES = { 1:'battle', 2:'sacrifice', 3:'invite', 4:'thanks', 5:'event' };   // v1.2.1: event = special event critter (payload: its id)
 var HMAC_KEY = 'CritterStitcher/Doug/stitch-lab-key/2026-v1';
 var EPOCH = Date.UTC(2026, 0, 1);
-var CFG = CS.CFG, FAMILIES = CS.FAMILIES, SLOTS = CS.SLOTS, STAT_KEYS = CS.STAT_KEYS, RARITIES = CS.RARITIES;
+var CFG = CS.CFG, FAMILIES = CS.ALL_FAMILIES,   // v1.2.1: core 10 + event families (indexes 0-9 unchanged, so old codes read the same)
+    SLOTS = CS.SLOTS, STAT_KEYS = CS.STAT_KEYS, RARITIES = CS.RARITIES;
 
 /* ---------- SHA-256 + HMAC (sync, no crypto.subtle so it runs on file:// and in Node) ---------- */
 var K256 = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
@@ -2702,6 +2987,7 @@ function decodeCode(text){
     var r = new Reader(bytes, 1, n - 8), type = r.u8(), out = { ok:true, code:code, type:TYPE_NAMES[type], id:hex(r.u32()), owner:r.u32(), day:r.u16() };
     if (!out.type) throw new Error('type');
     if (out.type === 'thanks') { out.referrer = r.u32(); out.trainer = r.str(); }
+    else if (out.type === 'event') { out.foeId = r.str(); out.trainer = 'Special Event'; }
     else { out.critter = readCritter(r, 'code-' + out.id, bytes[0]); out.trainer = r.str() || 'Trainer'; }   // v1.1.7: codes without a name show "Trainer"
     out.version = bytes[0];
     if (r.p !== r.end) throw new Error('trailing');
@@ -2715,6 +3001,12 @@ function critterCode(type, s, c, rng, now){
 }
 
 /* ---------- making codes ---------- */
+// v1.2.1: a special event code names one event critter that ships with the game (EVENT_FOES). Owner 0 = made by the game.
+function makeEventCode(foeId, rng, now){
+  if (!CS.EVENT_FOES[foeId]) return { ok:false, reason:'Unknown event critter.' };
+  var code = seal(header(TYPES.event, newCodeId(rng), 0, now).str(foeId, 16));
+  return { ok:true, code:code, url:codeUrl(code) };
+}
 function makeBattleCode(s, critterId, rng, now){
   var c = CS.findCritter(s, critterId); if (!c) return { ok:false, reason:'Not found.' };
   var code = critterCode('battle', s, c, rng, now);
@@ -2785,6 +3077,13 @@ function previewCode(s, text, now){
   } else if (d.type === 'invite') {
     d.canUse = !own && isNewPlayer(s, now);
     d.note = own ? 'Your own invite. Share it with a new player!' : s.referral ? 'You already joined with an invite.' : !isNewPlayer(s, now) ? 'Invites are for brand-new players. You can still battle it.' : 'Welcome gift: a DNA pod of this critter grows in your incubator. ' + podOddsText(d.critter);
+  } else if (d.type === 'event') {
+    var def = CS.EVENT_FOES[d.foeId], ev = def && CS.eventById(def.event);
+    d.foe = def || null; d.canUse = !!def; d.own = false;
+    if (def) { d.critter = CS.eventOpponent('foe:' + def.id).critter; d.event = ev; d.active = !!CS.eventActive(ev, now); d.added = !!(s.events && s.events.foes && s.events.foes[def.id]); }
+    d.note = !def ? 'This event critter needs a newer version of the game. Update, then scan it again.'
+      : (d.added ? 'Already on your Special Event page. ' : 'Adds ' + def.name + ' to the Special Event page on the Battle screen. ')
+        + (d.active ? 'Win: +' + def.frag + ' Fragments and one ' + def.parts[0] + ' part (up to ' + CFG.eventFoeDailyWins + ' rewarded wins a day).' : 'It shows up there while the ' + ev.name + ' event is on.');
   } else if (d.type === 'thanks') {
     var mine = d.referrer === s.deviceId;
     d.canUse = mine && !s.codes.thanked[d.owner] && (s.codes.thankKits || 0) < CFG.referralKitCap;
@@ -2906,6 +3205,7 @@ function restoreBattle(s, snap){
   var pc = CS.findCritter(s, snap.cid); if (!pc) return null;
   var ec;
   if (snap.kind === 'ladder') { if (!CS.CHALLENGERS[snap.idx]) return null; ec = CS.challengerCritter(snap.idx); }
+  else if (snap.kind === 'event') { var o = CS.eventOpponent(snap.idx); if (!o) return null; ec = o.critter; }   // v1.2.1
   else { var d = decodeCode(snap.code); if (!d.ok || !d.critter) return null; ec = d.critter; }
   var b = CS.createBattle(pc, ec, { playerHp:snap.p.hp, enemyHp:snap.e.hp, ai:snap.ai });
   ['p', 'e'].forEach(function(w){ b[w].energy = snap[w].energy; b[w].lastGuard = snap[w].lastGuard; b[w].secondWind = snap[w].secondWind; });
@@ -2916,7 +3216,7 @@ function restoreBattle(s, snap){
 Object.assign(CS, {
   CODE_VERSION:CODE_VERSION, podOddsText:podOddsText, makePod:makePod, CODE_TYPES:TYPES, sha256:sha256, hmac:hmac, crc16:crc16, b64url:b64url, unb64url:unb64url, utf8:utf8,
   codeUrl:codeUrl, extractCode:extractCode, decodeCode:decodeCode, previewCode:previewCode,
-  makeBattleCode:makeBattleCode, makeSacrificeCode:makeSacrificeCode, makeInviteCode:makeInviteCode, makeThanksCode:makeThanksCode, rivalKey:rivalKey, findRival:findRival, addRival:addRival, removeRival:removeRival, rivalRewardsLeft:rivalRewardsLeft, codeRewardsLeftToday:codeRewardsLeftToday,
+  makeBattleCode:makeBattleCode, makeSacrificeCode:makeSacrificeCode, makeInviteCode:makeInviteCode, makeThanksCode:makeThanksCode, makeEventCode:makeEventCode, rivalKey:rivalKey, findRival:findRival, addRival:addRival, removeRival:removeRival, rivalRewardsLeft:rivalRewardsLeft, codeRewardsLeftToday:codeRewardsLeftToday,
   redeemSacrifice:redeemSacrifice, acceptInvite:acceptInvite, redeemThanks:redeemThanks, finishCodeBattle:finishCodeBattle, isNewPlayer:isNewPlayer,
   snapshotBattle:snapshotBattle, restoreBattle:restoreBattle
 });
@@ -2940,6 +3240,16 @@ var S = CS.load(storage) || CS.newSave(Date.now());
 if (params.get('test') === '1') { S.settings.test = true; if (!S.testGranted) { S.testGranted = true; S.pendingTestDNA = true; } }
 if (params.get('test') === '0') S.settings.test = false;
 function save(){ CS.store(storage, S); }
+// v1.2.1 seasonal events run on the phone's own date. A hidden test hook (?evdate=2026-12-10 or CSApp.setEventDate)
+// shifts ONLY the event calendar; timers, cooldowns and saves keep the real clock.
+var evShift = 0;
+function setEventDate(v){
+  if (v == null || v === '') { evShift = 0; return 0; }
+  var m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?$/), t = m ? new Date(+m[1], +m[2] - 1, +m[3], +(m[4] || 12), +(m[5] || 0)).getTime() : +v;
+  if (!isFinite(t)) return evShift; evShift = t - Date.now(); return evShift;
+}
+if (params.get('evdate')) setEventDate(params.get('evdate'));
+function evNow(){ return Date.now() + evShift; }
 function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
 function fmt(sec){ sec = Math.max(0, Math.ceil(sec)); var m = Math.floor(sec / 60), s = sec % 60; return m + ':' + (s < 10 ? '0' : '') + s; }
 function cap(s){ return s.charAt(0).toUpperCase() + s.slice(1); }
@@ -3297,7 +3607,8 @@ function updateBadges(){
   var ko = S.collection.filter(function(c){ return CS.isFainted(c, now); }).length, kb = $('crateKo');   // v1.2.0: the faint badge sits on the crate
   kb.classList.toggle('show', ko > 0); kb.innerHTML = ko ? '\uD83D\uDCA4 ' + ko + ' fainted &middot; Heal' : '';
   var ni = CS.nextChallenger(S), allKo = allFainted(now);
-  $('ladderTxt').textContent = allKo ? 'Everyone is resting \u00b7 Heal' : ni >= 0 ? 'Challenger ' + (ni + 1) + ' of 8' : 'Ladder complete';
+  var liveEv = CS.activeEvents(evNow())[0];
+  $('ladderTxt').textContent = allKo ? 'Everyone is resting \u00b7 Heal' : liveEv ? liveEv.ev.icon + ' ' + liveEv.ev.name + ' event live' : ni >= 0 ? 'Challenger ' + (ni + 1) + ' of 8' : 'Ladder complete';
   var bb = document.querySelector('.big.battle'); if (bb) bb.classList.toggle('resting', allKo);
 }
 function updateKits(){
@@ -3485,7 +3796,7 @@ function infoText(k){
     invite:['Invite a friend', 'One link does both: it opens (and installs) Critter Stitcher and gives your friend a DNA pod to hatch after their starter. For brand-new players. They can also scan the QR with their phone camera. Send one of your critters with it if you like: you keep yours; they get a DNA copy (no Mutator buffs or Instability). Their thank-you code gets you a Stitch Kit.'],
     bplayer:['Battle Player', 'Show your critter\u2019s Battle Code, scan your friend\u2019s, and you each battle on your own phone. After you pick a critter, your QR stays on screen and a mini scanner starts underneath so you can scan theirs at the same time. Scanned critters are saved as Rivals. Battle Codes pay +' + C.codeWinFragments + ' Fragments per win, with a ' + Math.round(C.codeWinPartChance * 100) + '% chance of a DNA part, +' + C.codeLossFragments + ' per loss, up to ' + C.codeDailyCapPerCode + ' rewarded fights per code and ' + C.codeDailyCapTotal + ' a day.'],
     rivals:['Rivals', 'Every friend\u2019s Battle Code you scan is saved here with your record against it. Rematch any rival with any of your critters; Battle Code rewards (Fragments, plus a ' + Math.round(C.codeWinPartChance * 100) + '% DNA part chance on a win) and daily limits apply. After ' + C.rivalCap + ', the oldest scan is replaced.'],
-    scan:['Scan a code', 'Works with every Critter Stitcher code: Battle Codes, Rehome gifts, invites and thank-you codes (old codes too). Links that open the game work the same way. Everything stays on this phone.'],
+    scan:['Scan a code', 'Works with every Critter Stitcher code: Battle Codes, special event codes (they add an event critter to the Battle screen), Rehome gifts, invites and thank-you codes (old codes too). Links that open the game work the same way. Everything stays on this phone.'],
     kits:['Stitch Kits', 'Each kit holds 1 DNA sample + ' + C.kitFragments[0] + '&ndash;' + C.kitFragments[1] + ' Fragments. Earn kits from the daily streak, each challenger you beat the first time, each new part you win in battle, and thank-you codes from friends you invite. Tap a kit to skip its animation, or <b>Open all</b> at once.'],
     streak:['Daily Streak', 'Come back every day: rewards climb to Day 7, then the cycle repeats. Miss a day and it restarts at Day 1.'],
     pedia:['Critterpedia', 'A binder of whole critters you have hatched, built, or beaten. Each entry shows its three parts. Undiscovered pure families appear as silhouettes. Achievements pay a small reward the first time you unlock them.']
@@ -3714,7 +4025,7 @@ var GS_PIECES = [   // name, cells, weight
 ];
 var GS_COL = { Fire:['#e0461b', '#ff8a3d'], Water:['#3a8ee0', '#8fd3ff'], Plant:['#4fb043', '#9be36b'], Shock:['#e0be00', '#fff27a'], Earth:['#9a6a3c', '#c9a36b'] };
 var gs = null;
-function gsElements(inc){ var p = inc.critter.parts; return SLOTS.map(function(sl){ return FAM[p[sl]].element; }); }
+function gsElements(inc){ var p = inc.critter.parts; return SLOTS.map(function(sl){ return CS.partElement(p[sl], sl); }); }
 function gsNewPiece(){
   var tot = 0; GS_PIECES.forEach(function(p){ tot += p.w; }); var x = Math.random() * tot, P = GS_PIECES[0];
   for (var i = 0; i < GS_PIECES.length; i++) { if (x < GS_PIECES[i].w) { P = GS_PIECES[i]; break; } x -= GS_PIECES[i].w; }
@@ -3801,10 +4112,13 @@ function drawGeneStack(t){
   if (!gs.over && t >= gs.next) { gs.next = t + Math.max(260, 700 - gs.strands * 25); if (gsFits(gs.piece.cells, gs.piece.x, gs.piece.y + 1)) gs.piece.y++; else gsLock(); if (!gs) return; }
   var ctx = gs.cv.getContext('2d'), W = gs.cv.width, H = gs.cv.height, ox = 8, oy = 10;
   ctx.clearRect(0, 0, W, H);
-  // pod-shaped well: a rounded capsule of glass
-  ctx.fillStyle = 'rgba(80,220,140,.10)'; ctx.strokeStyle = '#3d3670'; ctx.lineWidth = 3;
+  // pod-shaped well: a rounded capsule of incubator glass (v1.2.1: same green liquid + rising bubbles as the incubator tube)
+  ctx.save(); ctx.strokeStyle = '#3d3670'; ctx.lineWidth = 3;
   ctx.beginPath(); if (ctx.roundRect) ctx.roundRect(ox - 4, oy - 6, GS_COLS * GS_CELL + 8, GS_ROWS * GS_CELL + 12, [26, 26, 30, 30]); else ctx.rect(ox - 4, oy - 6, GS_COLS * GS_CELL + 8, GS_ROWS * GS_CELL + 12);
-  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = gsGlass(ctx, oy, H); ctx.fill(); ctx.clip();
+  gsBubbles(ctx, ox, oy, t);
+  ctx.fillStyle = 'rgba(255,255,255,.10)'; ctx.fillRect(ox + 1, oy + 4, 3, GS_ROWS * GS_CELL - 12);   // glass glint, like the tube
+  ctx.restore(); ctx.strokeStyle = '#3d3670'; ctx.lineWidth = 3; ctx.stroke();
   ctx.fillStyle = 'rgba(255,255,255,.04)'; for (var gx = 1; gx < GS_COLS; gx++) ctx.fillRect(ox + gx * GS_CELL, oy, 1, GS_ROWS * GS_CELL);
   function cell(x, y, el, a){
     var c = GS_COL[el] || GS_COL.Earth, px = ox + x * GS_CELL, py = oy + y * GS_CELL;
@@ -3820,6 +4134,26 @@ function drawGeneStack(t){
     gs.piece.cells.forEach(function(c){ if (gs.piece.y + c[1] >= 0) cell(gs.piece.x + c[0], gs.piece.y + c[1], gs.piece.el); });
   }
   if (gs.flashRows && t - gs.flashAt < 260 && !reducedMotion()) { ctx.fillStyle = 'rgba(255,255,255,' + (0.6 * (1 - (t - gs.flashAt) / 260)) + ')'; ctx.fillRect(ox, oy + (GS_ROWS - gs.flashRows.length) * GS_CELL, GS_COLS * GS_CELL, gs.flashRows.length * GS_CELL); }
+}
+// v1.2.1 Gene Stack backdrop: see-through green incubator liquid, a touch deeper at the bottom
+var gsGlassCache = null;
+function gsGlass(ctx, oy, H){
+  if (gsGlassCache && gsGlassCache.ctx === ctx) return gsGlassCache.g;
+  var g = ctx.createLinearGradient(0, oy - 6, 0, H); g.addColorStop(0, 'rgba(80,220,140,.10)'); g.addColorStop(1, 'rgba(80,220,140,.22)');
+  gsGlassCache = { ctx:ctx, g:g }; return g;
+}
+// faint, slow bubbles drifting up behind the pieces (a still scatter with reduced motion). Kept dim so pieces stay readable.
+var GS_BUBBLES = [];
+for (var gbi = 0; gbi < 9; gbi++) GS_BUBBLES.push({ x:(gbi * 37 + 11) % 94 / 94, sp:0.55 + (gbi * 13 % 7) / 14, ph:(gbi * 53 % 100) / 100, r:gbi % 3 === 0 ? 3 : 2, wob:gbi * 1.7 });
+function gsBubbles(ctx, ox, oy, t){
+  var W = GS_COLS * GS_CELL, Hh = GS_ROWS * GS_CELL, still = reducedMotion();
+  for (var i = 0; i < GS_BUBBLES.length; i++) {
+    var b = GS_BUBBLES[i], f = still ? b.ph : (b.ph + t / 1000 * b.sp / 14) % 1;   // ~14-25 s from bottom to top
+    var y = oy + Hh - f * (Hh + 6), x = ox + 4 + b.x * (W - 8) + (still ? 0 : Math.sin(t / 900 + b.wob) * 2);
+    ctx.fillStyle = 'rgba(180,255,200,' + (0.16 + 0.10 * Math.sin(f * Math.PI)) + ')';
+    ctx.fillRect(Math.round(x), Math.round(y), b.r, b.r);
+    if (b.r === 3) { ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.fillRect(Math.round(x), Math.round(y), 1, 1); }
+  }
 }
 document.addEventListener('keydown', function(e){
   if (!gs || gs.over || current !== 'lab' || $('modal').classList.contains('on')) return;
@@ -3865,7 +4199,7 @@ function renderSplicer(body, queueMode){
   if (pure) h += '<div class="note pure-note" id="spPure">\u2728 One family: this grows a <b>pure ' + esc(pv.parts.head) + '</b> &mdash; free, no mutation roll.</div>';
   if (queueMode) h += '<button class="btn block" id="spQueue" style="margin-top:12px"' + (!pv ? ' disabled' : '') + '>' + (pure ? 'Queue pure ' + esc(pv.parts.head) : 'Queue this splice') + ' &middot; starts after the hatch</button><p class="note" style="font-size:11px;margin-top:4px">Nothing is spent until it starts' + (pure ? '' : ' (' + cost + ' Fragments then)') + '.</p></div>';
   else h += '<button class="btn block" id="spGo" style="margin-top:12px"' + (!pv || (!pure && S.fragments < cost) || busy ? ' disabled' : '') + '>' + (busy ? 'Incubator busy' : pure ? 'Grow pure ' + esc(pv.parts.head) + ' &middot; free &middot; ' + fmt(CS.timerSeconds(S, 'incubate')) : 'Splice &middot; ' + cost + ' Fragments &middot; ' + fmt(CS.timerSeconds(S, 'splice'))) + '</button></div>';
-  var sets = CS.FAMILIES.filter(function(f){ return CS.canIncubatePure(S, f); });
+  var sets = CS.ALL_FAMILIES.filter(function(f){ return CS.canIncubatePure(S, f); });
   if (sets.length) h += '<div class="pure-sets" id="pureSets"><span class="note">Pure sets:</span>' + sets.map(function(f){ return '<button class="chip-btn" data-f="' + f + '">' + f + '</button>'; }).join('') + '</div>';
   SLOTS.forEach(function(sl){ h += '<h3>' + cap(sl) + '</h3><div class="picker" id="pk_' + sl + '"></div>'; });
   body.innerHTML = h;
@@ -3878,7 +4212,7 @@ function renderSplicer(body, queueMode){
   SLOTS.forEach(function(sl){
     var pk = body.querySelector('#pk_' + sl), opts = [];
     Object.keys(S.samples).forEach(function(k){ var p = CS.parseSampleKey(k); if (p.slot === sl) opts.push({ ch:{ type:'sample', key:k }, family:p.family, rarity:p.rarity, label:'Sample', cnt:S.samples[k] }); });
-    opts.sort(function(a, b){ return CS.FAMILIES.indexOf(a.family) - CS.FAMILIES.indexOf(b.family); });
+    opts.sort(function(a, b){ return CS.ALL_FAMILIES.indexOf(a.family) - CS.ALL_FAMILIES.indexOf(b.family); });
     if (!opts.length) { pk.innerHTML = '<p class="note">No ' + sl + ' DNA yet. Open Stitch Kits, win battles, or blend a critter.</p>'; return; }
     opts.forEach(function(o){
       var d = document.createElement('button'); d.className = 'opt' + (choiceKey(spliceSel[sl]) === choiceKey(o.ch) ? ' sel' : '');
@@ -4035,7 +4369,7 @@ function renderBlender(body){
     if (blendPre === c.id) { row.classList.add('pre'); row.id = 'blPre'; }
   });
   if (S.collection.length <= 1) bc.insertAdjacentHTML('beforeend', '<p class="note" style="font-size:12px">You need at least one critter left, so your last one can\u2019t go in.</p>');
-  var bs = body.querySelector('#blSamp'), keys = Object.keys(S.samples).sort(function(a, b){ var pa = CS.parseSampleKey(a), pb = CS.parseSampleKey(b); return CS.RARITIES.indexOf(pb.rarity) - CS.RARITIES.indexOf(pa.rarity) || CS.FAMILIES.indexOf(pa.family) - CS.FAMILIES.indexOf(pb.family) || SLOTS.indexOf(pa.slot) - SLOTS.indexOf(pb.slot); });
+  var bs = body.querySelector('#blSamp'), keys = Object.keys(S.samples).sort(function(a, b){ var pa = CS.parseSampleKey(a), pb = CS.parseSampleKey(b); return CS.RARITIES.indexOf(pb.rarity) - CS.RARITIES.indexOf(pa.rarity) || CS.ALL_FAMILIES.indexOf(pa.family) - CS.ALL_FAMILIES.indexOf(pb.family) || SLOTS.indexOf(pa.slot) - SLOTS.indexOf(pb.slot); });
   if (!keys.length) bs.innerHTML = '<p class="note">No DNA samples.</p>';
   keys.forEach(function(k){
     var p = CS.parseSampleKey(k), n = S.samples[k], v = CS.blendSampleValue(k), row = document.createElement('div'); row.className = 'fam-row blend-row samp';
@@ -4339,7 +4673,7 @@ function showRevealCard(){
   var c = rv.c, card = $('revealCard');
   $('revealBanner').classList.remove('show'); $('reveal').classList.remove('dim');
   var held = rv.res && rv.res.held;
-  card.innerHTML = '<div style="font-size:26px;font-weight:900" id="rvNm">' + esc(CS.displayName(c)) + '</div><div style="margin:6px 0">' + rarTag(c.rarity) + ' ' + SLOTS.map(function(sl){ return elTag(FAM[c.parts[sl]].element); }).join(' ') + (c.colors.shiny ? ' <span class="rar" style="color:#fff;border-color:#fff">\u2728 Shiny</span>' : '') + '</div>' +
+  card.innerHTML = '<div style="font-size:26px;font-weight:900" id="rvNm">' + esc(CS.displayName(c)) + '</div><div style="margin:6px 0">' + rarTag(c.rarity) + ' ' + SLOTS.map(function(sl){ return elTag(CS.partElement(c.parts[sl], sl)); }).join(' ') + (c.colors.shiny ? ' <span class="rar" style="color:#fff;border-color:#fff">\u2728 Shiny</span>' : '') + '</div>' +
     '<div class="card" style="text-align:left;margin:8px 0">' + statBars(c) + (c.traits.length ? '<div class="note" style="margin-top:6px">Trait: <b style="color:var(--legendary)">' + c.traits.join(', ') + '</b></div>' : '') + '</div>' +
     (held ? '<p class="note" style="margin:0 0 8px">Your crate is full (' + S.collection.length + '/' + S.slots + '). This critter is hatched and waiting in the incubator.</p>' : '') +
     '<div class="row rv-btns"><button class="btn alt" id="rvName">\u270F\uFE0F Name</button>' + (held ? '' : '<button class="btn alt" id="rvView">Details</button>') + '<button class="btn alt" id="rvShare">\uD83D\uDCF8 Share</button></div>' +
@@ -4369,7 +4703,7 @@ function critterCardCanvas(c){
   CS.renderRGBA(c, { frame:0, t:600, out:offImg.data }); offCtx.putImageData(offImg, 0, 0);
   ctx.imageSmoothingEnabled = false; ctx.drawImage(offCv, (W - BUF * 5) / 2, 50, BUF * 5, BUF * 5);
   ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = 'bold 28px system-ui, sans-serif'; ctx.fillText(CS.displayName(c), W / 2, 345);
-  ctx.fillStyle = col; ctx.font = 'bold 18px system-ui, sans-serif'; ctx.fillText((c.colors.shiny ? '\u2728 Shiny ' : '') + c.rarity + ' \u00b7 ' + (c.nickname ? c.name : SLOTS.map(function(sl){ return FAM[c.parts[sl]].element; }).join(' / ')), W / 2, 374);
+  ctx.fillStyle = col; ctx.font = 'bold 18px system-ui, sans-serif'; ctx.fillText((c.colors.shiny ? '\u2728 Shiny ' : '') + c.rarity + ' \u00b7 ' + (c.nickname ? c.name : SLOTS.map(function(sl){ return CS.partElement(c.parts[sl], sl); }).join(' / ')), W / 2, 374);
   ctx.fillStyle = '#b8b2d8'; ctx.font = '15px system-ui, sans-serif'; ctx.fillText('HP ' + c.stats.hp + '  ATK ' + c.stats.atk + '  DEF ' + c.stats.def + '  SPD ' + c.stats.spd, W / 2, 402);
   ctx.fillStyle = '#7cff6b'; ctx.font = 'bold 16px system-ui, sans-serif'; ctx.fillText('CRITTER STITCHER', W / 2, 438);
   return cv;
@@ -4466,14 +4800,24 @@ function hpBlock(c){ return '<div class="hpw" data-hp="' + c.id + '">' + hpInner
 
 /* ---------- challenger ladder ---------- */
 function stars(ch){ var n = Math.round((ch.power - 0.7) / 0.6 * 5); n = Math.max(1, Math.min(5, n)); return '\u2605\u2605\u2605\u2605\u2605'.slice(0, n) + '<span style="opacity:.3">' + '\u2605\u2605\u2605\u2605\u2605'.slice(0, 5 - n) + '</span>'; }
+var ladderTab = 'ladder';
+function ladderTabs(live){
+  if (!live) return '';
+  return '<div class="pd-tabs ev-tabs"><button class="pd-tab' + (ladderTab !== 'event' ? ' on' : '') + '" data-ltab="ladder">Ladder</button><button class="pd-tab ev' + (ladderTab === 'event' ? ' on' : '') + '" data-ltab="event" id="evTabBtn">' + live.ev.icon + ' ' + esc(live.ev.name) + '</button></div>';
+}
 function renderLadder(){
   if (CS.updateSlots(S).length) save();
+  var live = CS.activeEvents(evNow())[0] || null;
+  if (!live) ladderTab = 'ladder';
+  if (live && ladderTab === 'event') { renderEventTab(live); return; }
   var el = $('ladder'), goals = CS.slotGoals(S);
-  var h = '<h2>Challenger Ladder ' + infoBtn('ladder') + '</h2><div class="ladder-head"><div class="card"><b>' + S.ladder.wins + '</b><span class="note">wins</span></div><div class="card"><b>' + Object.keys(S.ladder.beaten).length + ' / 8</b><span class="note">beaten</span></div><div class="card"><b>' + S.slots + '</b><span class="note">crate slots</span></div></div>';
+  var h = ladderTabs(live) + '<h2>Challenger Ladder ' + infoBtn('ladder') + '</h2><div class="ladder-head"><div class="card"><b>' + S.ladder.wins + '</b><span class="note">wins</span></div><div class="card"><b>' + Object.keys(S.ladder.beaten).length + ' / 8</b><span class="note">beaten</span></div><div class="card"><b>' + S.slots + '</b><span class="note">crate slots</span></div></div>';
   var cinf = CS.crateInfo(S);
   h += '<div class="card" style="margin-bottom:10px"><div style="font-weight:900;font-size:13px;margin-bottom:2px">Bigger Critter Crate</div><div class="note" style="margin-bottom:4px">Your crate holds ' + cinf.slots + ' critters (max ' + cinf.max + ').</div>' + goals.map(function(g){ return '<div class="goal' + (g.done ? ' done' : '') + '">' + (g.done ? '\u2714' : '\uD83D\uDD12') + ' +' + g.add + ' slots: ' + esc(g.text) + '</div>'; }).join('') + '</div>';
   h += '<div id="chalList"></div>';
   el.innerHTML = '<div id="nextUp"></div>' + h;
+  wireLadderTabs(el);
+  if (live) { var nu = el.querySelector('#nextUp'); el.insertBefore(el.querySelector('.ev-tabs'), nu); }
   renderNextUp(el.querySelector('#nextUp'));   // v1.1.7: Next Challenger moved here from Home
   var list = el.querySelector('#chalList'), lastTier = 0;
   CS.CHALLENGERS.forEach(function(ch, i){
@@ -4486,7 +4830,7 @@ function renderLadder(){
     var info = document.createElement('div'); info.style.minWidth = '0';
     info.innerHTML = '<div class="cn">' + (open ? esc(ch.name) : '???') + (ch.boss ? '<span class="bossTag">BOSS</span>' : '') + (beaten ? ' <span style="color:var(--acc)">\u2714</span>' : '') + '</div>' +
       '<div class="ct">' + (open ? esc(ch.title) + ' &middot; ' + esc(ch.nick) + ' (' + esc(ec.name) + ')' : 'Beat the previous challenger') + '</div>' +
-      (open ? '<div>' + SLOTS.map(function(sl){ return elTag(FAM[ec.parts[sl]].element); }).join(' ') + ' ' + rarTag(ch.rarity) + '</div>' : '') +
+      (open ? '<div>' + SLOTS.map(function(sl){ return elTag(CS.partElement(ec.parts[sl], sl)); }).join(' ') + ' ' + rarTag(ch.rarity) + '</div>' : '') +
       '<div class="stars">' + stars(ch) + '</div><div class="rw">' + reward + '</div>';
     d.appendChild(info);
     var b = document.createElement('button'); b.className = 'btn go'; b.textContent = beaten ? 'Rematch' : 'Fight'; b.disabled = !open;
@@ -4495,25 +4839,93 @@ function renderLadder(){
   });
 }
 
+/* ---------- v1.2.1 seasonal event tab (Battle screen) ---------- */
+function wireLadderTabs(el){ el.querySelectorAll('[data-ltab]').forEach(function(b){ b.onclick = function(){ sfx.tap(); ladderTab = b.dataset.ltab; renderLadder(); el.scrollTop = 0; }; }); }
+function fmtLong(sec){   // 6d 4h · 3h 12m · 12:05
+  sec = Math.max(0, Math.ceil(sec)); var d = Math.floor(sec / 86400), h = Math.floor(sec % 86400 / 3600), m = Math.floor(sec % 3600 / 60);
+  if (d) return d + 'd ' + h + 'h'; if (h) return h + 'h ' + m + 'm'; return fmt(sec);
+}
+function evDates(w){ var o = { month:'short', day:'numeric' }; return new Date(w.start).toLocaleDateString('en-US', o) + ' \u2013 ' + new Date(w.lastDay).toLocaleDateString('en-US', o); }
+function evCountdownText(w){ return 'Ends in <b>' + fmtLong((w.end - evNow()) / 1000) + '</b>'; }
+function evElTags(c){ var seen = []; SLOTS.forEach(function(sl){ var e = CS.partElement(c.parts[sl], sl); if (seen.indexOf(e) < 0) seen.push(e); }); return seen.map(elTag).join(' '); }
+function renderEventTab(live){
+  var el = $('ladder'), ev = live.ev, w = live.win, now = Date.now();
+  var h = ladderTabs(live);
+  h += '<div class="card ev-head" id="evHead"><div class="ev-ic" aria-hidden="true">' + ev.icon + '</div><div style="flex:1;min-width:0"><div class="ev-nm">' + esc(ev.name) + '</div><div class="note">' + esc(ev.holiday) + ' event &middot; ' + evDates(w) + '</div></div><div class="ev-cd" id="evCountdown">' + evCountdownText(w) + '</div></div>';
+  S.tipsSeen = S.tipsSeen || {};
+  if (!S.tipsSeen.eventIntro) h += '<div class="tip ev-tip" id="evTip"><span style="flex:1">Seasonal event! Beat the boss for one of its parts each clear (a different part each time). It rests 1 hour between battles. Scan event codes from Home &rsaquo; Scanner to add more fights here.</span><button class="nudge-x" id="evTipX" aria-label="Dismiss tip">&#10005;</button></div>';
+  h += '<h3>Event boss</h3><div id="evBoss"></div><h3>Event critters</h3><div id="evFoes"></div>';
+  el.innerHTML = h; wireLadderTabs(el);
+  if ($('evTipX')) $('evTipX').onclick = function(){ S.tipsSeen.eventIntro = Date.now(); save(); sfx.tap(); var t = $('evTip'); if (t) t.remove(); };
+  // boss card
+  var o = CS.eventOpponent('boss:' + ev.id), bc = o.critter, st = CS.eventBossStatus(S, ev.id, now), def = ev.boss;
+  var d = document.createElement('div'); d.className = 'chal boss ev-boss'; d.id = 'evBossCard';
+  d.appendChild(spriteCanvas(bc));
+  var pips = SLOTS.map(function(sl){ var have = st.owned.indexOf(sl) >= 0, nx = st.next.length === 1 && st.next[0] === sl; return '<span class="ev-pip' + (have ? ' have' : '') + (nx ? ' nx' : '') + '" title="' + cap(sl) + '">' + (have ? '\u2714 ' : '') + cap(sl) + '</span>'; }).join('');
+  var info = document.createElement('div'); info.style.minWidth = '0';
+  info.innerHTML = '<div class="cn">' + esc(def.name) + '<span class="bossTag">BOSS</span></div><div class="ct">' + esc(def.nick) + ' (' + esc(bc.name) + ') &middot; fixed fighter</div>' +
+    '<div>' + evElTags(bc) + ' ' + rarTag(def.rarity) + '</div><div class="stars">' + stars(def) + '</div>' +
+    '<div class="rw">' + (st.clears ? 'Each clear: 1 ' + esc(def.parts[0]) + ' part + ' + def.fragAgain + ' Fragments' : 'First clear: ' + def.rarity + ' ' + esc(def.parts[0]) + ' part + ' + def.frag + ' Fragments + Stitch Kit') + '</div>' +
+    '<div class="ev-pips" id="evPips">' + pips + '</div>';
+  d.appendChild(info);
+  var b = document.createElement('button'); b.className = 'btn go'; b.id = 'evBossGo';
+  if (st.ready) { b.textContent = 'Fight'; b.onclick = function(){ sfx.tap(); if (allFainted()) { openHeal(); return; } openPickEvent('boss:' + ev.id); }; }
+  else { b.disabled = true; b.classList.add('ev-rest'); b.innerHTML = 'Resting<br><span id="evCool">' + fmt(st.cooldownLeft) + '</span>'; }
+  d.appendChild(b); $('evBoss').appendChild(d);
+  if (!st.ready) $('evBoss').insertAdjacentHTML('beforeend', '<p class="note ev-cool-note" id="evCoolNote">The boss rests 1 hour between battles. Back in <b id="evCool2">' + fmt(st.cooldownLeft) + '</b>.</p>');
+  // scanned event critters
+  var foes = CS.eventFoesFor(S, ev.id), box = $('evFoes');
+  if (!foes.length) box.innerHTML = '<p class="note" id="evFoesEmpty">No event critters yet. Scan a special event code from <b>Home &rsaquo; Scanner</b> and it shows up here as a fight.</p>';
+  foes.forEach(function(f){
+    var fo = CS.eventOpponent('foe:' + f.id), fc = fo.critter, left = CS.foeWinsLeft(S, f.id, now), rec = S.events.foes[f.id] || {};
+    var r = document.createElement('div'); r.className = 'chal ev-foe'; r.dataset.foe = f.id;
+    r.appendChild(spriteCanvas(fc));
+    var inf = document.createElement('div'); inf.style.minWidth = '0';
+    inf.innerHTML = '<div class="cn">' + esc(f.name) + (f.practice ? ' <span class="ev-tag">PRACTICE</span>' : '') + '</div><div class="ct">' + esc(f.nick) + ' (' + esc(fc.name) + ') &middot; ' + (rec.wins || 0) + 'W ' + (rec.losses || 0) + 'L</div>' +
+      '<div>' + evElTags(fc) + ' ' + rarTag(f.rarity) + '</div><div class="stars">' + stars(f) + '</div><div class="rw">' + (left ? 'Win: 1 ' + esc(f.parts[0]) + ' part + ' + f.frag + ' Fragments &middot; ' + left + ' left today' : 'Practice only today (rewards reset tomorrow)') + '</div>';
+    r.appendChild(inf);
+    var fb = document.createElement('button'); fb.className = 'btn go'; fb.textContent = 'Fight';
+    fb.onclick = function(){ sfx.tap(); if (allFainted()) { openHeal(); return; } openPickEvent('foe:' + f.id); };
+    r.appendChild(fb); box.appendChild(r);
+  });
+}
+// live countdown + cooldown text (called from tick)
+function tickEventTab(){
+  if (current !== 'ladder' || ladderTab !== 'event') return;
+  var live = CS.activeEvents(evNow())[0];
+  if (!live) { renderLadder(); return; }
+  var cd = $('evCountdown'); if (cd) cd.innerHTML = evCountdownText(live.win);
+  var st = CS.eventBossStatus(S, live.ev.id, Date.now()), btn = $('evBossGo');
+  if (btn && btn.disabled === st.ready) { renderLadder(); return; }   // cooldown finished (or started): redraw the card
+  if (!st.ready) { if ($('evCool')) $('evCool').textContent = fmt(st.cooldownLeft); if ($('evCool2')) $('evCool2').textContent = fmt(st.cooldownLeft); }
+}
+
 /* ---------- pick a fighter ---------- */
 var pickIdx = 0, pickCtx = { kind:'ladder', idx:0 };
 function openPick(i){ pickIdx = i; pickCtx = { kind:'ladder', idx:i }; go('pick'); }
 function openPickCode(code){ pickCtx = { kind:'code', code:code }; go('pick'); }
+function openPickEvent(key){ pickCtx = { kind:'event', key:key }; go('pick'); }
 function effWord(x){ return x > 1 ? '<span class="g">' + effLabel(x) + '</span>' : x < 1 ? '<span class="b">' + effLabel(x) + '</span>' : '1x'; }
 function effLabel(x){ return (Math.round(x * 100) / 100) + 'x'; }
 function renderPick(){
   var el = $('pick'), now = Date.now(), ec, ch, d = null;
   if (pickCtx.kind === 'code') { d = CS.previewCode(S, pickCtx.code, now); if (!d.ok) { el.innerHTML = '<p class="note">' + esc(d.reason) + '</p>'; return; } ec = d.critter; ch = { name:d.trainer + '\u2019s critter', nick:CS.displayName(ec), boss:false }; }
+  else if (pickCtx.kind === 'event') {   // v1.2.1
+    var eo = CS.eventOpponent(pickCtx.key); if (!eo) { el.innerHTML = '<p class="note">This event fighter is not available.</p>'; return; }
+    ec = eo.critter; ch = { name:eo.def.name, nick:eo.def.nick, boss:eo.kind === 'boss' };
+    var bst = eo.kind === 'boss' ? CS.eventBossStatus(S, eo.ev.id, now) : null;
+    d = { note:eo.kind === 'boss' ? (bst.ready ? 'Fixed boss: it can’t be changed. Win for one ' + eo.def.parts[0] + ' part. After this battle the boss rests 1 hour.' : 'The boss is resting: back in ' + fmt(bst.cooldownLeft) + '.') : (CS.foeWinsLeft(S, eo.def.id, now) ? 'Event critter: win for one ' + eo.def.parts[0] + ' part (' + CS.foeWinsLeft(S, eo.def.id, now) + ' rewarded wins left today).' : 'Practice only today: rewarded wins reset tomorrow.') };
+  }
   else { pickIdx = pickCtx.idx; ch = CS.CHALLENGERS[pickIdx]; ec = CS.challengerCritter(pickIdx); }
   var h = '<h2>Choose your fighter</h2><div class="chal' + (ch.boss ? ' boss' : '') + '" id="pkFoe"></div>' + (d ? '<p class="note" style="margin:-4px 2px 8px;font-size:12px">' + esc(d.note) + '</p>' : '') + '<h3>Your critters</h3><div id="pkList"></div>';
   el.innerHTML = h;
   var foe = el.querySelector('#pkFoe'); foe.appendChild(spriteCanvas(ec));
-  foe.insertAdjacentHTML('beforeend', '<div><div class="cn">vs ' + esc(ch.name) + (ch.boss ? '<span class="bossTag">BOSS</span>' : '') + '</div><div class="ct">' + esc(ch.nick) + ' &middot; ' + esc(ec.name) + '</div><div>' + SLOTS.map(function(sl){ return elTag(FAM[ec.parts[sl]].element); }).join(' ') + '</div><div class="note" style="font-size:11px;margin-top:3px">Defense: <b style="color:var(--ink)">' + FAM[ec.parts.torso].element + '</b> &middot; HP ' + ec.stats.hp + ' &middot; ATK ' + ec.stats.atk + ' &middot; DEF ' + ec.stats.def + ' &middot; SPD ' + ec.stats.spd + '</div></div>');
+  foe.insertAdjacentHTML('beforeend', '<div><div class="cn">vs ' + esc(ch.name) + (ch.boss ? '<span class="bossTag">BOSS</span>' : '') + '</div><div class="ct">' + esc(ch.nick) + ' &middot; ' + esc(ec.name) + '</div><div>' + SLOTS.map(function(sl){ return elTag(CS.partElement(ec.parts[sl], sl)); }).join(' ') + '</div><div class="note" style="font-size:11px;margin-top:3px">Defense: <b style="color:var(--ink)">' + CS.partElement(ec.parts.torso, 'torso') + '</b> &middot; HP ' + ec.stats.hp + ' &middot; ATK ' + ec.stats.atk + ' &middot; DEF ' + ec.stats.def + ' &middot; SPD ' + ec.stats.spd + '</div></div>');
   var list = el.querySelector('#pkList');
   if (!S.collection.length) { list.innerHTML = '<p class="note">You need a critter first. Grow one in the Lab.</p>'; return; }
-  var foeDef = FAM[ec.parts.torso].element;
+  var foeDef = CS.partElement(ec.parts.torso, 'torso');
   CS.crateOrder(S).forEach(function(c){   // v1.2.0: same order as the crate (pinned, then most used)
-    var ok = CS.canBattle(c, now), myDef = FAM[c.parts.torso].element;
+    var ok = CS.canBattle(c, now), myDef = CS.partElement(c.parts.torso, 'torso');
     var best = Math.max.apply(null, c.moves.filter(function(m){ return m.power; }).map(function(m){ return CS.effectiveness(m.element, foeDef); }));
     var worst = Math.max.apply(null, ec.moves.filter(function(m){ return m.power; }).map(function(m){ return CS.effectiveness(m.element, myDef); }));
     var d = document.createElement('button'); d.className = 'pickc' + (ok ? '' : ' off');
@@ -4528,6 +4940,7 @@ function renderPick(){
         $('hYes').onclick = function(){ var r = CS.skipHeal(S, c.id, Date.now()); if (!r.ok) { toast(r.reason); return; } save(); updateHeader(); closeModal(); sfx.good(); renderPick(); };
         return;
       }
+      if (pickCtx.kind === 'event') { var eo2 = CS.eventOpponent(pickCtx.key); if (eo2 && eo2.kind === 'boss' && !CS.eventBossStatus(S, eo2.ev.id, Date.now()).ready) { toast('The boss is resting. Try again soon.'); renderPick(); return; } }
       sfx.tap(); startFight(pickCtx, c.id);
     };
     list.appendChild(d);
@@ -4545,6 +4958,7 @@ var CODE_AI = 0.7;
 function startFight(opp, critterId, resumeB){
   var c = CS.findCritter(S, critterId), ec, intro, ai;
   if (opp.kind === 'code') { var d = CS.decodeCode(opp.code); if (!d.ok) { toast(esc(d.reason)); return; } ec = d.critter; ai = CODE_AI; intro = esc(d.trainer) + ' sends out ' + esc(CS.displayName(ec)) + '!'; opp = { kind:'code', code:d.code, trainer:d.trainer }; }
+  else if (opp.kind === 'event') { var eo = CS.eventOpponent(opp.key || opp.idx); if (!eo) { toast('That event fighter is not available.'); return; } ec = eo.critter; ai = eo.def.ai; intro = (eo.kind === 'boss' ? eo.ev.icon + ' EVENT BOSS! ' : eo.ev.icon + ' ') + esc(eo.def.name) + ' sends out ' + esc(ec.nickname) + '!'; opp = { kind:'event', idx:eo.key, key:eo.key, boss:eo.kind === 'boss' }; }
   else { var ch = CS.CHALLENGERS[opp.idx]; ec = CS.challengerCritter(opp.idx); ai = ch.ai; intro = (ch.boss ? 'BOSS FIGHT! ' : '') + esc(ch.name) + ' sends out ' + esc(ec.nickname) + '!'; opp = { kind:'ladder', idx:opp.idx }; }
   B = resumeB || CS.createBattle(c, ec, { playerHp:CS.currentHp(c, Date.now()), ai:ai });
   bt = { opp:opp, idx:opp.idx, cid:critterId, busy:false, result:null, show:{ p:B.p.hp, e:B.e.hp }, a:{ p:sideAnim(), e:sideAnim() }, clock:0, last:0, scale:1, stopUntil:0, parts:[], pose:null, skip:false };
@@ -4559,7 +4973,7 @@ function startFight(opp, critterId, resumeB){
 function saveBattle(){ S.activeBattle = CS.snapshotBattle(B, { kind:bt.opp.kind, idx:bt.opp.idx, code:bt.opp.code, cid:bt.cid }); save(); }
 // The result is applied the moment the deciding round is played, so reloading during the animation can't dodge a loss.
 function applyResult(){
-  var r = bt.opp.kind === 'code' ? CS.finishCodeBattle(S, bt.opp.code, bt.cid, B, Math.random, Date.now()) : CS.finishLadderBattle(S, bt.idx, bt.cid, B, Math.random, Date.now());
+  var r = bt.opp.kind === 'code' ? CS.finishCodeBattle(S, bt.opp.code, bt.cid, B, Math.random, Date.now()) : bt.opp.kind === 'event' ? CS.finishEventBattle(S, bt.opp.key, bt.cid, B, Math.random, Date.now()) : CS.finishLadderBattle(S, bt.idx, bt.cid, B, Math.random, Date.now());
   S.activeBattle = null; save(); applyAchievements(); return r;
 }
 /* v1.1.8 battle feel: HP bars drain smoothly with a lighter "ghost" bar that catches up; under 25% the bar pulses red */
@@ -4596,7 +5010,7 @@ function openForfeit(){
   if (!B || B.over || current !== 'battle') return;
   var c = B.p.c, code = bt.opp.kind === 'code';
   var reward = code ? 'Battle Code loss reward (' + CS.CFG.codeLossFragments + ' Fragments, if this code still pays today)' : CS.CFG.lossFragments + ' Fragments (the usual loss reward)';
-  modal('<div style="font-weight:900;font-size:18px">Forfeit this battle?</div><p class="note" style="margin:8px 0 12px">It counts as a <b style="color:#ff9bb0">loss</b>. You get the ' + reward + ', and ' + esc(CS.displayName(c)) + ' faints and heals like after any loss.</p>' +
+  modal('<div style="font-weight:900;font-size:18px">Forfeit this battle?</div><p class="note" style="margin:8px 0 12px">It counts as a <b style="color:#ff9bb0">loss</b>. You get the ' + reward + ', and ' + esc(CS.displayName(c)) + ' faints and heals like after any loss.' + (bt.opp.kind === 'event' && bt.opp.boss ? ' The event boss then rests 1 hour.' : '') + '</p>' +
     '<div class="row"><button class="btn alt" id="ffNo" style="flex:1">Keep fighting</button><button class="btn warn" id="ffYes" style="flex:1">Forfeit</button></div>');
   $('ffNo').onclick = closeModal;
   $('ffYes').onclick = function(){ closeModal(); doForfeit(); };
@@ -4827,6 +5241,7 @@ function runSwipe(el){
 }
 function endBattle(){
   if (bt.opp.kind === 'code') { endCodeBattle(); return; }
+  if (bt.opp.kind === 'event') { endEventBattle(); return; }
   var won = B.winner === 'p', ch = CS.CHALLENGERS[bt.idx];
   var r = bt.result || applyResult();
   updateHeader();
@@ -4847,6 +5262,28 @@ function endBattle(){
   $('resHome').onclick = function(){ $('results').classList.remove('on'); B = null; go('home', { replace:true }); };
   $('resLadder').onclick = function(){ $('results').classList.remove('on'); B = null; history = ['home']; go('ladder', { noHistory:true }); };
   var ri = bt.idx; if ($('resRematch')) $('resRematch').onclick = function(){ $('results').classList.remove('on'); B = null; history = ['home']; current = 'ladder'; openPick(ri); };
+}
+
+// v1.2.1 event battle results: the part won (with which one comes next), Fragments, and the boss cooldown
+function endEventBattle(){
+  var won = B.winner === 'p', r = bt.result || applyResult(), c = CS.findCritter(S, bt.cid), key = bt.opp.key, eo = CS.eventOpponent(key);
+  updateHeader();
+  var nmFoe = eo ? esc(eo.def.name) : 'the event fighter';
+  var h = '<div class="res-title" style="color:' + (won ? '#7cff6b' : '#ff4d6d') + '">' + (won ? 'VICTORY!' : bt.forfeit ? 'FORFEIT' : 'DEFEAT') + '</div><div class="note" style="margin-bottom:8px">' + (won ? 'You beat ' + nmFoe + (r.first && r.kind === 'boss' ? ' for the first time!' : '!') : bt.forfeit ? 'You forfeited. It counts as a loss.' : nmFoe + ' won this time.') + '</div>';
+  if (r.fragments) h += '<div class="rw-row"><span style="font-size:20px">\uD83E\uDDEC</span><span>+' + cup(r.fragments) + ' Fragments' + (won ? '' : ' (consolation)') + '</span></div>';
+  if (r.sample) h += '<div class="rw-row ev-part" id="rwSample"><span style="flex:1">' + (r.sample.rarity !== 'Common' ? '<span style="color:var(--' + r.sample.rarity.toLowerCase() + ')">' + r.sample.rarity + '</span> ' : '') + r.sample.family + ' ' + r.sample.slot + ' DNA ' + (r.sample.isNew ? '<span class="newtag">NEW PART</span>' : '') + '<br><small class="note">Event part: one per ' + (r.kind === 'boss' ? 'clear' : 'win') + (r.kind === 'boss' && r.next && r.next.length ? ' &middot; next clear: ' + r.next.map(cap).join(' or ') : '') + '</small></span></div>';
+  if (r.kits) h += '<div class="rw-row"><span style="font-size:20px">\uD83C\uDF81</span><span>+' + cup(r.kits) + ' Stitch Kit' + (r.kits > 1 ? 's' : '') + '</span></div>';
+  if (r.capped) h += '<div class="rw-row"><span>Practice battle: today\u2019s rewarded wins are used up. Back tomorrow!</span></div>';
+  if (r.kind === 'boss') h += '<div class="rw-row ev-cool" id="rwCool"><span style="font-size:20px">\u23F3</span><span>The boss rests for <b>' + fmtLong(r.cooldown) + '</b> before the next battle.</span></div>';
+  if (c) h += '<div class="rw-row" style="display:block"><div>' + esc(CS.displayName(c)) + '</div>' + hpBlock(c) + '</div>';
+  h += '<div class="row" style="margin-top:12px"><button class="btn alt" id="resHome" style="flex:1">Home</button><button class="btn" id="resEvent" style="flex:1">Event</button>' + (r.kind !== 'boss' ? '<button class="btn" id="resRematch" style="flex:1">Rematch</button>' : '') + '</div>';
+  var box = $('resultsBox'); box.className = 'box' + (won ? '' : ' lose'); box.innerHTML = h;
+  if (r.sample) $('rwSample').insertBefore(partCanvas(r.sample.family, r.sample.slot), $('rwSample').firstChild);
+  $('results').classList.add('on'); countUp(box);
+  resultSound(won);
+  $('resHome').onclick = function(){ $('results').classList.remove('on'); B = null; go('home', { replace:true }); };
+  $('resEvent').onclick = function(){ $('results').classList.remove('on'); B = null; history = ['home']; ladderTab = 'event'; go('ladder', { noHistory:true }); };
+  if ($('resRematch')) $('resRematch').onclick = function(){ $('results').classList.remove('on'); B = null; history = ['home', 'ladder']; ladderTab = 'event'; current = 'ladder'; openPickEvent(key); };
 }
 
 // v1.1.8 reward count-up: numbers tick up from 0 (tap to skip; instant with reduced motion)
@@ -4957,7 +5394,7 @@ function openOneKit(){
       cv.style.display = 'none';
       var pz = $('kitPrize'), sm = r.sample;
       pz.innerHTML = ''; pz.className = 'kit-prize ' + sm.rarity; pz.appendChild(partCanvas(sm.family, sm.slot));
-      pz.insertAdjacentHTML('beforeend', '<div style="font-weight:900;font-size:17px;margin-top:6px">' + (sm.rarity !== 'Common' ? '<span style="color:var(--' + sm.rarity.toLowerCase() + ')">' + sm.rarity + '</span> ' : '') + sm.family + ' ' + sm.slot + '</div><div class="note">' + elTag(FAM[sm.family].element) + ' + ' + r.fragments + ' Fragments ' + (sm.isNew ? '<span class="newtag">NEW</span>' : '') + '</div>');
+      pz.insertAdjacentHTML('beforeend', '<div style="font-weight:900;font-size:17px;margin-top:6px">' + (sm.rarity !== 'Common' ? '<span style="color:var(--' + sm.rarity.toLowerCase() + ')">' + sm.rarity + '</span> ' : '') + sm.family + ' ' + sm.slot + '</div><div class="note">' + elTag(CS.partElement(sm.family, sm.slot)) + ' + ' + r.fragments + ' Fragments ' + (sm.isNew ? '<span class="newtag">NEW</span>' : '') + '</div>');
       pz.classList.add('on');
       var n = S.kits || 0;
       $('kitCount').innerHTML = n ? 'You have <b style="color:var(--ink)">' + n + '</b> kit' + (n === 1 ? '' : 's') + ' left.' : 'That was your last kit!';
@@ -4989,7 +5426,7 @@ function showHaul(){
 /* =====================================================================
    Phase 3 UI: QR codes (share / scan / paste / URL import), daily streak, music
    ===================================================================== */
-var TYPE_TITLE = { battle:'Battle Code', sacrifice:'DNA gift code', invite:'Invite code', thanks:'Thank-you code' };
+var TYPE_TITLE = { battle:'Battle Code', sacrifice:'DNA gift code', invite:'Invite code', thanks:'Thank-you code', event:'Special Event code' };
 function drawQR(cv, text, scale){
   var q = qrcode(0, 'M'); q.addData(text); q.make();
   var n = q.getModuleCount(), quiet = 4, total = n + quiet * 2; scale = scale || 6;
@@ -5305,6 +5742,7 @@ function handleCode(text){
     modal('<div style="font-weight:900;font-size:18px">Code not accepted</div><p class="note" style="margin:8px 0 12px">' + esc(d.reason) + '</p><button class="btn block" id="cdOk">OK</button>');
     $('cdOk').onclick = closeModal; return d;
   }
+  if (d.type === 'event') return handleEventCode(d);   // v1.2.1
   var rivalAdd = null;   // v1.1.6: every scanned (not own) battle code is saved as a Rival
   if (d.type === 'battle' && !d.own) { rivalAdd = CS.addRival(S, d, Date.now()); if (rivalAdd.ok) { save(); mpDuel = { rival:rivalAdd.rival.key }; } }
   if (current === 'share' && shareCtx && shareCtx.duel) shareNeedsRefresh = true;
@@ -5312,7 +5750,7 @@ function handleCode(text){
   if (rivalAdd && rivalAdd.ok) h += '<div class="tip" id="cdRival" style="margin:6px 0 0;font-size:12px">\uD83C\uDFC6 ' + (rivalAdd.isNew ? 'Added to your Rivals (' + S.rivals.length + '/' + CS.CFG.rivalCap + ')' : 'Rival updated') + '. Rematch it any time from Multiplayer.</div>';
   if (d.critter) {
     var ec = d.critter;
-    h += '<div class="share-who" style="margin:8px 0"><div id="cdCv"></div><div><div style="font-weight:900;font-size:17px">' + esc(CS.displayName(ec)) + ' ' + rarTag(ec.rarity) + '</div><div class="note" style="font-size:12px">' + esc(ec.name) + ' &middot; from <b style="color:var(--ink)">' + esc(d.trainer) + '</b></div><div style="margin-top:3px">' + SLOTS.map(function(sl){ return elTag(FAM[ec.parts[sl]].element); }).join(' ') + '</div><div class="note" style="font-size:11px">HP ' + ec.stats.hp + ' &middot; ATK ' + ec.stats.atk + ' &middot; DEF ' + ec.stats.def + ' &middot; SPD ' + ec.stats.spd + (ec.mutations.length ? ' &middot; ' + CS.mutationTag(ec.mutations.length) : '') + '</div>' + (ec.instability ? '<div style="margin-top:2px">' + mutBadge(ec) + (d.type === 'battle' || d.type === 'invite' ? ' <span class="note" style="font-size:11px">copy &minus;' + Math.round(ec.copyPenalty * 100) + '% stats</span>' : '') + '</div>' : '') + '</div></div>';
+    h += '<div class="share-who" style="margin:8px 0"><div id="cdCv"></div><div><div style="font-weight:900;font-size:17px">' + esc(CS.displayName(ec)) + ' ' + rarTag(ec.rarity) + '</div><div class="note" style="font-size:12px">' + esc(ec.name) + ' &middot; from <b style="color:var(--ink)">' + esc(d.trainer) + '</b></div><div style="margin-top:3px">' + SLOTS.map(function(sl){ return elTag(CS.partElement(ec.parts[sl], sl)); }).join(' ') + '</div><div class="note" style="font-size:11px">HP ' + ec.stats.hp + ' &middot; ATK ' + ec.stats.atk + ' &middot; DEF ' + ec.stats.def + ' &middot; SPD ' + ec.stats.spd + (ec.mutations.length ? ' &middot; ' + CS.mutationTag(ec.mutations.length) : '') + '</div>' + (ec.instability ? '<div style="margin-top:2px">' + mutBadge(ec) + (d.type === 'battle' || d.type === 'invite' ? ' <span class="note" style="font-size:11px">copy &minus;' + Math.round(ec.copyPenalty * 100) + '% stats</span>' : '') + '</div>' : '') + '</div></div>';
   } else h += '<p style="margin:10px 0;font-weight:800">From ' + esc(d.trainer) + '</p>';
   h += '<p class="note" style="margin:6px 0 12px">' + esc(d.note) + '</p>';
   var go2 = { battle:'Battle!', sacrifice:'Redeem DNA pod', invite:d.canUse ? 'Accept gift' : 'Practice battle', thanks:'Collect kit' }[d.type];
@@ -5353,6 +5791,26 @@ function handleCode(text){
       save(); closeModal(); sfx.rare(); toast('+1 Stitch Kit! Thanks from ' + esc(r.from) + '.', 3000); if (current === 'home') renderHome();
     }
   };
+  return d;
+}
+
+// v1.2.1: a special event code adds its event critter to the Special Event page (Battle screen) as a fight
+function handleEventCode(d){
+  var h = '<div class="code-kind event">' + TYPE_TITLE.event + '</div>', add = null;
+  if (d.foe) { add = CS.addEventFoe(S, d.foe.id, Date.now()); if (add.ok) save(); }
+  if (d.critter) {
+    var ec = d.critter;
+    h += '<div class="share-who" style="margin:8px 0" id="cdEvent"><div id="cdCv"></div><div><div style="font-weight:900;font-size:17px">' + esc(d.foe.name) + ' ' + rarTag(ec.rarity) + '</div><div class="note" style="font-size:12px">' + esc(d.foe.nick) + ' (' + esc(ec.name) + ') &middot; ' + d.event.icon + ' ' + esc(d.event.name) + '</div><div style="margin-top:3px">' + evElTags(ec) + '</div><div class="note" style="font-size:11px">HP ' + ec.stats.hp + ' &middot; ATK ' + ec.stats.atk + ' &middot; DEF ' + ec.stats.def + ' &middot; SPD ' + ec.stats.spd + '</div></div></div>';
+    h += '<div class="tip" id="cdEvAdded" style="margin:6px 0 0;font-size:12px">' + (add && add.isNew ? '\u2705 Added to your Special Event page.' : '\u2714 Already on your Special Event page.') + '</div>';
+  }
+  var w = d.event ? CS.eventActive(d.event, evNow()) : null, nx = d.event && !w ? CS.nextEventWindow(d.event, evNow()) : null;
+  h += '<p class="note" style="margin:6px 0 12px">' + esc(d.foe ? (w ? 'Find it on the Battle screen under ' + d.event.name + '. Win: +' + d.foe.frag + ' Fragments and one ' + d.foe.parts[0] + ' part (up to ' + CS.CFG.eventFoeDailyWins + ' rewarded wins a day).' : 'It shows up on the Battle screen while the ' + d.event.name + ' event is on' + (nx ? ' (' + evDates(nx) + ')' : '') + '.') : d.note) + '</p>';
+  h += '<div class="row"><button class="btn alt" id="cdNo" style="flex:1">Close</button><button class="btn" id="cdGo" style="flex:1"' + (d.foe && w ? '' : ' disabled') + '>Go to event</button></div>';
+  if (d.foe) sfx.rare(); else sfx.bad();
+  modal(h);
+  if (d.critter) $('cdCv').appendChild(spriteCanvas(d.critter));
+  $('cdNo').onclick = function(){ closeModal(); if (current === 'ladder') renderLadder(); };
+  $('cdGo').onclick = function(){ closeModal(); ladderTab = 'event'; history = ['home']; go('ladder', { noHistory:true }); };
   return d;
 }
 
@@ -5398,7 +5856,7 @@ var MUSIC = { dir:'music/', loop:{ home:true, lab:true, blender:true, battle:tru
 var music = { el:null, cur:null, src:null, gain:null, unlocked:false, override:null, missing:{}, found:{} };
 function musicWanted(){
   if (music.override) return music.override;
-  if (current === 'battle') return bt && bt.opp && bt.opp.kind === 'ladder' && CS.CHALLENGERS[bt.opp.idx] && CS.CHALLENGERS[bt.opp.idx].boss ? 'boss' : 'battle';
+  if (current === 'battle') return bt && bt.opp && ((bt.opp.kind === 'ladder' && CS.CHALLENGERS[bt.opp.idx] && CS.CHALLENGERS[bt.opp.idx].boss) || (bt.opp.kind === 'event' && bt.opp.boss)) ? 'boss' : 'battle';
   if (current === 'lab') return labTab === 'blender' ? 'blender' : 'lab';
   return 'home';
 }
@@ -5472,13 +5930,14 @@ function renderLog(){
   h += '<div class="logcount">' + counts.total + ' logged</div><p class="note" style="text-align:center">' + counts.pures + '/' + counts.ofPures + ' pure families</p>';
   el.innerHTML = h;
   el.querySelectorAll('.pd-tab').forEach(function(b){ b.onclick = function(){ sfx.tap(); pediaTab = b.dataset.tab; renderLog(); }; });
-  CS.FAMILIES.forEach(function(f){
+  var evSeen = CS.EVENT_FAMILIES.filter(function(f){ return Object.keys(entries).some(function(k){ return CS.pediaFamilies(entries[k]).indexOf(f) >= 0; }); });   // v1.2.1: seasonal families show once logged
+  CS.FAMILIES.concat(evSeen).forEach(function(f){
     var pureKey = CS.pediaKey({ head:f, torso:f, legs:f }), pure = entries[pureKey];
     var hybrids = Object.keys(entries).map(function(k){ return entries[k]; }).filter(function(e){ return e.parts && CS.pediaFamilies(e).indexOf(f) >= 0 && CS.pediaFamilies(e).length > 1; });   // v1.2.0: a hybrid shows under every family it contains
     hybrids.sort(function(a, b){ return a.firstSeen - b.firstSeen; });
     var n = (pure ? 1 : 0) + hybrids.length;
     var sec = document.createElement('div'); sec.className = 'pd-fam';
-    sec.innerHTML = '<h3>' + f + ' ' + elTag(FAM[f].element) + ' <span class="note">' + n + ' logged' + (pure ? '' : ' \u00b7 pure unknown') + '</span></h3><div class="pd-grid"></div>';
+    sec.innerHTML = '<h3>' + f + ' ' + CS.familyElements(f).map(elTag).join('') + (FAM[f].event ? ' <span class="ev-tag">EVENT</span>' : '') + ' <span class="note">' + n + ' logged' + (pure ? '' : ' \u00b7 pure unknown') + '</span></h3><div class="pd-grid"></div>';
     var grid = sec.querySelector('.pd-grid');
     function addCard(e, familyForUnknown){
       var known = !!e, d = document.createElement('button');
@@ -5504,9 +5963,9 @@ function openPediaEntry(e, family){
   var h = '<div style="font-weight:900;font-size:18px">' + esc(e.nickname || e.name) + ' ' + rarTag(e.rarity || 'Common') + '</div>';
   h += '<div id="pdCv" style="display:flex;justify-content:center;margin:8px 0"></div>';
   h += '<div class="pd-flags" style="text-align:center;margin-bottom:8px">' + pediaFlags(e) + '</div>';
-  h += '<div class="card kv">' + SLOTS.map(function(sl){ return '<b>' + cap(sl) + '</b><span>' + e.parts[sl] + ' ' + elTag(FAM[e.parts[sl]].element) + '</span>'; }).join('') +
+  h += '<div class="card kv">' + SLOTS.map(function(sl){ return '<b>' + cap(sl) + '</b><span>' + e.parts[sl] + ' ' + elTag(CS.partElement(e.parts[sl], sl)) + '</span>'; }).join('') +
     '<b>First seen</b><span>' + new Date(e.firstSeen).toLocaleDateString() + '</span>' +
-    (secret ? '<b>Secret move</b><span>' + esc(secret) + '</span>' : '') + '</div>';
+    (secret ? '<b>Secret move</b><span>' + esc(secret.name || secret) + '</span>' : '') + '</div>';
   var mine = CS.crateOrder(S).filter(function(c){ return CS.pediaKey(c.parts) === CS.pediaKey(e.parts); })[0];
   h += (mine ? '<button class="btn block" id="pdView" style="margin-top:10px">View in crate</button>' : '') + '<button class="btn ' + (mine ? 'alt ' : '') + 'block" id="pdOk" style="margin-top:8px">Close</button>';
   modal(h);
@@ -5585,7 +6044,7 @@ function renderSheet(){
   var el = $('sheet'), rng = CS.makeRng(parseInt(params.get('seed') || '20261120', 10));
   el.innerHTML = '<div class="sheet" id="sheetGrid"></div>';
   var g = el.querySelector('#sheetGrid'), list = [];
-  CS.FAMILIES.forEach(function(f){ list.push({ c:pureOf(f), label:f, sub:FAM[f].element + ' \u00b7 ' + FAM[f].look }); });
+  CS.ALL_FAMILIES.forEach(function(f){ list.push({ c:pureOf(f), label:f, sub:CS.familyElements(f).join('/') + ' \u00b7 ' + FAM[f].look + (FAM[f].event ? ' (event)' : '') }); });
   var forced = ['Common', 'Rare', 'Common', 'Legendary', 'Common', 'Rare'];
   for (var i = 0; i < 6; i++) {
     var src = {}; SLOTS.forEach(function(sl){ src[sl] = { family:CS.FAMILIES[Math.floor(rng() * 10)], rarity:'Common', from:'sample' }; });
@@ -5617,6 +6076,7 @@ function tick(){
   });
   document.querySelectorAll('[data-hp]').forEach(function(el){ var c = CS.findCritter(S, el.getAttribute('data-hp')); if (c) el.innerHTML = hpInner(c, now); });
   if (current === 'home') { updateBadges(); updateKits(); }
+  tickEventTab();
 }
 // v1.2.0: the hatch-ready banner stays until you dismiss it (x) or tap it, which opens the Lab
 function alertToLab(){ $('alert').classList.remove('on'); sfx.tap(); labTab = 'incubator'; if (current === 'lab') renderLab(); else go('lab'); }
@@ -5658,7 +6118,7 @@ function boot(){
   else go('home', { replace:true });
   if (S.activeBattle) {   // resume a battle that was interrupted by a reload / closed tab
     var rb = CS.restoreBattle(S, S.activeBattle);
-    if (rb) { var ab = S.activeBattle; history = ['home']; startFight(ab.kind === 'code' ? { kind:'code', code:ab.code } : { kind:'ladder', idx:ab.idx }, ab.cid, rb); }
+    if (rb) { var ab = S.activeBattle; history = ['home']; startFight(ab.kind === 'code' ? { kind:'code', code:ab.code } : ab.kind === 'event' ? { kind:'event', key:ab.idx } : { kind:'ladder', idx:ab.idx }, ab.cid, rb); }
     else { S.activeBattle = null; save(); }
   }
   if (linkCode) { var lc = linkCode; linkCode = null; setTimeout(function(){ handleCode(lc); }, 250); }
@@ -5668,7 +6128,7 @@ function boot(){
 // The page checks version.json (never cached) on launch and whenever the app comes back to the front. If a newer build
 // is live it reloads once, unless a battle or dialog is open; then it shows a tap-to-reload bar. A sessionStorage flag
 // makes sure it never auto-reloads twice for the same build, so a stale copy can't cause a reload loop.
-var APP_VERSION = '1.2.0', APP_BUILD = 'd00bd24b1c';
+var APP_VERSION = '1.2.1', APP_BUILD = '5c76229149';
 function verLabel(){ return 'v' + APP_VERSION + ' \u00b7 build ' + APP_BUILD; }
 var upd = { reg:null, hadController:false, pending:null, timer:null, go:null };
 function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('blendAnim') && !$('modal').classList.contains('on'); }
@@ -5716,7 +6176,7 @@ requestAnimationFrame(loop);
 window.CSApp = { get state(){ return S; }, set state(v){ S = v; }, save:save, go:go, boot:boot, startReveal:startReveal,
   freezeReveal:function(ms){ if (rv) { rv.freezeAt = ms; if (ms >= rv.tl.out) { rv.phase = 'out'; revealFlash(); } if (ms >= rv.tl.card) { rv.phase = 'card'; showRevealCard(); } } }, hatchTimeline:function(r, rm){ return hatchTimeline({ rarity:r }, !!rm); },
   startBattle:startBattle, openPick:openPick, openKits:openKits, get battle(){ return B; },
-  startFight:startFight, openPickCode:openPickCode, handleCode:handleCode, openShare:openShare, openStreak:openStreak, openGift:openGift, drawQR:drawQR,
+  startFight:startFight, openPickCode:openPickCode, openPickEvent:openPickEvent, setEventDate:function(v){ var r = setEventDate(v); if (current === 'ladder') renderLadder(); if (current === 'home') updateBadges(); return r; }, evNow:evNow, setLadderTab:function(t){ ladderTab = t; }, handleCode:handleCode, openShare:openShare, openStreak:openStreak, openGift:openGift, drawQR:drawQR,
   get music(){ return { unlocked:music.unlocked, cur:music.cur, missing:Object.keys(music.missing), found:music.found }; }, get scanEngine(){ return scan.engine; },
   setSplice:function(sel){ spliceSel = sel; labTab = 'incubator'; spliceJump = true; }, setLabTab:function(t){ labTab = t; }, openDetail:function(id){ detailId = id; go('detail'); }, crateSpot:crateSpot, freezeCrate:function(on, spread){ hab.critters.forEach(function(h){ h.pause = on ? 1e9 : 0; if (spread) h.x = h.home; }); },
   openBattlePlayer:openBattlePlayer, openInvite:openInvite, openMutationDiff:openMutationDiff, shareCritterImage:shareCritterImage, critterCardCanvas:critterCardCanvas,
