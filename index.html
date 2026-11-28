@@ -686,6 +686,19 @@ header .back svg{width:18px;height:18px}
 .fb-kinds{display:flex;gap:6px;margin:0 0 4px}
 .fb-kinds .tab{flex:1;min-height:44px}
 #modal textarea.fb-text{height:80px;font:inherit;font-size:16px;line-height:1.35}
+
+/* v1.2.4: install banner — only when the game is not already on the home screen; small and easy to dismiss */
+.instb{position:absolute;left:10px;right:10px;top:calc(52px + env(safe-area-inset-top,0px));z-index:80;display:none;align-items:flex-start;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px 8px 8px 12px;box-shadow:0 8px 20px rgba(0,0,0,.45)}
+.instb.on{display:flex}
+.instb-body{flex:1;min-width:0}
+.instb-title{font-weight:900;font-size:13px;line-height:1.25}
+.instb-text{color:var(--dim);font-size:12px;font-weight:600;line-height:1.35;margin-top:3px}
+.instb-actions{margin-top:8px}
+.instb-actions .btn{padding:8px 12px;font-size:13px;min-height:36px}
+.instb-x{width:36px;height:36px;border-radius:10px;background:rgba(0,0,0,.25);color:var(--dim);font-weight:900;flex:0 0 auto;line-height:1}
+#app.instb-on main .screen{padding-top:calc(14px + var(--instb-h, 0px))}
+#app.instb-on #home{padding-top:var(--instb-h, 0px)}
+@media (prefers-reduced-motion:reduce){.instb.on{animation:none}}
 </style>
 </head>
 <body>
@@ -698,6 +711,7 @@ header .back svg{width:18px;height:18px}
     <div class="chip" title="Fragmented DNA"><svg viewBox="0 0 7 7" shape-rendering="crispEdges"><path fill="#7cff6b" d="M1 0h1v1h1v1h1v1h1V2h1V1h1v1H6v1H5v1h1v1h1v1H6V5H5V4H4v1H3v1H2v1H1V6h1V5h1V4H2V3H1V2h1V1H1z"/></svg><span id="fragVal">0</span></div>
     <button class="chip" id="settingsBtn" aria-label="Settings" style="padding:3px 8px">&#9881;</button>
   </header>
+  <div id="installBanner" class="instb" hidden></div>
   <main>
     <section class="screen" id="starter"></section>
     <section class="screen" id="home">
@@ -1788,6 +1802,17 @@ function makeCritter(sources, rng, opts){
 function lineageEntry(s){ return { family:s.family, rarity:s.rarity || 'Common', from:s.from || 'sample', critterId:s.critterId || null, critterName:s.critterName || null }; }
 function refresh(c){ c.stats = computeStats(c); c.moves = movesFor(c); c.name = autoName(c.parts.head, c.parts.torso, c.parts.legs); return c; }
 function displayName(c){ return c.nickname ? c.nickname : c.name; }
+// v1.2.4: which install banner to show. In-app browsers (Facebook, Instagram, etc.) are detected first;
+// iOS Chrome (CriOS) is treated as "other" because beforeinstallprompt is not available there.
+var INAPP_UA = /FBAN|FBAV|FB_IAB|FB4A|FBIOS|FBSS|Messenger|Instagram|Line\/|Twitter|TikTok|musical_ly|BytedanceWebview|Snapchat|Pinterest|LinkedInApp|MicroMessenger|WhatsApp|Reddit/i;
+function installContext(ua){
+  ua = ua || '';
+  var ios = /iPhone|iPad|iPod/i.test(ua);
+  if (INAPP_UA.test(ua)) return ios ? 'inapp-ios' : 'inapp-android';
+  if (ios && /Safari/i.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|Chrome/i.test(ua)) return 'safari';
+  if (!ios && /Chrome|Chromium/i.test(ua) && !/Edg|OPR|SamsungBrowser|Brave|YaBrowser/i.test(ua)) return 'chrome';
+  return 'other';
+}
 
 /* ---------- save / state ---------- */
 function newSave(now){
@@ -2513,7 +2538,19 @@ function togglePin(s, id, now){ var c = findCritter(s, id); if (!c) return null;
 function crateDef(id){ return CFG.crates.find(function(c){ return c.id === id; }) || CFG.crates[0]; }
 function activeCrate(s){ return crateDef(s.activeCrate || 'starter'); }
 function unlockMet(s, u){ var c = CFG.crateUnlocks[u]; return !!(c && c.challenger && s.ladder && s.ladder.beaten[c.challenger]); }
-function unlockText(u){ var c = CFG.crateUnlocks[u], ch = c && CHALLENGERS.find(function(x){ return x.id === c.challenger; }); return ch ? 'Beat ' + ch.name + ' to unlock' : 'Locked'; }
+// v1.2.4: The Stitchmaster's name stays hidden until Old Gristle (the Tier 1 boss) is beaten.
+function stitchmasterRevealed(s){ return !!(s && s.ladder && s.ladder.beaten && s.ladder.beaten.gristle); }
+function challengerPublicName(s, ch){
+  if (!ch) return '';
+  if (typeof ch === 'string') ch = CHALLENGERS.find(function(x){ return x.id === ch; }) || { id:ch, name:ch };
+  return (ch.id === 'stitch' && !stitchmasterRevealed(s)) ? '???' : ch.name;
+}
+function revealStitchmaster(s, text){
+  if (text == null) return text;
+  if (stitchmasterRevealed(s)) return String(text);
+  return String(text).replace(/The Stitchmaster|Stitch Master/g, '???');
+}
+function unlockText(s, u){ var c = CFG.crateUnlocks[u], ch = c && CHALLENGERS.find(function(x){ return x.id === c.challenger; }); return ch ? 'Beat ' + challengerPublicName(s, ch) + ' to unlock' : 'Locked'; }
 // highest level whose unlock is met; a stored level never goes down
 function crateLevel(s){
   var cr = activeCrate(s), st = (s.crates && s.crates[cr.id]) || { level:0 }, lv = st.level || 0;
@@ -2524,12 +2561,12 @@ function computeSlots(s){ return activeCrate(s).levels[crateLevel(s)].slots; }
 function crateInfo(s){
   var cr = activeCrate(s), lv = crateLevel(s), slots = cr.levels[lv].slots, max = cr.levels[cr.levels.length - 1].slots, next = cr.levels[lv + 1];
   return { id:cr.id, name:cr.name, level:lv, slots:slots, max:max, used:s.collection.length, over:Math.max(0, s.collection.length - slots),
-           next:next ? { slots:next.slots, add:next.slots - slots, unlock:next.unlock, text:unlockText(next.unlock) } : null,
+           next:next ? { slots:next.slots, add:next.slots - slots, unlock:next.unlock, text:unlockText(s, next.unlock) } : null,
            scale:CFG.crateSpriteScale[Math.min(CFG.crateRowMax, Math.max(1, s.collection.length))] || 1 };
 }
 function slotGoals(s){ // what the ladder shows under "Bigger crate"
   var cr = activeCrate(s);
-  return cr.levels.slice(1).map(function(l, i){ return { slot:l.slots, add:l.slots - cr.levels[i].slots, text:unlockText(l.unlock).replace(' to unlock', ''), done:unlockMet(s, l.unlock) }; });
+  return cr.levels.slice(1).map(function(l, i){ return { slot:l.slots, add:l.slots - cr.levels[i].slots, text:unlockText(s, l.unlock).replace(' to unlock', ''), done:unlockMet(s, l.unlock) }; });
 }
 // Sync s.slots with the crate; returns the newly unlocked slot numbers (for the celebration). Never removes critters:
 // a save holding more than the cap keeps them all and just can't add more until it's under the cap.
@@ -2583,13 +2620,13 @@ function crateLookProgress(s, id){
 }
 function crateLookUnlocked(s, id){ var p = crateLookProgress(s, id); return p.have >= p.need; }
 function crateLooks(s){
-  return CRATE_LOOKS.map(function(l){ var p = crateLookProgress(s, l.id); return { id:l.id, name:l.name, tag:l.tag, element:l.element || null, hint:l.hint, have:p.have, need:p.need, unlocked:p.have >= p.need, active:(s.crateLook || 'plank') === l.id, seen:l.id === 'plank' || !!(s.looksSeen && s.looksSeen[l.id]) }; });
+  return CRATE_LOOKS.map(function(l){ var p = crateLookProgress(s, l.id); return { id:l.id, name:l.name, tag:l.tag, element:l.element || null, hint:revealStitchmaster(s, l.hint), have:p.have, need:p.need, unlocked:p.have >= p.need, active:(s.crateLook || 'plank') === l.id, seen:l.id === 'plank' || !!(s.looksSeen && s.looksSeen[l.id]) }; });
 }
 function currentCrateLook(s){ var id = s.crateLook || 'plank'; return crateLookDef(id) && crateLookUnlocked(s, id) ? crateLookDef(id) : CRATE_LOOKS[0]; }
 // switching never touches slots / capacity
 function setCrateLook(s, id){
   var l = crateLookDef(id); if (!l) return { ok:false, reason:'Unknown crate look.' };
-  if (!crateLookUnlocked(s, id)) return { ok:false, reason:l.hint };
+  if (!crateLookUnlocked(s, id)) return { ok:false, reason:revealStitchmaster(s, l.hint) };
   s.crateLook = id; return { ok:true, look:l };
 }
 function newCrateLooks(s){ return crateLooks(s).filter(function(l){ return l.unlocked && !l.seen; }); }
@@ -2876,7 +2913,7 @@ return {
   baseStats:baseStats, computeStats:computeStats, statRange:statRange, movesFor:movesFor, elementsOf:elementsOf,
   mutationTag:mutationTag, mutate:mutate, mutateOdds:mutateOdds, stabilize:stabilize, instabilityOf:instabilityOf, GLITCHES:GLITCHES, GLITCH_NAMES:GLITCH_NAMES,
   isPure:isPure, blendSampleValue:blendSampleValue, blendCritterInfo:blendCritterInfo, blendCritterValue:blendCritterValue, blendSamples:blendSamples, blendCritter:blendCritter,
-  rollPodRarity:rollPodRarity, receivePod:receivePod, startQueuedPod:startQueuedPod, hatchPod:hatchPod, makeCritter:makeCritter, refresh:refresh, displayName:displayName,
+  rollPodRarity:rollPodRarity, receivePod:receivePod, startQueuedPod:startQueuedPod, hatchPod:hatchPod, makeCritter:makeCritter, refresh:refresh, displayName:displayName, installContext:installContext,
   newSave:newSave, migrate:migrate, newPlayerId:newPlayerId, grantReward:grantReward, recordMpBattle:recordMpBattle, mpSummary:mpSummary, newMpStats:newMpStats, serialize:serialize, deserialize:deserialize, load:load, store:store,
   addSample:addSample, takeSample:takeSample, sampleCount:sampleCount, chooseStarter:chooseStarter, timerSeconds:timerSeconds,
   freeIncubator:freeIncubator, collectionFull:collectionFull, pureSampleKeys:pureSampleKeys, canIncubatePure:canIncubatePure,
@@ -2890,7 +2927,7 @@ return {
   UNIQUE_MOVES:UNIQUE_MOVES, TRAIT_NAMES:TRAIT_NAMES, makeSide:makeSide, pick:pick, rint:rint, openKit:openKit,
   moveById:moveById, createBattle:createBattle, canUse:canUse, usableMoves:usableMoves, dodgeChance:dodgeChance, calcDamage:calcDamage,
   expectedDamage:expectedDamage, aiChoose:aiChoose, playRound:playRound, simulate:simulate, challengerCritter:challengerCritter,
-  ladderUnlocked:ladderUnlocked, nextChallenger:nextChallenger, computeSlots:computeSlots, crateInfo:crateInfo, crateLevel:crateLevel, slotGoals:slotGoals, updateSlots:updateSlots,
+  ladderUnlocked:ladderUnlocked, nextChallenger:nextChallenger, computeSlots:computeSlots, crateInfo:crateInfo, crateLevel:crateLevel, slotGoals:slotGoals, updateSlots:updateSlots, stitchmasterRevealed:stitchmasterRevealed, challengerPublicName:challengerPublicName, revealStitchmaster:revealStitchmaster,
   pickDropSlot:pickDropSlot, finishLadderBattle:finishLadderBattle,
   isPureChoice:isPureChoice, startPureFrom:startPureFrom, startGrow:startGrow, geneStackBonus:geneStackBonus, canPlayGeneStack:canPlayGeneStack, startGeneStack:startGeneStack, recordGeneStack:recordGeneStack, applyHatchBoost:applyHatchBoost,
   battleUse:battleUse, crateOrder:crateOrder, togglePin:togglePin,
@@ -3580,6 +3617,7 @@ try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); storage 
 catch (e) { storage = { getItem:function(k){ return memStore[k] || null; }, setItem:function(k, v){ memStore[k] = v; }, removeItem:function(k){ delete memStore[k]; } }; }
 if (params.get('reset') === '1') {
   storage.removeItem(CS.SAVE_KEY);
+  storage.removeItem('critterStitcher.installBanner');   // v1.2.4: banner snooze lives outside the save
   try { var u = new URL(location.href); u.searchParams.delete('reset'); window.history.replaceState(null, '', u.toString()); } catch (e) {}  // so a reload doesn't wipe again
 }
 var S = CS.load(storage) || CS.newSave(Date.now());
@@ -3736,6 +3774,7 @@ function go(id, opts){
   render(id);
   var sc = $(id); if (sc && !opts.keepScroll) sc.scrollTop = 0;
   updateMusic();
+  updateInstallBanner();
 }
 function back(){
   var p = history.pop() || 'home';
@@ -4274,6 +4313,7 @@ function crateSpot(id){ // test hook: screen position of a critter in the crate
 /* ---------- info icons (v1.1.7): one small i per system instead of long text; it glows until tapped the first time ---------- */
 function infoText(k){
   var C = CS.CFG, P = C.blendPart;
+  var stitch = CS.challengerPublicName(S, 'stitch');
   var T = {
     incubator:['Incubator', 'Pick a head, torso and legs right under the tube and the pod starts there. Three parts of <b>one family</b> grow a <b>pure critter</b> for free (tap a <b>Pure set</b> to fill one in); mixed parts <b>splice a hybrid</b>. One critter grows at a time. <b>Speed up</b> finishes it now for Fragments (cheaper as the timer runs down). While you wait you can play <b>Gene Stack</b> for a small rarity boost. DNA pods from friends wait in line until the incubator is free.'],
     genestack:['Gene Stack', 'Optional, one run per hatch. Stack DNA pieces in the pod: <b>swipe</b> left/right to move, <b>tap</b> to rotate, <b>press and hold</b> to drop fast (arrow keys + space on a keyboard). A full row stitches a strand; a row of one element is a <b>pure strand (x2)</b>. Strands fill the Stability meter, which adds up to <b>+' + Math.round(C.geneStack.rareMax * 100) + '% Rare</b> and <b>+' + Math.round(C.geneStack.legMax * 100) + '% Legendary</b> hatch odds. It never lowers your odds and never delays the hatch: the run ends when the incubator finishes or the stack tops out.'],
@@ -4281,8 +4321,8 @@ function infoText(k){
     splicer:['Splicing', 'Pick a head, torso and legs from your DNA samples. The torso sets the defense element. Odds show the rarity chances: rarer parts raise them. Stat ranges are before the rarity bonus (Rare +10%, Legendary +20%). Each splice has an 8% mutation chance. Costs ' + C.spliceCost + ' Fragments.'],
     mutator:['Mutator', 'Every mutation adds 1 Instability and the odds get worse: 75% good at first, 62% next, then a coin flip. From ' + C.glitchAt + ', glitches can appear. At ' + C.giftBlockAt + '+ a critter can\u2019t be gifted, its battle-code copies lose 5% stats per point, and the Blender pays 15% less per point. Each stat\u2019s total mutation bonus is capped at ' + (C.mutCapDown * 100) + '% to +' + (C.mutCapUp * 100) + '%. <b>Stabilize</b> removes 1 Instability for ' + C.stabilizeCost + ' Fragments.'],
     blender:['Blender', 'Turns DNA into Fragments. <b>Everything that goes in is destroyed.</b> Per part: Common ' + P.Common + ' &middot; Rare ' + P.Rare + ' &middot; Legendary ' + P.Legendary + '. Pure DNA &times;' + C.blendPure + ' (samples and single-family critters). &minus;' + pct(C.blendInstabilityCut) + ' per Instability point. Blending a critter also gives one random part back as DNA.'],
-    crate:['Critter Crate', 'Your critters live here. Each <b>straw nest</b> is a free spot; <b>roped-off spots</b> are locked until you earn them (beat Old Gristle for 6, then The Stitchmaster for 8). Tap a critter to open its details. Tap the crate\u2019s label to change its look: looks are earned rewards and never change your slots. If the crate is full, a hatch still finishes: recycle (blend) or rehome a critter to make room, or leave the new one in the incubator until a nest opens.'],
-    ladder:['Challenger Ladder', 'Beat 8 challengers in order. A first win pays Fragments, DNA and a Stitch Kit; rematches pay less. Bosses always drop DNA, and <b>Old Gristle</b> and <b>The Stitchmaster</b> each give a one-time <span style="color:var(--legendary)">Legendary DNA</span> the first time you beat them.'],
+    crate:['Critter Crate', 'Your critters live here. Each <b>straw nest</b> is a free spot; <b>roped-off spots</b> are locked until you earn them (beat Old Gristle for 6, then ' + stitch + ' for 8). Tap a critter to open its details. Tap the crate\u2019s label to change its look: looks are earned rewards and never change your slots. If the crate is full, a hatch still finishes: recycle (blend) or rehome a critter to make room, or leave the new one in the incubator until a nest opens.'],
+    ladder:['Challenger Ladder', 'Beat 8 challengers in order. A first win pays Fragments, DNA and a Stitch Kit; rematches pay less. Bosses always drop DNA, and <b>Old Gristle</b> and <b>' + stitch + '</b> each give a one-time <span style="color:var(--legendary)">Legendary DNA</span> the first time you beat them.'],
     multi:['Multiplayer', 'Your stats count every Battle Code fight: Battle Player, Rival rematches and scanned codes. Practice against your own critter doesn\u2019t count. Your trainer name shows on every code you share; older codes without a name show \u201cTrainer\u201d.'],
     invite:['Invite a friend', 'One link does both: it opens (and installs) Critter Stitcher and gives your friend a DNA pod to hatch after their starter. For brand-new players. They can also scan the QR with their phone camera. Send one of your critters with it if you like: you keep yours; they get a DNA copy (no Mutator buffs or Instability). Their thank-you code gets you a Stitch Kit.'],
     bplayer:['Battle Player', 'Show your critter\u2019s Battle Code, scan your friend\u2019s, and you each battle on your own phone. After you pick a critter, your QR stays on screen and a mini scanner starts underneath so you can scan theirs at the same time. Scanned critters are saved as Rivals. Battle Codes pay +' + C.codeWinFragments + ' Fragments per win, with a ' + Math.round(C.codeWinPartChance * 100) + '% chance of a DNA part, +' + C.codeLossFragments + ' per loss, up to ' + C.codeDailyCapPerCode + ' rewarded fights per code and ' + C.codeDailyCapTotal + ' a day.'],
@@ -5198,8 +5238,21 @@ function nameCritter(c, done){
   $('nnClr').onclick = function(){ c.nickname = ''; save(); closeModal(); done && done(); };
 }
 // "Share as image": a little trading-card PNG of the critter (Web Share with the file when the phone supports it, else a download)
+// v1.2.4: a small, muted play-link QR lives in the bottom-right corner (never over the critter). Share text is unchanged.
+function playQrModel(scale){
+  var q = qrcode(0, 'M'); q.addData(CS.CFG.shareHost); q.make();
+  var n = q.getModuleCount(), quiet = 3, s = scale || 2;
+  return { q:q, n:n, quiet:quiet, scale:s, size:(n + quiet * 2) * s };
+}
+function stampPlayQr(ctx, x, y, model){
+  var s = model.scale, n = model.n, quiet = model.quiet, q = model.q, size = model.size;
+  ctx.fillStyle = '#1c1833'; ctx.fillRect(x, y, size, size);
+  ctx.fillStyle = '#c4bed8';
+  for (var r = 0; r < n; r++) for (var c = 0; c < n; c++) if (q.isDark(r, c)) ctx.fillRect(x + (c + quiet) * s, y + (r + quiet) * s, s, s);
+  return size;
+}
 function critterCardCanvas(c){
-  var cv = document.createElement('canvas'), W = 360, H = 460; cv.width = W; cv.height = H;
+  var cv = document.createElement('canvas'), W = 360, H = 528; cv.width = W; cv.height = H;
   var ctx = cv.getContext('2d'), col = { Common:'#7cff6b', Rare:'#49d3ff', Legendary:'#ffc93c' }[c.rarity] || '#7cff6b';
   var g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#221d40'); g.addColorStop(1, '#141225'); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
   ctx.strokeStyle = col; ctx.lineWidth = 8; ctx.strokeRect(8, 8, W - 16, H - 16);
@@ -5209,7 +5262,12 @@ function critterCardCanvas(c){
   ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = 'bold 28px system-ui, sans-serif'; ctx.fillText(CS.displayName(c), W / 2, 345);
   ctx.fillStyle = col; ctx.font = 'bold 18px system-ui, sans-serif'; ctx.fillText((c.colors.shiny ? '\u2728 Shiny ' : '') + c.rarity + ' \u00b7 ' + (c.nickname ? c.name : SLOTS.map(function(sl){ return CS.partElement(c.parts[sl], sl); }).join(' / ')), W / 2, 374);
   ctx.fillStyle = '#b8b2d8'; ctx.font = '15px system-ui, sans-serif'; ctx.fillText('HP ' + c.stats.hp + '  ATK ' + c.stats.atk + '  DEF ' + c.stats.def + '  SPD ' + c.stats.spd, W / 2, 402);
-  ctx.fillStyle = '#7cff6b'; ctx.font = 'bold 16px system-ui, sans-serif'; ctx.fillText('CRITTER STITCHER', W / 2, 438);
+  var qr = playQrModel(2), pad = 18, qx = W - pad - qr.size, qy = H - pad - qr.size - 14;
+  ctx.imageSmoothingEnabled = false; stampPlayQr(ctx, qx, qy, qr);
+  ctx.textAlign = 'center'; ctx.fillStyle = '#6e6890'; ctx.font = '9px system-ui, sans-serif';
+  ctx.fillText('Play Critter Stitcher', qx + qr.size / 2, qy + qr.size + 11);
+  ctx.textAlign = 'left'; ctx.fillStyle = '#7cff6b'; ctx.font = 'bold 14px system-ui, sans-serif';
+  ctx.fillText('CRITTER STITCHER', pad, qy + qr.size / 2 + 5);
   return cv;
 }
 function shareCritterImage(c){
@@ -5469,8 +5527,8 @@ var CODE_AI = 0.7;
 function startFight(opp, critterId, resumeB){
   var c = CS.findCritter(S, critterId), ec, intro, ai;
   if (opp.kind === 'code') { var d = CS.decodeCode(opp.code); if (!d.ok) { toast(esc(d.reason)); return; } ec = d.critter; ai = CODE_AI; intro = esc(d.trainer) + ' sends out ' + esc(CS.displayName(ec)) + '!'; opp = { kind:'code', code:d.code, trainer:d.trainer }; }
-  else if (opp.kind === 'event') { var eo = CS.eventOpponent(opp.key || opp.idx); if (!eo) { toast('That event fighter is not available.'); return; } ec = eo.critter; ai = eo.def.ai; intro = (eo.kind === 'boss' ? eo.ev.icon + ' EVENT BOSS! ' : eo.ev.icon + ' ') + esc(eo.def.name) + ' sends out ' + esc(ec.nickname) + '!'; opp = { kind:'event', idx:eo.key, key:eo.key, boss:eo.kind === 'boss' }; }
-  else { var ch = CS.CHALLENGERS[opp.idx]; ec = CS.challengerCritter(opp.idx); ai = ch.ai; intro = (ch.boss ? 'BOSS FIGHT! ' : '') + esc(ch.name) + ' sends out ' + esc(ec.nickname) + '!'; opp = { kind:'ladder', idx:opp.idx }; }
+  else if (opp.kind === 'event') { var eo = CS.eventOpponent(opp.key || opp.idx); if (!eo) { toast('That event fighter is not available.'); return; } ec = eo.critter; ai = eo.def.ai; intro = (eo.kind === 'boss' ? eo.ev.icon + ' EVENT BOSS! ' : eo.ev.icon + ' ') + esc(eo.def.name) + ' sends out ' + esc(CS.displayName(ec)) + '!'; opp = { kind:'event', idx:eo.key, key:eo.key, boss:eo.kind === 'boss' }; }
+  else { var ch = CS.CHALLENGERS[opp.idx]; ec = CS.challengerCritter(opp.idx); ai = ch.ai; intro = (ch.boss ? 'BOSS FIGHT! ' : '') + esc(ch.name) + ' sends out ' + esc(CS.displayName(ec)) + '!'; opp = { kind:'ladder', idx:opp.idx }; }
   B = resumeB || CS.createBattle(c, ec, { playerHp:CS.currentHp(c, Date.now()), ai:ai });
   bt = { opp:opp, idx:opp.idx, cid:critterId, busy:false, result:null, show:{ p:B.p.hp, e:B.e.hp }, a:{ p:sideAnim(), e:sideAnim() }, clock:0, last:0, scale:1, stopUntil:0, parts:[], pose:null, skip:false };
   bt.intro = 0;
@@ -6467,7 +6525,7 @@ function renderLog(){
       if (a.reward.fragments) pay.push(a.reward.fragments + ' Fragments');
       if (a.reward.kits) pay.push(a.reward.kits + ' kit' + (a.reward.kits > 1 ? 's' : ''));
       var pr = rec ? null : CS.achievementProgress(S, a.id);
-      d.innerHTML = '<span class="pd-ico" aria-hidden="true">' + (rec ? '\uD83C\uDFC5' : '\uD83D\uDD12') + '</span><span class="pd-nm">' + esc(a.name) + (pr ? ' <span class="pd-prog" data-id="' + a.id + '">' + pr.have + '/' + pr.need + '</span>' : '') + '</span><span class="note">' + (rec ? 'Unlocked ' + new Date(rec.at).toLocaleDateString() : esc(a.blurb)) + (pay.length ? '<br>' + pay.join(' \u00b7 ') : '') + '</span>' +
+      d.innerHTML = '<span class="pd-ico" aria-hidden="true">' + (rec ? '\uD83C\uDFC5' : '\uD83D\uDD12') + '</span><span class="pd-nm">' + esc(a.name) + (pr ? ' <span class="pd-prog" data-id="' + a.id + '">' + pr.have + '/' + pr.need + '</span>' : '') + '</span><span class="note">' + (rec ? 'Unlocked ' + new Date(rec.at).toLocaleDateString() : esc(CS.revealStitchmaster(S, a.blurb))) + (pay.length ? '<br>' + pay.join(' \u00b7 ') : '') + '</span>' +
         (pr ? '<span class="pd-bar"><i style="width:' + Math.round(pr.have / pr.need * 100) + '%"></i></span>' : '');
       box.appendChild(d);
     });
@@ -6823,11 +6881,121 @@ function openFeedback(){
   };
 }
 
+/* ---------- v1.2.4 install banner ---------- */
+// Shown only when the game is not already installed (standalone / iOS home-screen).
+// Snooze lives in its own localStorage key so the save schema stays at v11.
+var INSTALL_BANNER_KEY = 'critterStitcher.installBanner';
+var INSTALL_SNOOZE_MS = 7 * 864e5;
+var INSTALL_INTENT = 'intent://walkerelectricme-bot.github.io/critter-stitcher/#Intent;scheme=https;package=com.android.chrome;end';
+var installPrompt = null, installNow = null;
+function isAppInstalled(){
+  try {
+    if (navigator.standalone) return true;
+    if (window.matchMedia) {
+      if (window.matchMedia('(display-mode: standalone)').matches) return true;
+      if (window.matchMedia('(display-mode: fullscreen)').matches) return true;
+      if (window.matchMedia('(display-mode: window-controls-overlay)').matches) return true;
+    }
+  } catch (e) {}
+  try { if (storage.getItem(INSTALL_BANNER_KEY) === 'installed') return true; } catch (e) {}
+  return false;
+}
+function currentInstallContext(){
+  var ua = navigator.userAgent || '', kind = CS.installContext(ua);
+  if (kind === 'other' && !/Android/i.test(ua) && navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 && /Safari/i.test(ua) && !/CriOS|Chrome/i.test(ua)) return 'safari';
+  return kind;
+}
+function installBannerSnoozed(now){
+  now = now != null ? now : (installNow != null ? installNow : Date.now());
+  var raw; try { raw = storage.getItem(INSTALL_BANNER_KEY); } catch (e) { return false; }
+  if (!raw || raw === 'installed') return raw === 'installed';
+  var at = parseInt(raw, 10); return !!(at && now < at);
+}
+function snoozeInstallBanner(now){
+  now = now != null ? now : (installNow != null ? installNow : Date.now());
+  try { storage.setItem(INSTALL_BANNER_KEY, String(now + INSTALL_SNOOZE_MS)); } catch (e) {}
+}
+function markInstallBannerInstalled(){
+  installPrompt = null;
+  try { storage.setItem(INSTALL_BANNER_KEY, 'installed'); } catch (e) {}
+  updateInstallBanner();
+}
+function installBannerHtml(kind){
+  var title, text, actions = '';
+  if (kind === 'inapp-android') {
+    title = 'Open in your browser to install';
+    text = 'This in-app browser can\u2019t install the game.';
+    actions = '<div class="instb-actions"><a class="btn" id="instbOpen" href="' + INSTALL_INTENT + '">Open in Chrome</a></div>';
+  } else if (kind === 'inapp-ios') {
+    title = 'Open in your browser to install';
+    text = 'Tap \u22EF, then Open in browser. Then Share and Add to Home Screen.';
+  } else if (kind === 'chrome') {
+    title = 'Install Critter Stitcher';
+    text = 'Add it to your home screen to play offline.';
+    actions = '<div class="instb-actions"><button class="btn" id="instbInstall" type="button">Install</button></div>';
+  } else if (kind === 'safari') {
+    title = 'Add to Home Screen';
+    text = 'Tap the Share button, then Add to Home Screen.';
+  } else {
+    title = 'Play in Chrome or Safari';
+    text = 'This game is supported on Chrome and Safari.';
+  }
+  return '<div class="instb-body"><div class="instb-title">' + title + '</div>' + (text ? '<div class="instb-text">' + text + '</div>' : '') + actions + '</div><button class="instb-x" id="instbX" type="button" aria-label="Dismiss">\u2715</button>';
+}
+function layoutInstallBanner(){
+  var b = $('installBanner'); if (!b) return;
+  var on = b.classList.contains('on');
+  document.getElementById('app').classList.toggle('instb-on', on);
+  var h = on ? (b.offsetHeight + 8) : 0;
+  document.documentElement.style.setProperty('--instb-h', h + 'px');
+}
+function updateInstallBanner(){
+  var b = $('installBanner'); if (!b) return;
+  var kind = currentInstallContext();
+  var hideScreen = current === 'battle' || current === 'sheet' || (typeof rv !== 'undefined' && rv);
+  var show = !isAppInstalled() && !installBannerSnoozed() && !hideScreen;
+  if (kind === 'chrome' && !installPrompt) show = false;
+  if (!show) {
+    b.classList.remove('on'); b.hidden = true; b.innerHTML = ''; b.removeAttribute('data-kind');
+    layoutInstallBanner(); return;
+  }
+  b.hidden = false; b.classList.add('on'); b.setAttribute('data-kind', kind);
+  b.innerHTML = installBannerHtml(kind);
+  var x = $('instbX'); if (x) x.onclick = function(e){ e.preventDefault(); e.stopPropagation(); snoozeInstallBanner(); updateInstallBanner(); };
+  var inst = $('instbInstall'); if (inst) inst.onclick = function(){ offerInstall(); };
+  layoutInstallBanner();
+}
+function offerInstall(){
+  var ev = installPrompt; if (!ev || !ev.prompt) return;
+  var p = ev.prompt();
+  var choice = ev.userChoice;
+  if (choice && choice.then) choice.then(function(r){
+    installPrompt = null;
+    if (r && r.outcome === 'accepted') markInstallBannerInstalled();
+    else { snoozeInstallBanner(); updateInstallBanner(); }
+  });
+  return p;
+}
+function onBeforeInstallPrompt(e){ if (e && e.preventDefault) e.preventDefault(); installPrompt = e; updateInstallBanner(); }
+function onAppInstalled(){ markInstallBannerInstalled(); }
+function setupInstallBanner(){
+  window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
+  window.addEventListener('appinstalled', onAppInstalled);
+  try {
+    if (window.matchMedia) {
+      var mq = window.matchMedia('(display-mode: standalone)');
+      if (mq.addEventListener) mq.addEventListener('change', updateInstallBanner);
+      else if (mq.addListener) mq.addListener(updateInstallBanner);
+    }
+  } catch (e) {}
+  updateInstallBanner();
+}
+
 /* ---------- version + updates (installed PWA) ---------- */
 // The page checks version.json (never cached) on launch and whenever the app comes back to the front. If a newer build
 // is live it reloads once, unless a battle or dialog is open; then it shows a tap-to-reload bar. A sessionStorage flag
 // makes sure it never auto-reloads twice for the same build, so a stale copy can't cause a reload loop.
-var APP_VERSION = '1.2.3', APP_BUILD = '6b74c1b68c';
+var APP_VERSION = '1.2.4', APP_BUILD = 'dd11027ffa';
 function verLabel(){ return 'v' + APP_VERSION + ' \u00b7 build ' + APP_BUILD; }
 var upd = { reg:null, hadController:false, pending:null, timer:null, go:null };
 function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('blendAnim') && !$('modal').classList.contains('on'); }
@@ -6870,6 +7038,7 @@ boot();
 try { window.history.replaceState({ csRoot:1 }, ''); } catch (e) {}
 armBackTrap();
 setupUpdates();
+setupInstallBanner();
 requestAnimationFrame(loop);
 // hooks for automated screenshots/tests
 window.CSApp = { openMovedCard:openMovedCard, moveMySave:moveMySave, handleMove:handleMove, openPasteSave:openPasteSave, openCopyCode:openCopyCode, openFeedback:openFeedback, get onOldSite(){ return onOldSite; }, lastMoveUrl:null, lastMailto:null, get state(){ return S; }, set state(v){ S = v; }, save:save, go:go, boot:boot, startReveal:startReveal,
@@ -6879,7 +7048,7 @@ window.CSApp = { openMovedCard:openMovedCard, moveMySave:moveMySave, handleMove:
   get music(){ return { unlocked:music.unlocked, cur:music.cur, missing:Object.keys(music.missing), found:music.found, visit:music.visit, done:music.done, seq:music.seq, gen:music.gen, loop:!!(music.src && music.src.loop) }; }, endMusic:endMusic, get scanEngine(){ return scan.engine; },
   setSplice:function(sel){ spliceSel = sel; labTab = 'incubator'; spliceJump = true; }, setLabTab:function(t){ labTab = t; }, openDetail:function(id){ detailId = id; go('detail'); }, crateSpot:crateSpot, freezeCrate:function(on, spread){ hab.critters.forEach(function(h){ h.pause = on ? 1e9 : 0; if (spread) h.x = h.home; }); },
   openBattlePlayer:openBattlePlayer, openInvite:openInvite, openMutationDiff:openMutationDiff, shareCritterImage:shareCritterImage, critterCardCanvas:critterCardCanvas,
-  get gs(){ return gs ? { idx:gs.idx, strands:gs.strands, over:gs.over, piece:gs.piece && { name:gs.piece.name, x:gs.piece.x, y:gs.piece.y, el:gs.piece.el, cells:gs.piece.cells }, grid:gs.grid, fast:!!gs.fast } : null; }, gsStart:gsStart, gsEnd:gsEnd, gsMove:gsMove, gsRotate:gsRotate, gsDrop:gsDrop, gsSetGrid:function(fn){ if (gs) fn(gs.grid, gs); }, scoreSwipe:scoreSwipe, swipePath:swipePath, get kitHaul(){ return kitHaul; }, get bt(){ return bt; }, get reveal(){ return rv; }, toast:toast, get toastState(){ return { cur:toastCur && toastCur.msg, queue:toastQ.map(function(x){ return x.msg; }) }; }, get crowded(){ return !!hab.crowded; }, openHeal:openHeal, systemBack:systemBack, openForfeit:openForfeit, openInfo:openInfo, get inviteUrl(){ return mpInv.url; }, openCrateLooks:openCrateLooks, get crateLook(){ return CS.currentCrateLook(S).id; }, get crateSpots(){ return (hab.lay ? hab.lay.spots : []).map(function(x){ return { state:x.state, lane:x.lane, cx:x.cx, feet:x.feet, sc:x.sc }; }); }, get audio(){ return { unlocked:aud.unlocked, sfx:Object.keys(aud.buf).filter(function(k){ return aud.buf[k] instanceof AudioBuffer; }), cur:music.cur, override:music.override, visit:music.visit, done:music.done, seq:music.seq, gen:music.gen, loop:!!(music.src && music.src.loop) }; } };
+  get gs(){ return gs ? { idx:gs.idx, strands:gs.strands, over:gs.over, piece:gs.piece && { name:gs.piece.name, x:gs.piece.x, y:gs.piece.y, el:gs.piece.el, cells:gs.piece.cells }, grid:gs.grid, fast:!!gs.fast } : null; }, gsStart:gsStart, gsEnd:gsEnd, gsMove:gsMove, gsRotate:gsRotate, gsDrop:gsDrop, gsSetGrid:function(fn){ if (gs) fn(gs.grid, gs); }, scoreSwipe:scoreSwipe, swipePath:swipePath, get kitHaul(){ return kitHaul; }, get bt(){ return bt; }, get reveal(){ return rv; }, toast:toast, get toastState(){ return { cur:toastCur && toastCur.msg, queue:toastQ.map(function(x){ return x.msg; }) }; }, get crowded(){ return !!hab.crowded; }, openHeal:openHeal, systemBack:systemBack, openForfeit:openForfeit, openInfo:openInfo, get inviteUrl(){ return mpInv.url; }, openCrateLooks:openCrateLooks, get crateLook(){ return CS.currentCrateLook(S).id; }, get crateSpots(){ return (hab.lay ? hab.lay.spots : []).map(function(x){ return { state:x.state, lane:x.lane, cx:x.cx, feet:x.feet, sc:x.sc }; }); }, get audio(){ return { unlocked:aud.unlocked, sfx:Object.keys(aud.buf).filter(function(k){ return aud.buf[k] instanceof AudioBuffer; }), cur:music.cur, override:music.override, visit:music.visit, done:music.done, seq:music.seq, gen:music.gen, loop:!!(music.src && music.src.loop) }; }, get installBanner(){ var b = $('installBanner'); return { kind:b && b.getAttribute('data-kind'), shown:!!(b && b.classList.contains('on')), prompt:!!installPrompt, snoozed:installBannerSnoozed() }; }, updateInstallBanner:updateInstallBanner, receiveInstallPrompt:onBeforeInstallPrompt, setInstallNow:function(t){ installNow = t; }, dismissInstallBanner:function(){ snoozeInstallBanner(); updateInstallBanner(); }, INSTALL_INTENT:INSTALL_INTENT, INSTALL_BANNER_KEY:INSTALL_BANNER_KEY };
 })();
 </script>
 </body>
