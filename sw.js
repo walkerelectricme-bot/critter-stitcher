@@ -1,10 +1,10 @@
 // Critter Stitcher service worker: caches the single page + icons so the game installs and runs offline.
 // Pages are served NETWORK-FIRST (no HTTP cache, ~3 s timeout) so a new deploy shows up on the very next launch;
-// the cached copy is only used offline or on a very slow network. Music (music/) and sound effects (sfx/) are cached the first time they load, so they work offline after that.
-const VERSION = '1.2.2', BUILD = '95cb9002be';
+// the cached copy is only used offline or on a very slow network. The two home themes are precached so the home sequence works offline; other music (music/) and sound effects (sfx/) are cached the first time they load.
+const VERSION = '1.2.3', BUILD = '6b74c1b68c';
 const CACHE = 'critter-stitcher-' + BUILD;
 const NAV_TIMEOUT = 3000;
-const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png'];
+const CORE = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/maskable-512.png', './icons/apple-touch-icon.png', './music/home.mp3', './music/home2.mp3'];
 self.addEventListener('install', e => {
   // cache:'reload' skips the browser HTTP cache (GitHub Pages sends max-age=600), so a new worker never precaches an old page
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE.map(u => new Request(u, { cache:'reload' })))).then(() => self.skipWaiting()));

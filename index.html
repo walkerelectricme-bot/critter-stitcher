@@ -668,6 +668,24 @@ header .back svg{width:18px;height:18px}
 .pd-empty{text-align:center;margin:18px 10px}
 .crate-label #crateCount{color:var(--cr-ink,#3a230f);opacity:.8}
 .crate-label #crateCount.full{color:#b3361a;opacity:1}
+/* v1.2.3: "We've moved" card (old site), moved-save confirm, Stitchwire Games credit */
+.moved-card { text-align:center; }
+.sw-badge { display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:#9fe8ff; background:rgba(73,211,255,.1); border:1px solid rgba(73,211,255,.3); border-radius:999px; padding:3px 10px 3px 7px; }
+.sw-badge svg { width:14px; height:14px; }
+.mv-title { font-weight:900; font-size:22px; margin-top:10px; }
+.mv-addr { font-family:ui-monospace,Menlo,Consolas,monospace; font-size:13px; word-break:break-all; background:rgba(255,255,255,.06); border:1px dashed rgba(124,255,107,.45); border-radius:10px; padding:8px 10px; color:#c9ffc2; }
+.moved-card .mv-go { font-size:18px; padding:14px; }
+.mv-cmp { display:flex; flex-direction:column; gap:8px; margin:10px 0; }
+.mv-cmp > div { background:rgba(255,255,255,.05); border-radius:10px; padding:8px 10px; text-align:left; font-size:14px; }
+.mv-cmp > div.mv-in { border:1px solid rgba(124,255,107,.5); }
+.mv-cmp small { display:block; font-size:11px; opacity:.65; text-transform:uppercase; letter-spacing:.8px; margin-bottom:2px; }
+.mv-set { border:1px solid rgba(73,211,255,.35); }
+.by-sw { opacity:.85; }
+
+/* v1.2.3: Feedback / Bug Fix picker */
+.fb-kinds{display:flex;gap:6px;margin:0 0 4px}
+.fb-kinds .tab{flex:1;min-height:44px}
+#modal textarea.fb-text{height:80px;font:inherit;font-size:16px;line-height:1.35}
 </style>
 </head>
 <body>
@@ -1501,7 +1519,7 @@ var CFG = {
   dodgeBase: 3, dodgePerSpeed: 0.3, dodgeCap: 15, thickHide: 0.08, secondWindAt: 0.25, secondWindHeal: 0.15,
   slotWins: 25, slotParts: 20,                       // (pre-v1.1.6 slot goals; kept for reference, no longer used)
   // Phase 3: QR codes, daily streak
-  shareHost: 'https://walkerelectricme-bot.github.io/critter-stitcher/',   // live GitHub Pages URL (keep the trailing slash: links are shareHost + '#c=CODE')
+  shareHost: 'https://walkerelectricme-bot.github.io/critter-stitcher/',   // live GitHub Pages URL (keep the trailing slash: links are shareHost + '#c=CODE'). The Stitchwire Games move is postponed to v1.3.0.
   codeWinFragments: 15, codeLossFragments: 3, codeWinPartChance: 0.15,  // rewarded wins also have a 15% Common DNA drop
   codeDailyCapPerCode: 3, codeDailyCapTotal: 10,              // rewarded code battles per day (Rival rematches count too)
   bossLegendary: { gristle:true, stitch:true },               // v1.1.7: one-time Legendary DNA on the first boss win
@@ -3309,6 +3327,246 @@ Object.assign(CS, {
   snapshotBattle:snapshotBattle, restoreBattle:restoreBattle
 });
 })(CS);
+/* =====================================================================
+   v1.2.3: save-transfer helpers for the postponed Stitchwire Games move (v1.3.0). Extends CS.
+   Pack/unpack stay in the build, but CFG.moveEnabled is false so the "We've moved" card, Move My Save prompt, and
+   automatic #move= import stay dormant. When the flag is turned on later, the old site packs the save into a move
+   code and opens NEW + '#move=CODE'; the new site checks it and imports it.
+   Move code = 'M1' + base64url( header + body ):
+     header: [fmt u8 = 1][method u8: 0 plain, 1 deflate-raw][saveVersion u16][rawLen u32][crc32(raw) u32]
+     body:   the raw bytes (method 0) or deflate-raw of them (method 1)
+     raw   = UTF-8 JSON { app:'critter-stitcher', at, from, keys:{ <every localStorage key the game uses>: <its string> } }
+   The CRC-32 and length are checked AFTER decompressing, and the save must also parse and pass migrate(),
+   so a damaged or edited code is never imported.
+   ===================================================================== */
+(function(CS){
+'use strict';
+var CFG = CS.CFG;
+var MOVE_PREFIX = 'M1', MOVE_FMT = 1;
+CFG.oldHost = 'walkerelectricme-bot.github.io';
+CFG.oldUrl = 'https://walkerelectricme-bot.github.io/critter-stitcher/';
+CFG.newUrl = 'https://stitchwiregames-collab.github.io/critter-stitcher/';   // future 1.3.0 home; unused while moveEnabled is false
+CFG.moveEnabled = false;   // v1.2.3: site move postponed to 1.3.0; pack/unpack stay, UI + auto-import stay off
+CFG.studio = 'Stitchwire Games';
+CFG.feedbackTo = 'stitchwire.games@gmail.com';
+CFG.mailtoMax = 1800;
+var MOVE_KEYS = [CS.SAVE_KEY];   // every localStorage key the game uses (only the save today)
+
+function isOldHost(hostname){ return String(hostname || '').toLowerCase() === CFG.oldHost; }
+
+var CRC_T = null;
+function crc32(bytes){
+  if (!CRC_T) { CRC_T = new Uint32Array(256); for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; CRC_T[n] = c >>> 0; } }
+  var crc = 0xFFFFFFFF; for (var i = 0; i < bytes.length; i++) crc = CRC_T[(crc ^ bytes[i]) & 255] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+/* ---- streams (CompressionStream where the browser has it) ---- */
+function hasStreams(){ return typeof CompressionStream === 'function' && typeof DecompressionStream === 'function' && typeof Response === 'function' && typeof Blob === 'function'; }
+function pipe(bytes, stream){
+  return new Response(new Blob([bytes]).stream().pipeThrough(stream)).arrayBuffer().then(function(ab){ return new Uint8Array(ab); });
+}
+function deflateRaw(bytes){ return pipe(bytes, new CompressionStream('deflate-raw')); }
+
+/* ---- small pure-JS raw inflate (RFC 1951), used only when DecompressionStream is missing ---- */
+function inflateRaw(src, maxOut){
+  var out = new Uint8Array(Math.max(1024, maxOut || src.length * 4)), op = 0, bitbuf = 0, bitcnt = 0, ip = 0;
+  function grow(n){ if (op + n <= out.length) return; var b = new Uint8Array(Math.max(out.length * 2, op + n)); b.set(out); out = b; }
+  function bits(n){ while (bitcnt < n) { if (ip >= src.length) throw new Error('eof'); bitbuf |= src[ip++] << bitcnt; bitcnt += 8; } var v = bitbuf & ((1 << n) - 1); bitbuf >>>= n; bitcnt -= n; return v; }
+  function build(lens, n){
+    var count = new Uint16Array(16), sym = new Uint16Array(n), offs = new Uint16Array(16), i;
+    for (i = 0; i < n; i++) count[lens[i]]++;
+    count[0] = 0; for (i = 1; i < 16; i++) offs[i] = offs[i - 1] + count[i - 1];
+    for (i = 0; i < n; i++) if (lens[i]) sym[offs[lens[i]]++] = i;
+    return { count:count, sym:sym };
+  }
+  function decode(h){
+    var code = 0, first = 0, index = 0;
+    for (var len = 1; len < 16; len++) { code |= bits(1); var c = h.count[len]; if (code - c < first) return h.sym[index + (code - first)]; index += c; first += c; first <<= 1; code <<= 1; }
+    throw new Error('bad code');
+  }
+  var LB = [3,4,5,6,7,8,9,10,11,13,15,17,19,23,27,31,35,43,51,59,67,83,99,115,131,163,195,227,258], LE = [0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0];
+  var DB = [1,2,3,4,5,7,9,13,17,25,33,49,65,97,129,193,257,385,513,769,1025,1537,2049,3073,4097,6145,8193,12289,16385,24577], DE = [0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13];
+  var fixedL = null, fixedD = null, last;
+  do {
+    last = bits(1); var type = bits(2), lh, dh, i;
+    if (type === 0) {
+      bitbuf = 0; bitcnt = 0;
+      if (ip + 4 > src.length) throw new Error('eof');
+      var len = src[ip] | (src[ip + 1] << 8), nlen = src[ip + 2] | (src[ip + 3] << 8); ip += 4;
+      if ((len ^ 0xffff) !== nlen || ip + len > src.length) throw new Error('bad stored');
+      grow(len); out.set(src.subarray(ip, ip + len), op); op += len; ip += len; continue;
+    }
+    if (type === 1) {
+      if (!fixedL) { var l = new Uint8Array(288); for (i = 0; i < 144; i++) l[i] = 8; for (; i < 256; i++) l[i] = 9; for (; i < 280; i++) l[i] = 7; for (; i < 288; i++) l[i] = 8; fixedL = build(l, 288); var d = new Uint8Array(30).fill(5); fixedD = build(d, 30); }
+      lh = fixedL; dh = fixedD;
+    } else if (type === 2) {
+      var nl = bits(5) + 257, nd = bits(5) + 1, nc = bits(4) + 4, ORD = [16,17,18,0,8,7,9,6,10,5,11,4,12,3,13,2,14,1,15], cl = new Uint8Array(19);
+      for (i = 0; i < nc; i++) cl[ORD[i]] = bits(3);
+      var ch = build(cl, 19), lens = new Uint8Array(nl + nd), k = 0;
+      while (k < nl + nd) {
+        var s = decode(ch);
+        if (s < 16) lens[k++] = s;
+        else { var rep, val = 0; if (s === 16) { if (!k) throw new Error('bad repeat'); val = lens[k - 1]; rep = 3 + bits(2); } else if (s === 17) rep = 3 + bits(3); else rep = 11 + bits(7); if (k + rep > nl + nd) throw new Error('bad lens'); while (rep--) lens[k++] = val; }
+      }
+      lh = build(lens.subarray(0, nl), nl); dh = build(lens.subarray(nl), nd);
+    } else throw new Error('bad block');
+    for (;;) {
+      var sy = decode(lh);
+      if (sy < 256) { grow(1); out[op++] = sy; }
+      else if (sy === 256) break;
+      else {
+        sy -= 257; if (sy >= 29) throw new Error('bad length');
+        var ln = LB[sy] + bits(LE[sy]), ds = decode(dh); if (ds >= 30) throw new Error('bad dist');
+        var dist = DB[ds] + bits(DE[ds]); if (dist > op) throw new Error('bad dist');
+        grow(ln); for (var j = 0; j < ln; j++, op++) out[op] = out[op - dist];
+      }
+      if (maxOut && op > maxOut) throw new Error('too big');
+    }
+  } while (!last);
+  return out.subarray(0, op);
+}
+function inflate(bytes, maxOut){
+  if (hasStreams()) return pipe(bytes, new DecompressionStream('deflate-raw')).catch(function(){ return inflateRaw(bytes, maxOut); });
+  return Promise.resolve().then(function(){ return inflateRaw(bytes, maxOut); });
+}
+
+/* ---- pack / unpack ---- */
+// storage: anything with getItem (localStorage). Returns Promise<{ code, bytes, rawBytes, method }>.
+function packMove(storage, opts){
+  opts = opts || {};
+  var keys = {};
+  MOVE_KEYS.forEach(function(k){ var v = storage.getItem(k); if (v != null) keys[k] = v; });
+  var save = keys[CS.SAVE_KEY] ? JSON.parse(keys[CS.SAVE_KEY]) : null;
+  if (save && save.moved) { delete save.moved; keys[CS.SAVE_KEY] = JSON.stringify(save); }   // the copy that arrives is a normal save
+  var raw = CS.utf8(JSON.stringify({ app:'critter-stitcher', at:opts.now || Date.now(), from:opts.from || '', keys:keys }));
+  var useDeflate = opts.method !== 0 && hasStreams();
+  return (useDeflate ? deflateRaw(raw).catch(function(){ return null; }) : Promise.resolve(null)).then(function(z){
+    var method = z && z.length < raw.length ? 1 : 0, body = method ? z : raw;
+    var h = new Uint8Array(12 + body.length), crc = crc32(raw), sv = save && typeof save.v === 'number' ? save.v : 0;
+    h[0] = MOVE_FMT; h[1] = method; h[2] = sv >> 8; h[3] = sv & 255;
+    h[4] = raw.length >>> 24; h[5] = (raw.length >>> 16) & 255; h[6] = (raw.length >>> 8) & 255; h[7] = raw.length & 255;
+    h[8] = crc >>> 24; h[9] = (crc >>> 16) & 255; h[10] = (crc >>> 8) & 255; h[11] = crc & 255;
+    h.set(body, 12);
+    return { code:MOVE_PREFIX + CS.b64url(h), bytes:h.length, rawBytes:raw.length, method:method };
+  });
+}
+function moveUrl(code){ return CFG.newUrl + '#move=' + code; }
+// Accepts a move code, a #move= link, or text with whitespace / line breaks in it.
+function extractMove(text){
+  text = String(text || '').trim();
+  var m = text.match(/[#?&]move=([A-Za-z0-9_\-\s]+)/); if (m) text = m[1];
+  text = text.replace(/\s+/g, '');
+  return /^M1[A-Za-z0-9_-]{16,}$/.test(text) ? text : null;
+}
+function fail(reason, error){ return { ok:false, error:error || 'damaged', reason:reason || 'This save code is damaged or incomplete. Nothing was changed.' }; }
+// Promise<{ ok, save, keys, meta }>. Never throws; never returns a save that failed any check.
+function unpackMove(text){
+  var code = extractMove(text);
+  if (!code) return Promise.resolve(fail('That doesn\u2019t look like a Critter Stitcher save code.', 'garbage'));
+  var b = CS.unb64url(code.slice(MOVE_PREFIX.length));
+  if (!b || b.length < 13) return Promise.resolve(fail());
+  if (b[0] !== MOVE_FMT) return Promise.resolve(fail('This save code is from a newer version of the game. Update and try again.', 'version'));
+  var method = b[1], sv = (b[2] << 8) | b[3], len = ((b[4] << 24) | (b[5] << 16) | (b[6] << 8) | b[7]) >>> 0, crc = ((b[8] << 24) | (b[9] << 16) | (b[10] << 8) | b[11]) >>> 0;
+  if (sv > CS.SAVE_VERSION) return Promise.resolve(fail('This save is from a newer version of the game. Update and try again.', 'version'));
+  if (len > 8e6 || method > 1) return Promise.resolve(fail());
+  var body = b.subarray(12);
+  return (method ? inflate(body, len) : Promise.resolve(body)).then(function(raw){
+    if (!raw || raw.length !== len || crc32(raw) !== crc) return fail(null, 'checksum');
+    var obj = JSON.parse(new TextDecoder().decode(raw));
+    if (!obj || obj.app !== 'critter-stitcher' || !obj.keys || typeof obj.keys[CS.SAVE_KEY] !== 'string') return fail();
+    var s = CS.deserialize(obj.keys[CS.SAVE_KEY]);   // runs every save migration
+    if (!s || !Array.isArray(s.collection) || !s.settings) return fail();
+    delete s.moved;
+    return { ok:true, save:s, keys:obj.keys, meta:{ at:obj.at, from:obj.from, saveVersion:sv, bytes:b.length, rawBytes:len, method:method } };
+  }).catch(function(){ return fail(null, 'checksum'); });
+}
+function hasProgress(s){
+  if (!s) return false;
+  return !!(s.starter || (s.collection && s.collection.length) || (s.incubators || []).some(Boolean) || s.fragments > 0 || (s.stats && s.stats.battles > 0));
+}
+function saveSummary(s){
+  var inc = (s.incubators || []).filter(function(x){ return x && x.critter; }).length;
+  return { critters:(s.collection || []).length + inc, fragments:s.fragments || 0, kits:s.kits || 0, trainer:s.trainer || '', starter:s.starter || '', badges:Object.keys(s.achieve || {}).length };
+}
+function markMoved(s, now){ s.moved = { at:now || Date.now(), to:CFG.newUrl }; return s; }
+
+// Compact one-line save snapshot for a bug/idea report. Counts and progress only — never the full save.
+function feedbackSaveLine(s){
+  s = s || {};
+  var x = saveSummary(s);
+  var st = s.stats || {};
+  var beaten = (s.ladder && s.ladder.beaten) ? Object.keys(s.ladder.beaten) : [];
+  var pedia = (s.pedia && s.pedia.entries) ? Object.keys(s.pedia.entries).length : 0;
+  var parts = [
+    'schema v' + (s.v != null ? s.v : '?'),
+    x.critters + ' critters',
+    x.starter ? 'starter ' + x.starter : '',
+    x.trainer ? 'trainer ' + x.trainer : '',
+    'crate ' + (s.slots || 0),
+    (x.fragments || 0) + ' Fragments',
+    (x.kits || 0) + ' kits',
+    (st.battles || 0) + ' battles',
+    (st.splices || 0) + ' splices',
+    beaten.length ? 'ladder ' + beaten.join(',') : '',
+    pedia + ' pedia',
+    (x.badges || 0) + ' badges'
+  ];
+  return parts.filter(Boolean).join('; ');
+}
+function encodeMailto(to, subject, body){
+  return 'mailto:' + to + '?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+}
+function trimForMail(s, over){
+  var cut = Math.max(12, Math.ceil(over * 0.8));
+  var keep = String(s || '').length - cut;
+  if (keep < 8) return '';
+  return String(s).slice(0, keep).replace(/[\s.,;:]+$/, '') + '...';
+}
+// Build a mailto: under CFG.mailtoMax (default 1800). Truncates the save line first, then device, then the note.
+function buildFeedback(opts){
+  opts = opts || {};
+  var kind = opts.kind === 'Idea' ? 'Idea' : 'Bug';
+  var version = String(opts.version == null ? '' : opts.version);
+  var build = String(opts.build == null ? '' : opts.build);
+  var to = opts.to || CFG.feedbackTo;
+  var max = opts.max == null ? (CFG.mailtoMax || 1800) : opts.max;
+  var subject = '[Critter Stitcher ' + version + '] ' + kind;
+  var note = String(opts.text || '').replace(/\r\n/g, '\n').trim();
+  var origin = String(opts.origin || '');
+  var ua = String(opts.userAgent || '');
+  var screen = String(opts.screen || '');
+  var sum = opts.save != null ? feedbackSaveLine(opts.save) : '';
+  function bodyOf(n, u, s){
+    var lines = [];
+    if (n) { lines.push(n, ''); }
+    lines.push('---', 'Game: Critter Stitcher ' + version + (build ? ' (build ' + build + ')' : ''));
+    if (origin) lines.push('Origin: ' + origin);
+    if (u) lines.push('Device: ' + u);
+    if (screen) lines.push('Screen: ' + screen);
+    if (s) lines.push('Save: ' + s);
+    return lines.join('\n');
+  }
+  function urlOf(n, u, s){ return encodeMailto(to, subject, bodyOf(n, u, s)); }
+  var n = note, u = ua, s = sum, url = urlOf(n, u, s), guard = 50;
+  while (url.length > max && guard--){
+    var over = url.length - max;
+    if (s.length > 20) s = trimForMail(s, over);
+    else if (u.length > 16) u = trimForMail(u, over);
+    else if (n.length) n = trimForMail(n, over);
+    else break;
+    url = urlOf(n, u, s);
+  }
+  if (url.length > max) { s = ''; url = urlOf(n, u, s); }
+  if (url.length > max) { u = ''; url = urlOf(n, u, s); }
+  if (url.length > max) { n = ''; url = urlOf(n, u, s); }
+  var body = bodyOf(n, u, s);
+  return { to:to, kind:kind, subject:subject, body:body, mailto:url, copy:'To: ' + to + '\nSubject: ' + subject + '\n\n' + body };
+}
+
+
+Object.assign(CS, { MOVE_KEYS:MOVE_KEYS, isOldHost:isOldHost, crc32:crc32, inflateRaw:inflateRaw, packMove:packMove, unpackMove:unpackMove, moveUrl:moveUrl, extractMove:extractMove, hasProgress:hasProgress, saveSummary:saveSummary, markMoved:markMoved, feedbackSaveLine:feedbackSaveLine, buildFeedback:buildFeedback });
+})(CS);
 </script>
 <script id="cs-ui">
 /* ===== Critter Stitcher: UI ===== */
@@ -3504,6 +3762,7 @@ function systemBack(){   // returns true when the game used the Back press
   return false;
 }
 window.addEventListener('popstate', function(){
+  if (/[#&](c|move)=/.test(location.hash)) return;   // v1.2.3: a code/move link opened in this tab is not a Back press (hashchange handles it)
   backTrap.armed = false;
   var used = false; try { used = systemBack(); } catch (e) { used = true; }
   if (used) { backTrap.exitAt = 0; armBackTrap(); return; }
@@ -5216,6 +5475,7 @@ function startFight(opp, critterId, resumeB){
   bt = { opp:opp, idx:opp.idx, cid:critterId, busy:false, result:null, show:{ p:B.p.hp, e:B.e.hp }, a:{ p:sideAnim(), e:sideAnim() }, clock:0, last:0, scale:1, stopUntil:0, parts:[], pose:null, skip:false };
   bt.intro = 0;
   saveBattle();
+  music.forceRestart = true;   // v1.2.3: a new match always starts the battle/boss theme from the top, even if we were already on the battle screen
   go('battle');
   $('btEnemy').innerHTML = ''; $('btMe').innerHTML = '';
   renderBattleBars(); setLog(resumeB ? 'Battle resumed! What will ' + nm('p') + ' do?' : intro);
@@ -5989,6 +6249,7 @@ function scanFile(file){
 
 /* ---------- using a scanned / pasted / linked code ---------- */
 function handleCode(text){
+  if (CS.extractMove(text)) { handleMove(text); return { ok:true, move:true }; }   // v1.2.3: a pasted/scanned save code
   var d = CS.previewCode(S, text, Date.now());
   if (!d.ok) {
     sfx.bad();
@@ -6104,47 +6365,79 @@ function renderStreakCard(){
   $('stGoBtn').onclick = function(){ sfx.tap(); openStreak(); };
 }
 
-/* ---------- music (v1.1.7): original tracks in music/. Home, Lab, Blender, Battle, Boss, plus a Defeat sting on a loss ---------- */
-var MUSIC = { dir:'music/', loop:{ home:true, lab:true, blender:true, battle:true, boss:true, defeat:false } };
-var music = { el:null, cur:null, src:null, gain:null, unlocked:false, override:null, missing:{}, found:{} };
+/* ---------- music (v1.2.3): original tracks in music/. Each theme plays once through, then silence. Home plays home then home2 (percussion-only funk groove at 100 BPM). Battle/boss restart at the start of each match. ---------- */
+var MUSIC = { dir:'music/', loop:{ home:false, home2:false, lab:false, blender:false, battle:false, boss:false, defeat:false }, sequence:{ home:['home', 'home2'] } };
+var music = { el:null, cur:null, src:null, gain:null, unlocked:false, override:null, missing:{}, found:{}, visit:null, done:null, seq:0, forceRestart:false, gen:0 };
 function musicWanted(){
   if (music.override) return music.override;
   if (current === 'battle') return bt && bt.opp && ((bt.opp.kind === 'ladder' && CS.CHALLENGERS[bt.opp.idx] && CS.CHALLENGERS[bt.opp.idx].boss) || (bt.opp.kind === 'event' && bt.opp.boss)) ? 'boss' : 'battle';
   if (current === 'lab') return labTab === 'blender' ? 'blender' : 'lab';
   return 'home';
 }
+function musicVisit(){ return music.override ? 'ovr:' + music.override : musicWanted(); }
+function musicTracks(want){ return (MUSIC.sequence && MUSIC.sequence[want]) || [want]; }
+function musicLabel(n){ return cap(n === 'home2' ? 'home' : n); }
 function stopMusic(){
   if (music.src) { var s0 = music.src, g0 = music.gain; try { if (actx && g0) { g0.gain.setTargetAtTime(0, actx.currentTime, 0.08); s0.stop(actx.currentTime + 0.4); } else s0.stop(); } catch (e) {} }
   if (music.el) { try { music.el.pause(); } catch (e2) {} music.el.onerror = null; music.el = null; }
   music.src = null; music.gain = null; music.cur = null;
 }
-function updateMusic(){
-  var want = musicWanted();
-  if (!vol('music') || !music.unlocked) { stopMusic(); return; }
-  if (music.cur === want && (music.src || music.el)) { applyVolumes(); return; }
-  var path = MUSIC.dir + want + '.mp3', b = aud.buf[path];
+function onTrackEnded(src){
+  if (music.src !== src) return;
+  music.src = null; music.gain = null; music.cur = null;
+  var want = musicWanted(), tracks = musicTracks(want);
+  if (music.visit === musicVisit() && music.seq + 1 < tracks.length) { music.seq++; startTrack(tracks[music.seq]); return; }
+  music.done = music.visit;
+}
+function startTrack(name){
+  var path = MUSIC.dir + name + '.mp3', b = aud.buf[path];
   if (actx && b instanceof AudioBuffer) {
     stopMusic();
     try {
-      var src = actx.createBufferSource(), g = actx.createGain(); src.buffer = b; src.loop = MUSIC.loop[want] !== false;
-      if (src.loop && b._loopEnd > b._loopStart) { src.loopStart = b._loopStart; src.loopEnd = b._loopEnd; }
+      var src = actx.createBufferSource(), g = actx.createGain(); src.buffer = b; src.loop = false;
       g.gain.setValueAtTime(0, actx.currentTime); g.gain.setTargetAtTime(1, actx.currentTime, 0.12);
-      src.connect(g); g.connect(aud.musGain); src.start(0, src.loop && b._loopStart ? b._loopStart : 0);
-      if (!src.loop) src.onended = function(){ if (music.src === src) { music.src = null; music.cur = null; } };
-      music.src = src; music.gain = g; music.cur = want; music.found[want] = path;
+      src.connect(g); g.connect(aud.musGain); src.start(0);
+      src.onended = function(){ onTrackEnded(src); };
+      music.src = src; music.gain = g; music.cur = name; music.found[name] = path;
     } catch (e) {}
-    return;
+    return true;
   }
-  if (b === 'missing') { stopMusic(); music.missing[want] = true; return; }
-  if (actx) { stopMusic(); loadBuf(path); }   // decodes, then calls updateMusic() again
+  if (b === 'missing') { stopMusic(); music.missing[name] = true; music.done = music.visit; return false; }
+  if (actx) { loadBuf(path); }   // decodes, then calls updateMusic() again, which resumes this visit at music.seq
+  return false;
+}
+function updateMusic(){
+  var want = musicWanted(), visit = musicVisit();
+  if (!vol('music') || !music.unlocked) {
+    if (music.visit && music.done !== music.visit) music.seq = 0;   // unmute restarts the current theme from the first track
+    stopMusic(); return;
+  }
+  if (music.forceRestart || music.visit !== visit) {
+    music.forceRestart = false;
+    stopMusic();
+    music.visit = visit; music.done = null; music.seq = 0; music.gen++;
+  } else {
+    if (music.done === visit) { applyVolumes(); return; }
+    if (music.src || music.el) { applyVolumes(); return; }
+    // same visit, not done, not playing: waiting on a decode, or just unmuted
+  }
+  applyVolumes();
+  startTrack(musicTracks(want)[music.seq] || want);
 }
 function musicOverride(name){ music.override = name; updateMusic(); }
+function endMusic(){   // test hook: finish the current track as if it played through
+  var src = music.src; if (!src) return false;
+  try { src.onended = null; src.stop(); } catch (e) {}
+  onTrackEnded(src); return true;
+}
 function musicStatus(){
   var f = Object.keys(music.found);
   if (location.protocol === 'file:') return 'Music and sampled sounds play in the installed / online game.';
-  if (f.length) return 'Now playing: <b>' + esc(music.cur ? cap(music.cur) : 'nothing') + '</b> theme.';
+  if (music.done && music.done === music.visit && !music.cur) return 'Theme played once.';
+  if (f.length) return 'Now playing: <b>' + esc(music.cur ? musicLabel(music.cur) : 'nothing') + '</b> theme.';
   return 'Music starts after your first tap.';
 }
+
 ['pointerdown', 'keydown'].forEach(function(ev){ window.addEventListener(ev, function(){ if (!aud.unlocked) unlockAudio(); }, { capture:true }); });
 
 /* ---------- Critterpedia (v1.1.9 binder of whole critters; screen id stays 'log') ---------- */
@@ -6224,7 +6517,7 @@ function openPediaEntry(e){
 function renderSettings(){
   var el = $('settings');
   var st = S.settings;
-  var h = '<h2>Settings</h2><h3>Trainer</h3><div class="card"><input id="sTrainer" maxlength="16" placeholder="Your trainer name" value="' + esc(S.trainer || '') + '" style="margin:0"><div class="note" style="font-size:12px;margin-top:6px">Shown on the QR codes you share.</div></div>';
+  var h = '<h2>Settings</h2>' + (CS.CFG.moveEnabled && onOldSite ? '<div class="card mv-set"><b>\uD83E\uDDF5 We\u2019ve moved!</b><div class="note" style="font-size:12px;margin:4px 0 8px">' + (S.moved ? 'Your save was sent to the new site. You can send it again any time.' : 'Critter Stitcher has a new home. Bring your critters along.') + '</div><button class="btn block" id="sMove">Move My Save</button></div>' : '') + '<h3>Trainer</h3><div class="card"><input id="sTrainer" maxlength="16" placeholder="Your trainer name" value="' + esc(S.trainer || '') + '" style="margin:0"><div class="note" style="font-size:12px;margin-top:6px">Shown on the QR codes you share.</div></div>';
   h += '<h3>Audio</h3><div class="card"><div class="row" style="justify-content:space-between"><b>\uD83D\uDD07 Mute all</b><button class="btn ' + (st.mute ? 'warn' : 'alt') + '" id="sMute">' + (st.mute ? 'Muted' : 'Off') + '</button></div>' +
     '<div class="row" style="justify-content:space-between;margin-top:12px"><b>Sound effects</b><button class="btn alt" id="sSound">' + (st.sound ? 'On' : 'Off') + '</button></div>' +
     '<div class="vol"><span>Sound volume</span><input type="range" id="sSfxVol" min="0" max="100" value="' + Math.round((st.sfxVol == null ? 0.8 : st.sfxVol) * 100) + '"></div>' +
@@ -6237,8 +6530,9 @@ function renderSettings(){
     '<div class="row" style="justify-content:space-between;margin-top:12px"><div><b>Gene Stack</b> ' + infoBtn('genestack') + '<div class="note" style="font-size:12px">\u201cPlay while you wait\u201d in the Incubator.</div></div><button class="btn alt" id="sGene">' + (st.geneStack !== false ? 'On' : 'Off') + '</button></div>' +
     '<div class="row" style="justify-content:space-between;margin-top:12px"><div><b>Battle speed</b><div class="note" style="font-size:12px">Also on the battle screen.</div></div><button class="btn alt" id="sSpeed">' + (st.battleSpeed === 2 ? '2x' : '1x') + '</button></div>' +
     '<div class="row" style="justify-content:space-between;margin-top:12px"><div><b>Vibration</b><div class="note" style="font-size:12px">Short buzzes for traces, wins, kits and mutations.</div></div><button class="btn alt" id="sVib">' + (st.vibrate !== false ? 'On' : 'Off') + '</button></div>' +
-    '</div><h3>Backup</h3><div class="card"><p class="note">Copy your save code somewhere safe, or paste one to restore.</p><div class="row" style="margin-top:10px"><button class="btn alt" id="sExp" style="flex:1">Export code</button><button class="btn alt" id="sImp" style="flex:1">Restore code</button></div></div>';
-  h += '<h3>Danger zone</h3><button class="btn warn block" id="sReset">Start over</button><p class="note" style="margin-top:14px;font-size:11px;text-align:center">Critter Stitcher &middot; <span id="sVer">' + verLabel() + '</span> &middot; save v' + S.v + '</p>';
+    '</div><h3>Backup</h3><div class="card"><p class="note">Copy your save code somewhere safe, or paste one to restore a save.</p><div class="row" style="margin-top:10px"><button class="btn alt" id="sExp" style="flex:1">Copy save code</button><button class="btn alt" id="sImp" style="flex:1">Paste save code</button></div></div>';
+  h += '<h3>Help</h3><div class="card"><p class="note">Send a bug or an idea to Stitchwire Games. Nothing goes out until you hit send in your mail app.</p><button class="btn alt block" id="sFeedback" style="margin-top:10px">Feedback / Bug Fix</button></div>';
+  h += '<h3>Danger zone</h3><button class="btn warn block" id="sReset">Start over</button><p class="note" style="margin-top:14px;font-size:11px;text-align:center">Critter Stitcher <span class="by-sw">by ' + CS.CFG.studio + '</span> &middot; <span id="sVer">' + verLabel() + '</span> &middot; save v' + S.v + '</p>';
   el.innerHTML = h;
   $('sSwipe').onclick = function(){ S.settings.swipe = S.settings.swipe === false; save(); sfx.tap(); renderSettings(); };
   $('sGene').onclick = function(){ S.settings.geneStack = S.settings.geneStack === false; save(); sfx.tap(); renderSettings(); };
@@ -6253,12 +6547,10 @@ function renderSettings(){
   $('sMusVol').oninput = function(){ S.settings.musicVol = this.value / 100; S.settings.musicVolSet = true; applyVolumes(); updateMusic(); };
   $('sMusVol').onchange = function(){ save(); };
   if ($('sTest')) $('sTest').onclick = function(){ S.settings.test = !S.settings.test; save(); renderSettings(); updateHeader(); };
-  $('sExp').onclick = function(){ var code = btoa(unescape(encodeURIComponent(CS.serialize(S)))); modal('<div style="font-weight:900">Your save code</div><textarea readonly id="expTa">' + code + '</textarea><button class="btn block" id="expOk">Done</button>'); $('expTa').select(); $('expOk').onclick = closeModal; };
-  $('sImp').onclick = function(){
-    modal('<div style="font-weight:900">Paste a save code</div><textarea id="impTa"></textarea><div class="row"><button class="btn alt" id="impNo" style="flex:1">Cancel</button><button class="btn" id="impOk" style="flex:1">Restore</button></div>');
-    $('impNo').onclick = closeModal;
-    $('impOk').onclick = function(){ var s = null; try { s = CS.deserialize(decodeURIComponent(escape(atob($('impTa').value.trim())))); } catch (e) {} if (!s) { toast('That code does not look right.'); return; } S = s; save(); closeModal(); boot(); toast('Save restored!'); };
-  };
+  $('sExp').onclick = function(){ sfx.tap(); openCopyCode(); };
+  $('sImp').onclick = function(){ sfx.tap(); openPasteSave(); };
+  if ($('sMove')) $('sMove').onclick = function(){ sfx.tap(); openMovedCard(true); };
+  $('sFeedback').onclick = function(){ sfx.tap(); openFeedback(); };
   $('sReset').onclick = function(){
     modal('<div style="font-weight:900;font-size:18px">Start over?</div><p class="note" style="margin:8px 0 12px">This erases every critter, sample, and Fragment on this phone.</p><div class="row"><button class="btn alt" id="rsNo" style="flex:1">Cancel</button><button class="btn warn" id="rsYes" style="flex:1">Erase</button></div>');
     $('rsNo').onclick = closeModal;
@@ -6348,14 +6640,21 @@ window.addEventListener('resize', function(){ if (current === 'home') setupHabit
 document.addEventListener('visibilitychange', function(){ if (!document.hidden) { tick(); if (current === 'lab') renderLab(); } });
 
 // A code that arrives as a link (https://host/#c=CODE) is imported once, then removed from the address bar.
-var linkCode = null;
+var linkCode = null, moveCode = null;
+// v1.2.3: a moved save arrives as NEW + '#move=CODE'. Taken off the address bar right away so a reload never imports it twice.
+function takeMoveCode(){
+  var m = location.hash.match(/[#&]move=([A-Za-z0-9_-]+)/); if (!m) return null;
+  try { window.history.replaceState(window.history.state, '', location.pathname + location.search); } catch (e) {}
+  return m[1];
+}
+moveCode = CS.CFG.moveEnabled ? takeMoveCode() : null;
 function takeLinkCode(){
   var m = location.hash.match(/[#&]c=([A-Za-z0-9_-]+)/); if (!m) return null;
   try { window.history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
   return m[1];
 }
 linkCode = takeLinkCode();
-window.addEventListener('hashchange', function(){ var c = takeLinkCode(); if (c) handleCode(c); });
+window.addEventListener('hashchange', function(){ if (CS.CFG.moveEnabled) { var mv = takeMoveCode(); if (mv) { handleMove(mv); return; } } var c = takeLinkCode(); if (c) handleCode(c); });
 function boot(){
   if (S.pendingTestDNA) { CS.grantTestDNA(S); delete S.pendingTestDNA; }
   save(); history = [];
@@ -6367,14 +6666,168 @@ function boot(){
     if (rb) { var ab = S.activeBattle; history = ['home']; startFight(ab.kind === 'code' ? { kind:'code', code:ab.code } : ab.kind === 'event' ? { kind:'event', key:ab.idx } : { kind:'ladder', idx:ab.idx }, ab.cid, rb); }
     else { S.activeBattle = null; save(); }
   }
+  var hadLink = !!linkCode;
   if (linkCode) { var lc = linkCode; linkCode = null; setTimeout(function(){ handleCode(lc); }, 250); }
+  if (CS.CFG.moveEnabled && moveCode) { var mc = moveCode; moveCode = null; setTimeout(function(){ handleMove(mc); }, 300); }
+  else if (CS.CFG.moveEnabled && onOldSite && !hadLink && !movedCardShown && !S.moved && !S.activeBattle && params.get('sheet') !== '1') { movedCardShown = true; setTimeout(function(){ if (current !== 'battle' && !rv) openMovedCard(); }, 450); }
+}
+
+/* ---------- v1.2.3: save import + (dormant) "We've moved" card ---------- */
+// The move card and automatic #move= import only run when CS.CFG.moveEnabled is true (postponed to v1.3.0).
+// The OLD site is detected by its hostname. Tests on 127.0.0.1/localhost may pretend with ?forcehost=old (ignored anywhere else).
+var isLocalHost = /^(127\.0\.0\.1|localhost)$/.test(location.hostname);
+var onOldSite = CS.isOldHost(location.hostname) || (isLocalHost && params.get('forcehost') === 'old');
+var movedCardShown = false, moveBusy = false;
+function swBadge(){ return '<div class="sw-badge"><svg viewBox="0 0 9 9" shape-rendering="crispEdges" aria-hidden="true"><path fill="#49d3ff" d="M0 4h9v1H0z"/><path fill="#7cff6b" d="M1 2h1v1H1zM3 6h1v1H3zM5 2h1v1H5zM7 6h1v1H7z"/></svg>' + esc(CS.CFG.studio) + '</div>'; }
+function newAddr(){ return CS.CFG.newUrl.replace(/^https:\/\//, ''); }
+function openMovedCard(fromSettings){
+  var prog = CS.hasProgress(S);
+  modal('<div class="moved-card" id="movedCard">' + swBadge() +
+    '<div class="mv-title">We\u2019ve moved! \uD83C\uDF89</div>' +
+    '<p class="note" style="margin:6px 0 10px">Critter Stitcher has a new home with <b>' + esc(CS.CFG.studio) + '</b>. Same game, new address:</p>' +
+    '<div class="mv-addr">' + esc(newAddr()) + '</div>' +
+    (prog ? '<p class="note" style="margin:10px 0 12px">Tap <b>Move My Save</b> and the new site opens with all your critters, Fragments and progress. Your save here stays put as a backup.</p>'
+          : '<p class="note" style="margin:10px 0 12px">Start your adventure on the new site so your critters live there.</p>') +
+    '<button class="btn block mv-go" id="mvGo">' + (prog ? 'Move My Save' : 'Go to the new site') + '</button>' +
+    '<div class="row" style="margin-top:8px">' + (prog ? '<button class="btn alt" id="mvCopy" style="flex:1">Copy save code</button>' : '') + '<button class="btn alt" id="mvLater" style="flex:1">Later</button></div>' +
+    '</div>');
+  $('mvLater').onclick = function(){ sfx.tap(); closeModal(); };
+  if ($('mvCopy')) $('mvCopy').onclick = function(){ sfx.tap(); openCopyCode(true); };
+  $('mvGo').onclick = function(){ sfx.tap(); if (prog) moveMySave(); else window.location.assign(CS.CFG.newUrl); };
+}
+function moveMySave(){
+  if (moveBusy) return; moveBusy = true;
+  var b = $('mvGo'); if (b) { b.disabled = true; b.textContent = 'Packing your save\u2026'; }
+  save();
+  CS.packMove(storage, { from:location.hostname }).then(function(r){
+    moveBusy = false;
+    var url = CS.moveUrl(r.code);
+    CS.markMoved(S, Date.now()); save();   // flag only: the save here is kept as a backup
+    CSApp.lastMoveUrl = url;
+    if (window.CS_NO_NAV) return;          // tests read CSApp.lastMoveUrl instead of leaving the page
+    try { window.location.assign(url); } catch (e) { openCopyCode(true); }
+  }).catch(function(){ moveBusy = false; openCopyCode(true, 'Couldn\u2019t open the new site from here.'); });
+}
+function copyText(t){
+  if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(t).then(function(){ return true; }, function(){ return false; });
+  return Promise.resolve(false);
+}
+// Shows the save code to copy (works from any site). From the moved card it also explains where to paste it.
+function openCopyCode(moving, why){
+  modal('<div style="font-weight:900;font-size:18px">Your save code</div><p class="note" style="margin:6px 0">Packing&hellip;</p>');
+  save();
+  CS.packMove(storage, { from:location.hostname }).then(function(r){
+    modal('<div style="font-weight:900;font-size:18px">Your save code</div>' + (why ? '<p class="note" style="margin:6px 0">' + esc(why) + '</p>' : '') +
+      '<p class="note" style="margin:6px 0">' + (moving ? 'Copy this code, open <b>' + esc(newAddr()) + '</b>, then go to Settings &rsaquo; Paste save code.' : 'Keep it somewhere safe. Paste it under Settings &rsaquo; Paste save code to restore.') + '</p>' +
+      '<textarea readonly id="expTa" style="height:110px">' + r.code + '</textarea><div class="note" style="font-size:11px;margin:-2px 0 8px">' + (r.code.length / 1024).toFixed(1) + ' KB</div>' +
+      '<div class="row"><button class="btn alt" id="expOk" style="flex:1">Done</button><button class="btn" id="expCopy" style="flex:1">Copy</button></div>');
+    $('expTa').select();
+    $('expOk').onclick = closeModal;
+    $('expCopy').onclick = function(){ var ta = $('expTa'); ta.select(); copyText(r.code).then(function(ok){ if (!ok) { try { ok = document.execCommand('copy'); } catch (e) {} } toast(ok ? 'Save code copied!' : 'Press and hold the code to copy it.'); }); };
+  }).catch(function(){ modal('<div style="font-weight:900">Couldn\u2019t make a save code</div><button class="btn block" id="expOk">OK</button>'); $('expOk').onclick = closeModal; });
+}
+function openPasteSave(){
+  modal('<div style="font-weight:900;font-size:18px">Paste save code</div><p class="note" style="margin:6px 0">Paste a save code or a backup link.</p><textarea id="impTa" placeholder="M1&hellip;"></textarea><div class="row"><button class="btn alt" id="impNo" style="flex:1">Cancel</button><button class="btn" id="impOk" style="flex:1">Restore</button></div>');
+  $('impNo').onclick = closeModal;
+  $('impOk').onclick = function(){
+    var t = $('impTa').value.trim();
+    if (CS.extractMove(t)) { handleMove(t); return; }
+    var s = null; try { s = CS.deserialize(decodeURIComponent(escape(atob(t)))); } catch (e) {}   // pre-1.2.3 backup codes still work
+    if (!s) { toast('That code does not look right.'); return; }
+    delete s.moved; offerImport({ ok:true, save:s });
+  };
+}
+function moveFailed(r){
+  sfx.bad();
+  modal('<div style="font-weight:900;font-size:18px">That save didn\u2019t come through</div><p class="note" style="margin:8px 0">' + esc(r.reason) + '</p>' +
+    '<p class="note" style="margin:0 0 12px">Nothing was changed. ' + (CS.CFG.moveEnabled ? 'On the old site, open Settings &rsaquo; Copy save code, then paste it here under Settings &rsaquo; Paste save code.' : 'Open Settings &rsaquo; Copy save code, then paste it here under Settings &rsaquo; Paste save code.') + '</p><button class="btn block" id="mvErrOk">OK</button>');
+  $('mvErrOk').onclick = closeModal;
+}
+function handleMove(text){
+  return CS.unpackMove(text).then(function(r){ if (!r.ok) { moveFailed(r); return r; } offerImport(r); return r; });
+}
+function sumLine(s){
+  var x = CS.saveSummary(s);
+  return '<b>' + x.critters + '</b> critter' + (x.critters === 1 ? '' : 's') + ' &middot; <b>' + x.fragments + '</b> Fragments' + (x.trainer ? ' &middot; ' + esc(x.trainer) : '');
+}
+function offerImport(r){
+  if (!CS.hasProgress(S)) { applyImport(r.save); return; }
+  modal('<div style="font-weight:900;font-size:18px" id="mvAsk">' + (CS.CFG.moveEnabled ? 'Replace this save with your moved save?' : 'Replace this save with the pasted save?') + '</div>' +
+    '<div class="mv-cmp"><div><small>On this phone now</small><div>' + sumLine(S) + '</div></div><div class="mv-in"><small>Moved save</small><div>' + sumLine(r.save) + '</div></div></div>' +
+    '<p class="note" style="margin:0 0 12px;font-size:12px">Replacing erases the save that\u2019s here now.</p>' +
+    '<div class="row"><button class="btn alt" id="mvKeep" style="flex:1">Keep this one</button><button class="btn" id="mvReplace" style="flex:1">Replace</button></div>');
+  $('mvKeep').onclick = function(){ sfx.tap(); closeModal(); toast('Kept the save on this phone.'); };
+  $('mvReplace').onclick = function(){ applyImport(r.save); };
+}
+function applyImport(s){
+  delete s.moved;
+  S = s; save(); closeModal(); $('alert').classList.remove('on');
+  boot();
+  sfx.good();
+  setTimeout(function(){ toast(CS.CFG.moveEnabled ? '\uD83C\uDF89 Your save moved in! Welcome to ' + CS.CFG.studio + '.' : 'Save restored!', 3200); }, 200);
+}
+
+/* ---------- v1.2.3: Feedback / Bug Fix (mailto, no server) ---------- */
+function feedbackScreen(){
+  var w = window.innerWidth || 0, h = window.innerHeight || 0, dpr = window.devicePixelRatio || 1;
+  return w + 'x' + h + ' @' + dpr + 'x';
+}
+function openFeedback(){
+  var kind = 'Bug';
+  function paintKind(){
+    if ($('fbBug')) $('fbBug').className = 'tab' + (kind === 'Bug' ? ' on' : '');
+    if ($('fbIdea')) $('fbIdea').className = 'tab' + (kind === 'Idea' ? ' on' : '');
+  }
+  function report(){
+    return CS.buildFeedback({
+      kind:kind,
+      text:$('fbText') ? $('fbText').value : '',
+      version:APP_VERSION,
+      build:APP_BUILD,
+      save:S,
+      origin:location.origin + location.pathname,
+      userAgent:navigator.userAgent || '',
+      screen:feedbackScreen()
+    });
+  }
+  modal('<div id="fbCard">' +
+    '<div style="font-weight:900;font-size:18px">Feedback / Bug Fix</div>' +
+    '<p class="note" style="margin:6px 0 10px">Pick Bug or Idea, add a short note if you like, then send. Your mail app opens with a report for <b>' + esc(CS.CFG.feedbackTo) + '</b>. Nothing is sent until you hit send there.</p>' +
+    '<div class="fb-kinds"><button class="tab on" id="fbBug" type="button">Bug</button><button class="tab" id="fbIdea" type="button">Idea</button></div>' +
+    '<textarea id="fbText" class="fb-text" maxlength="400" placeholder="What happened? (optional)"></textarea>' +
+    '<div class="row"><button class="btn alt" id="fbCancel" style="flex:1">Cancel</button><button class="btn" id="fbSend" style="flex:1">Send</button></div>' +
+    '<button class="btn alt block" id="fbCopy" style="margin-top:8px">Copy report</button>' +
+    '</div>');
+  paintKind();
+  $('fbBug').onclick = function(){ kind = 'Bug'; sfx.tap(); paintKind(); };
+  $('fbIdea').onclick = function(){ kind = 'Idea'; sfx.tap(); paintKind(); };
+  $('fbCancel').onclick = function(){ sfx.tap(); closeModal(); };
+  $('fbSend').onclick = function(){
+    sfx.tap();
+    var r = report();
+    CSApp.lastMailto = r.mailto;
+    if (window.CS_NO_NAV) return;
+    try { window.location.href = r.mailto; }
+    catch (e) { toast('Couldn\u2019t open a mail app. Use Copy report instead.'); }
+  };
+  $('fbCopy').onclick = function(){
+    sfx.tap();
+    var r = report();
+    var ta = $('fbClip');
+    if (!ta) { ta = document.createElement('textarea'); ta.id = 'fbClip'; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;left:-9999px;height:1px;'; $('fbCard').appendChild(ta); }
+    ta.value = r.copy; ta.select();
+    copyText(r.copy).then(function(ok){
+      if (!ok) { try { ok = document.execCommand('copy'); } catch (e) {} }
+      toast(ok ? 'Report copied!' : 'Couldn\u2019t copy. Use Send if you have a mail app.');
+    });
+  };
 }
 
 /* ---------- version + updates (installed PWA) ---------- */
 // The page checks version.json (never cached) on launch and whenever the app comes back to the front. If a newer build
 // is live it reloads once, unless a battle or dialog is open; then it shows a tap-to-reload bar. A sessionStorage flag
 // makes sure it never auto-reloads twice for the same build, so a stale copy can't cause a reload loop.
-var APP_VERSION = '1.2.2', APP_BUILD = '95cb9002be';
+var APP_VERSION = '1.2.3', APP_BUILD = '6b74c1b68c';
 function verLabel(){ return 'v' + APP_VERSION + ' \u00b7 build ' + APP_BUILD; }
 var upd = { reg:null, hadController:false, pending:null, timer:null, go:null };
 function updateSafeNow(){ return !S.activeBattle && current !== 'battle' && !rv && !$('blendAnim') && !$('modal').classList.contains('on'); }
@@ -6419,14 +6872,14 @@ armBackTrap();
 setupUpdates();
 requestAnimationFrame(loop);
 // hooks for automated screenshots/tests
-window.CSApp = { get state(){ return S; }, set state(v){ S = v; }, save:save, go:go, boot:boot, startReveal:startReveal,
+window.CSApp = { openMovedCard:openMovedCard, moveMySave:moveMySave, handleMove:handleMove, openPasteSave:openPasteSave, openCopyCode:openCopyCode, openFeedback:openFeedback, get onOldSite(){ return onOldSite; }, lastMoveUrl:null, lastMailto:null, get state(){ return S; }, set state(v){ S = v; }, save:save, go:go, boot:boot, startReveal:startReveal,
   freezeReveal:function(ms){ if (rv) { rv.freezeAt = ms; if (ms >= rv.tl.out) { rv.phase = 'out'; revealFlash(); } if (ms >= rv.tl.card) { rv.phase = 'card'; showRevealCard(); } } }, hatchTimeline:function(r, rm){ return hatchTimeline({ rarity:r }, !!rm); },
   startBattle:startBattle, openPick:openPick, openKits:openKits, get battle(){ return B; },
   startFight:startFight, openPickCode:openPickCode, openPickEvent:openPickEvent, setEventDate:function(v){ var r = setEventDate(v); if (current === 'ladder') renderLadder(); if (current === 'home') updateBadges(); return r; }, evNow:evNow, setLadderTab:function(t){ ladderTab = t; }, handleCode:handleCode, openShare:openShare, openStreak:openStreak, openGift:openGift, drawQR:drawQR,
-  get music(){ return { unlocked:music.unlocked, cur:music.cur, missing:Object.keys(music.missing), found:music.found }; }, get scanEngine(){ return scan.engine; },
+  get music(){ return { unlocked:music.unlocked, cur:music.cur, missing:Object.keys(music.missing), found:music.found, visit:music.visit, done:music.done, seq:music.seq, gen:music.gen, loop:!!(music.src && music.src.loop) }; }, endMusic:endMusic, get scanEngine(){ return scan.engine; },
   setSplice:function(sel){ spliceSel = sel; labTab = 'incubator'; spliceJump = true; }, setLabTab:function(t){ labTab = t; }, openDetail:function(id){ detailId = id; go('detail'); }, crateSpot:crateSpot, freezeCrate:function(on, spread){ hab.critters.forEach(function(h){ h.pause = on ? 1e9 : 0; if (spread) h.x = h.home; }); },
   openBattlePlayer:openBattlePlayer, openInvite:openInvite, openMutationDiff:openMutationDiff, shareCritterImage:shareCritterImage, critterCardCanvas:critterCardCanvas,
-  get gs(){ return gs ? { idx:gs.idx, strands:gs.strands, over:gs.over, piece:gs.piece && { name:gs.piece.name, x:gs.piece.x, y:gs.piece.y, el:gs.piece.el, cells:gs.piece.cells }, grid:gs.grid, fast:!!gs.fast } : null; }, gsStart:gsStart, gsEnd:gsEnd, gsMove:gsMove, gsRotate:gsRotate, gsDrop:gsDrop, gsSetGrid:function(fn){ if (gs) fn(gs.grid, gs); }, scoreSwipe:scoreSwipe, swipePath:swipePath, get kitHaul(){ return kitHaul; }, get bt(){ return bt; }, get reveal(){ return rv; }, toast:toast, get toastState(){ return { cur:toastCur && toastCur.msg, queue:toastQ.map(function(x){ return x.msg; }) }; }, get crowded(){ return !!hab.crowded; }, openHeal:openHeal, systemBack:systemBack, openForfeit:openForfeit, openInfo:openInfo, get inviteUrl(){ return mpInv.url; }, openCrateLooks:openCrateLooks, get crateLook(){ return CS.currentCrateLook(S).id; }, get crateSpots(){ return (hab.lay ? hab.lay.spots : []).map(function(x){ return { state:x.state, lane:x.lane, cx:x.cx, feet:x.feet, sc:x.sc }; }); }, get audio(){ return { unlocked:aud.unlocked, sfx:Object.keys(aud.buf).filter(function(k){ return aud.buf[k] instanceof AudioBuffer; }), cur:music.cur, override:music.override }; } };
+  get gs(){ return gs ? { idx:gs.idx, strands:gs.strands, over:gs.over, piece:gs.piece && { name:gs.piece.name, x:gs.piece.x, y:gs.piece.y, el:gs.piece.el, cells:gs.piece.cells }, grid:gs.grid, fast:!!gs.fast } : null; }, gsStart:gsStart, gsEnd:gsEnd, gsMove:gsMove, gsRotate:gsRotate, gsDrop:gsDrop, gsSetGrid:function(fn){ if (gs) fn(gs.grid, gs); }, scoreSwipe:scoreSwipe, swipePath:swipePath, get kitHaul(){ return kitHaul; }, get bt(){ return bt; }, get reveal(){ return rv; }, toast:toast, get toastState(){ return { cur:toastCur && toastCur.msg, queue:toastQ.map(function(x){ return x.msg; }) }; }, get crowded(){ return !!hab.crowded; }, openHeal:openHeal, systemBack:systemBack, openForfeit:openForfeit, openInfo:openInfo, get inviteUrl(){ return mpInv.url; }, openCrateLooks:openCrateLooks, get crateLook(){ return CS.currentCrateLook(S).id; }, get crateSpots(){ return (hab.lay ? hab.lay.spots : []).map(function(x){ return { state:x.state, lane:x.lane, cx:x.cx, feet:x.feet, sc:x.sc }; }); }, get audio(){ return { unlocked:aud.unlocked, sfx:Object.keys(aud.buf).filter(function(k){ return aud.buf[k] instanceof AudioBuffer; }), cur:music.cur, override:music.override, visit:music.visit, done:music.done, seq:music.seq, gen:music.gen, loop:!!(music.src && music.src.loop) }; } };
 })();
 </script>
 </body>
